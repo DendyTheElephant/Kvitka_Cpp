@@ -26,6 +26,16 @@ CRenderingCore::CRenderingCore()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    const char* FramebufferVertexShaderSource = R"(#version 460 core
+    layout (location = 0) in vec3 pos;
+    layout (location = 1) in vec2 uvs;
+    out vec2 UVs;
+    void main()
+    {
+        gl_Position = vec4(2.0 * pos.x, 2.0* pos.y, 2.0*pos.z, 1.000);
+        UVs = uvs;
+    })";
+
     m_pMainWindow = glfwCreateWindow(800, 600, "Kvitka - V0.00.01", NULL, NULL);
     if (m_pMainWindow == nullptr)
     {
