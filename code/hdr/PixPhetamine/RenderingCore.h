@@ -18,14 +18,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 /* Internal headers includes */
-// #include "HInternalTypesAliases.h"
-// #include "HConstants.h"
 // #include "CStaticMesh.h"
 // #include "CShader.h"
-// #include "CInputHandler.h"
 // #include "CCamera.h"
-// #include "CTimer.h"
-// #include "LowLevelRenderingWrapper.h"
 // #include "UErrorHandler.h"
 // #include "Display.h"
 // #include "CFrameBuffer.h"

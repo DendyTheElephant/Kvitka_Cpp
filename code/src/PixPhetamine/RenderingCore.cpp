@@ -2,10 +2,6 @@
 
 #include <iostream>
 
-// void CRenderingCore::_FramebufferSizeCallback(GLFWwindow* window, int width, int height)
-// {
-//     glViewport(0, 0, width, height);
-// }
 namespace PixPhetamine
 {
 
@@ -116,14 +112,14 @@ CRenderingCore::CRenderingCore()
 
     std::cout << "Loading Shaders" << std::endl;
     _LoadShaders();
-    std::cout << "Loading Shaders [COMPLETE]";
+    std::cout << "Loading Shaders [COMPLETE]" << std::endl;
 
     //STACK_MESSAGE("Checking OpenGL errors");
     //Utility::UErrorHandler::checkOpenGLErrors();
 
-    std::cout << "Loading Meshes";
+    std::cout << "Loading Meshes" << std::endl;
     _LoadMeshes();
-    std::cout << "Loading Meshes [COMPLETE]";
+    std::cout << "Loading Meshes [COMPLETE]" << std::endl;
 
     //std::cout << "Checking OpenGL errors";
     //Utility::UErrorHandler::checkOpenGLErrors();
