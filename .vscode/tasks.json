@@ -7,10 +7,11 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "-std=c++11",
                 "-I${workspaceFolder}/include",
+                "-I${workspaceFolder}/code/hdr",
                 "-L${workspaceFolder}/lib",
-                "${workspaceFolder}/src/*.cpp",
+                "${workspaceFolder}/code/src/*.cpp",
+                "${workspaceFolder}/code/src/PixPhetamine/*.cpp",
                 "${workspaceFolder}/include/glad.c",
                 "-lglfw3dll",
                 "-o",
