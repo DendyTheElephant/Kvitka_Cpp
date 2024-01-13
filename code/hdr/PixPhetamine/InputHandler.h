@@ -18,8 +18,8 @@ private:
     void _UpdateGamepads();
 
 public:
-
     CInputHandler(GLFWwindow* pGLFWindow);
+    ~CInputHandler();
 
     void UpdateInputs();
 };

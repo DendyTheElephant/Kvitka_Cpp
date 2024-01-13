@@ -1,11 +1,9 @@
 #include "PixPhetamine/RenderingCore.h"
+#include "DendyCommon/Logger.h"
 
 #include <iostream>
 
-namespace PixPhetamine
-{
-
-CRenderingCore::CRenderingCore()
+PixPhetamine::CRenderingCore::CRenderingCore()
 {
     // GLFW
     if (!glfwInit())
@@ -54,6 +52,13 @@ CRenderingCore::CRenderingCore()
     // Init InputHandler
     m_pInputHandler = new CInputHandler(m_pMainWindow);
 
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+    LOG_ERROR("My error here!");
+
+    LOG_CRITICAL_ERROR("I can get no, satisfaction");
+    
+    
     
     glViewport(0, 0, 800, 600);
     //glfwSetFramebufferSizeCallback(pMainWindow, _FramebufferSizeCallback);
@@ -198,7 +203,7 @@ CRenderingCore::CRenderingCore()
     // Utility::UErrorHandler::checkOpenGLErrors();
 }
 
-CRenderingCore::~CRenderingCore()
+PixPhetamine::CRenderingCore::~CRenderingCore()
 {
     //PixPhetamine::Display::shutdownSDL_GL(m_SDLWindow, m_GLContext);
 
@@ -215,7 +220,7 @@ CRenderingCore::~CRenderingCore()
     glfwTerminate();
 }
 
-void CRenderingCore::_LoadShaders()
+void PixPhetamine::CRenderingCore::_LoadShaders()
 {
     // for (auto const &it_shaderName : m_ShaderNames) {
     //     std::string vertexShader = PIX::SHADERS_FOLDER + it_shaderName + PIX::SHADER_VERTEX_EXTENSION;
@@ -224,7 +229,7 @@ void CRenderingCore::_LoadShaders()
     // }
 }
 
-void CRenderingCore::_ReloadShaders()
+void PixPhetamine::CRenderingCore::_ReloadShaders()
 {
     // STACK_TRACE;
     // for (auto const &it_shaderName : m_ShaderNames) {
@@ -233,7 +238,7 @@ void CRenderingCore::_ReloadShaders()
     // UNSTACK_TRACE;
 }
 
-void CRenderingCore::_LoadMeshes()
+void PixPhetamine::CRenderingCore::_LoadMeshes()
 {
     // STACK_TRACE;
     // for (auto const &it_meshName : m_MeshNames) {
@@ -248,7 +253,7 @@ void CRenderingCore::_LoadMeshes()
 
 
 
-void CRenderingCore::RunGameLoop()
+void PixPhetamine::CRenderingCore::RunGameLoop()
 {
 
     m_IsRunning = true;
@@ -469,4 +474,35 @@ void CRenderingCore::RunGameLoop()
 //     } while (m_InputHandler->isQuit() == false);
 }
 
+void PixPhetamine::CRenderingCore::AssertOpenGLErrors()
+{
+	GLenum status = glGetError();
+	if (status != GL_NO_ERROR) {
+		switch (status) {
+		case GL_INVALID_ENUM:
+			//ERROR("OpenGL error: GL_INVALID_ENUM");
+			break;
+		case GL_INVALID_OPERATION:
+			//ERROR("OpenGL error: GL_INVALID_OPERATION");
+			break;
+		case GL_INVALID_VALUE:
+			//ERROR("OpenGL error: GL_INVALID_VALUE");
+			break;
+		case GL_STACK_OVERFLOW:
+			//ERROR("OpenGL error: GL_STACK_OVERFLOW");
+			break;
+		case GL_STACK_UNDERFLOW:
+			//ERROR("OpenGL error: GL_STACK_UNDERFLOW");
+			break;
+		case GL_OUT_OF_MEMORY:
+			//ERROR("OpenGL error: GL_OUT_OF_MEMORY");
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			//ERROR("OpenGL error: GL_INVALID_FRAMEBUFFER_OPERATION");
+			break;
+		default:
+			//ERROR("OpenGL error: Unknown error!");
+			break;
+		}
+	}
 }

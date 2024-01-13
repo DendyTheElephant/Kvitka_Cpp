@@ -3,7 +3,7 @@
 void DendyCommon::CTimer::_UpdateElapsedTicks()
 {
     if ( m_IsHighPerformanceClockIsSteady )
-        m_ElapsedTicks += std::chrono::high_resolution_clock::now() - m_StartTicks;
+        m_ElapsedTicks += std::chrono::high_resolution_clock::now() - m_StartTicksHiRes;
     else
         m_ElapsedTicks += std::chrono::steady_clock::now() - m_StartTicks;
     _UpdateStartTicks();
@@ -12,7 +12,7 @@ void DendyCommon::CTimer::_UpdateElapsedTicks()
 void DendyCommon::CTimer::_UpdateStartTicks()
 {
     if ( m_IsHighPerformanceClockIsSteady )
-        m_StartTicks = std::chrono::high_resolution_clock::now();
+        m_StartTicksHiRes = std::chrono::high_resolution_clock::now();
     else
         m_StartTicks = std::chrono::steady_clock::now();
 }

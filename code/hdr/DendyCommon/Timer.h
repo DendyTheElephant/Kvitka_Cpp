@@ -9,6 +9,7 @@ class CTimer
 {
 private:
     std::chrono::time_point<std::chrono::steady_clock> m_StartTicks; ///< Initial ticks
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTicksHiRes; ///< Initial ticks
     std::chrono::duration<double> m_ElapsedTicks; ///< Cumuled ticks between starts and pauses
     bool m_IsPaused{ false }; ///< Status in pause
     bool m_IsHighPerformanceClockIsSteady{ false }; ///< Depending on the platform, use highest precision clock if it is consistent or basic consistent clock

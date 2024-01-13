@@ -85,6 +85,8 @@ public:
     CRenderingCore();
     ~CRenderingCore();
 
+    void AssertOpenGLErrors();
+
     void RunGameLoop();
 };
 

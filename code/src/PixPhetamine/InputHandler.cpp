@@ -87,6 +87,11 @@ PixPhetamine::CInputHandler::CInputHandler(GLFWwindow* pGLFWindow)
     // });
 }
 
+PixPhetamine::CInputHandler::~CInputHandler()
+{
+    
+}
+
 #include <algorithm>
 void PixPhetamine::CInputHandler::_UpdateGamepads()
 {
