@@ -1,5 +1,0 @@
-I can get no, satisfaction
-	File[G:\DyCode\Kvitka_Cpp/code/src/PixPhetamine/RenderingCore.cpp]:Line[56]
-Function[PixPhetamine::CRenderingCore::CRenderingCore()]
-	File[G:\DyCode\Kvitka_Cpp/code/src/PixPhetamine/RenderingCore.cpp]:Line[55]
-Function[PixPhetamine::CRenderingCore::CRenderingCore()]

@@ -20,7 +20,8 @@ int main()
     pLogger->SetOutputFile("G:\\DyCode\\Kvitka_Cpp\\LogError.txt");
 
 
-    PixPhetamine::CRenderingCore* pRenderingEngine = new PixPhetamine::CRenderingCore();
+    bool IsInDebug = true;
+    PixPhetamine::CRenderingCore* pRenderingEngine = new PixPhetamine::CRenderingCore(IsInDebug);
 
 	pRenderingEngine->RunGameLoop();
 

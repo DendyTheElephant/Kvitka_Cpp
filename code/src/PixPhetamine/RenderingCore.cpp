@@ -3,15 +3,15 @@
 
 #include <iostream>
 
-PixPhetamine::CRenderingCore::CRenderingCore()
+PixPhetamine::CRenderingCore::CRenderingCore(bool isInDebugState):
+m_IsInDebugState(isInDebugState)
 {
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
     // GLFW
     if (!glfwInit())
     {
-        std::cout << "Failed to initialize GLFW" << std::endl;
-        m_ErrorMessagesVec.push_back("Failed to initialize GLFW");
-        m_IsErrorOccured = true;
-        return;
+        LOG_CRITICAL_ERROR("Failed to initialize GLFW");
     }
 
     // OpenGL
@@ -33,33 +33,16 @@ PixPhetamine::CRenderingCore::CRenderingCore()
     m_pMainWindow = glfwCreateWindow(800, 600, "Kvitka - V0.00.01", NULL, NULL);
     if (m_pMainWindow == nullptr)
     {
-        std::cout << "Failed to open GLFW window" << std::endl;
-        m_ErrorMessagesVec.push_back("Failed to open GLFW window");
-        m_IsErrorOccured = true;
-        return;
+        LOG_CRITICAL_ERROR("Failed to open GLFW window");
     }
     glfwMakeContextCurrent(m_pMainWindow);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        m_ErrorMessagesVec.push_back("Failed to initialize GLAD");
-        m_IsErrorOccured = true;
-        return;
+        LOG_CRITICAL_ERROR("Failed to initialize GL with Glad");
     }
 
 
-    // Init InputHandler
-    m_pInputHandler = new CInputHandler(m_pMainWindow);
-
-    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
-    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
-    LOG_ERROR("My error here!");
-
-    LOG_CRITICAL_ERROR("I can get no, satisfaction");
-    
-    
-    
     glViewport(0, 0, 800, 600);
     //glfwSetFramebufferSizeCallback(pMainWindow, _FramebufferSizeCallback);
 
@@ -93,7 +76,9 @@ PixPhetamine::CRenderingCore::CRenderingCore()
     std::cerr << "     Max texture image units: " << uboBindings << std::endl;
     std::cerr << "----------------------------------------------------------------" << std::endl;
 
-    // m_InputHandler = new Utility::CInputHandler(m_SDLWindow);
+
+    // Init InputHandler
+    m_pInputHandler = new CInputHandler(m_pMainWindow);
     // m_Camera = new PixPhetamine::CCamera(m_SDLWindow);
 
     /* ============================================== */
@@ -119,15 +104,13 @@ PixPhetamine::CRenderingCore::CRenderingCore()
     _LoadShaders();
     std::cout << "Loading Shaders [COMPLETE]" << std::endl;
 
-    //STACK_MESSAGE("Checking OpenGL errors");
-    //Utility::UErrorHandler::checkOpenGLErrors();
+    AssertOpenGLErrors();
 
     std::cout << "Loading Meshes" << std::endl;
     _LoadMeshes();
     std::cout << "Loading Meshes [COMPLETE]" << std::endl;
 
-    //std::cout << "Checking OpenGL errors";
-    //Utility::UErrorHandler::checkOpenGLErrors();
+    AssertOpenGLErrors();
 
     // STACK_MESSAGE("Creation of FrameBuffers");
     // m_GBufferMS = new CFrameBuffer(PIX::WINDOW_WIDTH, PIX::WINDOW_HEIGHT, CFrameBuffer::EType::WITH_DEPTH_MULTISAMPLED);
@@ -201,6 +184,9 @@ PixPhetamine::CRenderingCore::CRenderingCore()
 
     // STACK_MESSAGE("Checking OpenGL errors");
     // Utility::UErrorHandler::checkOpenGLErrors();
+
+
+    LOG_CALLSTACK_POP();
 }
 
 PixPhetamine::CRenderingCore::~CRenderingCore()
@@ -255,7 +241,7 @@ void PixPhetamine::CRenderingCore::_LoadMeshes()
 
 void PixPhetamine::CRenderingCore::RunGameLoop()
 {
-
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
     m_IsRunning = true;
 
     // m_secondTimer.start();
@@ -472,36 +458,41 @@ void PixPhetamine::CRenderingCore::RunGameLoop()
 //         UNSTACK_TRACE;
 
 //     } while (m_InputHandler->isQuit() == false);
+    LOG_CALLSTACK_POP();
 }
 
 void PixPhetamine::CRenderingCore::AssertOpenGLErrors()
 {
+    if (m_IsInDebugState == false)
+        return;
 	GLenum status = glGetError();
-	if (status != GL_NO_ERROR) {
-		switch (status) {
+	if (status != GL_NO_ERROR)
+    {
+		switch (status)
+        {
 		case GL_INVALID_ENUM:
-			//ERROR("OpenGL error: GL_INVALID_ENUM");
+            LOG_CRITICAL_ERROR("OpenGL error: GL_INVALID_ENUM");
 			break;
 		case GL_INVALID_OPERATION:
-			//ERROR("OpenGL error: GL_INVALID_OPERATION");
+            LOG_CRITICAL_ERROR("OpenGL error: GL_INVALID_OPERATION");
 			break;
 		case GL_INVALID_VALUE:
-			//ERROR("OpenGL error: GL_INVALID_VALUE");
+            LOG_CRITICAL_ERROR("OpenGL error: GL_INVALID_VALUE");
 			break;
 		case GL_STACK_OVERFLOW:
-			//ERROR("OpenGL error: GL_STACK_OVERFLOW");
+            LOG_CRITICAL_ERROR("OpenGL error: GL_STACK_OVERFLOW");
 			break;
 		case GL_STACK_UNDERFLOW:
-			//ERROR("OpenGL error: GL_STACK_UNDERFLOW");
+            LOG_CRITICAL_ERROR("OpenGL error: GL_STACK_UNDERFLOW");
 			break;
 		case GL_OUT_OF_MEMORY:
-			//ERROR("OpenGL error: GL_OUT_OF_MEMORY");
+            LOG_CRITICAL_ERROR("OpenGL error: GL_OUT_OF_MEMORY");
 			break;
 		case GL_INVALID_FRAMEBUFFER_OPERATION:
-			//ERROR("OpenGL error: GL_INVALID_FRAMEBUFFER_OPERATION");
+            LOG_CRITICAL_ERROR("OpenGL error: GL_INVALID_FRAMEBUFFER_OPERATION");
 			break;
 		default:
-			//ERROR("OpenGL error: Unknown error!");
+            LOG_CRITICAL_ERROR("OpenGL error: Unknown error!");
 			break;
 		}
 	}

@@ -36,7 +36,7 @@ class CRenderingCore
 {
 private:
     bool m_IsRunning {false};
-    bool m_IsErrorOccured {false};
+    bool m_IsInDebugState{false};
     std::vector<std::string> m_ErrorMessagesVec;
 
     int m_Frame{ 0 };
@@ -82,7 +82,7 @@ private:
     void _LoadMeshes();
 
 public:
-    CRenderingCore();
+    CRenderingCore(bool isInDebugState);
     ~CRenderingCore();
 
     void AssertOpenGLErrors();
