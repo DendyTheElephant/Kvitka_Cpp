@@ -18,19 +18,20 @@ m_IsInDebugState(isInDebugState)
     glfwWindowHint(GLFW_SAMPLES, 8);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    const char* FramebufferVertexShaderSource = R"(#version 460 core
-    layout (location = 0) in vec3 pos;
-    layout (location = 1) in vec2 uvs;
-    out vec2 UVs;
-    void main()
-    {
-        gl_Position = vec4(2.0 * pos.x, 2.0* pos.y, 2.0*pos.z, 1.000);
-        UVs = uvs;
-    })";
+    // const char* FramebufferVertexShaderSource = R"(#version 460 core
+    // layout (location = 0) in vec3 pos;
+    // layout (location = 1) in vec2 uvs;
+    // out vec2 UVs;
+    // void main()
+    // {
+    //     gl_Position = vec4(2.0 * pos.x, 2.0* pos.y, 2.0*pos.z, 1.000);
+    //     UVs = uvs;
+    // })";
 
-    m_pMainWindow = glfwCreateWindow(800, 600, "Kvitka - V0.00.01", NULL, NULL);
+    m_pMainWindow = glfwCreateWindow(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, "Kvitka - V0.00.01", NULL, NULL);
     if (m_pMainWindow == nullptr)
     {
         LOG_CRITICAL_ERROR("Failed to open GLFW window");
@@ -43,7 +44,7 @@ m_IsInDebugState(isInDebugState)
     }
 
 
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
     //glfwSetFramebufferSizeCallback(pMainWindow, _FramebufferSizeCallback);
 
     // Retrieve the GPU - OpenGL Current specs for the platform --> Log file
@@ -53,6 +54,10 @@ m_IsInDebugState(isInDebugState)
     std::cerr << "    Version: " << glGetString(GL_VERSION) << std::endl;
     std::cerr << "     Vendor: " << glGetString(GL_VENDOR) << std::endl;
     std::cerr << "   Renderer: " << glGetString(GL_RENDERER) << std::endl;
+    int OpenGLVersionMajor, OpenGLVersionMinor;
+    glGetIntegerv(GL_MAJOR_VERSION, &OpenGLVersionMajor);
+    glGetIntegerv(GL_MINOR_VERSION, &OpenGLVersionMinor);
+    std::cerr << "     OpenGL: " << OpenGLVersionMajor << "." << OpenGLVersionMinor << std::endl;
     std::cerr << "    Shading: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
     std::cerr << "----------------------------------------------------------------" << std::endl;
     std::cerr << ">GPU Specifications for modern GLSL:" << std::endl;
@@ -79,25 +84,27 @@ m_IsInDebugState(isInDebugState)
 
     // Init InputHandler
     m_pInputHandler = new CInputHandler(m_pMainWindow);
-    // m_Camera = new PixPhetamine::CCamera(m_SDLWindow);
+    m_pMainCamera = new PixPhetamine::CCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
     /* ============================================== */
     /* Insert names of shaders to load in ShaderNames */
     /* ============================================== */
     m_ShaderNamesVec.push_back("basic");
-    m_ShaderNamesVec.push_back("postprocess");
-    m_ShaderNamesVec.push_back("downsampling");
-    m_ShaderNamesVec.push_back("blurH");
-    m_ShaderNamesVec.push_back("blurV");
-    m_ShaderNamesVec.push_back("rgbsplit");
+    // m_ShaderNamesVec.push_back("postprocess");
+    // m_ShaderNamesVec.push_back("downsampling");
+    // m_ShaderNamesVec.push_back("blurH");
+    // m_ShaderNamesVec.push_back("blurV");
+    // m_ShaderNamesVec.push_back("rgbsplit");
     /* ============================================== */
 
     /* =========================================== */
     /* Insert names of meshes to load in MeshNames */
     /* =========================================== */
-    m_MeshNamesVec.push_back("lionhead");
-    m_MeshNamesVec.push_back("cube");
-    m_MeshNamesVec.push_back("sphere");
+    //m_MeshNamesVec.push_back("lionhead");
+    m_MeshNamesVec.push_back("Cube");
+    m_MeshNamesVec.push_back("Quad");
+    m_MeshNamesVec.push_back("Triangle");
+    //m_MeshNamesVec.push_back("sphere");
     /* =========================================== */
 
     std::cout << "Loading Shaders" << std::endl;
@@ -111,6 +118,10 @@ m_IsInDebugState(isInDebugState)
     std::cout << "Loading Meshes [COMPLETE]" << std::endl;
 
     AssertOpenGLErrors();
+
+    m_ShaderMapByName["basic"]->DeclareUniformVariableName("u_ModelViewProjectionMatrix");
+    m_ShaderMapByName["basic"]->DeclareUniformVariableName("u_Color");
+    
 
     // STACK_MESSAGE("Creation of FrameBuffers");
     // m_GBufferMS = new CFrameBuffer(PIX::WINDOW_WIDTH, PIX::WINDOW_HEIGHT, CFrameBuffer::EType::WITH_DEPTH_MULTISAMPLED);
@@ -194,13 +205,12 @@ PixPhetamine::CRenderingCore::~CRenderingCore()
     //PixPhetamine::Display::shutdownSDL_GL(m_SDLWindow, m_GLContext);
 
     for (auto const &it_shaderName : m_ShaderNamesVec) {
-        //delete m_ShaderMap[it_shaderName];
+        //delete m_ShaderMapByName[it_shaderName];
     }
 
     for (auto const &it_meshName : m_MeshNamesVec) {
         //delete m_MeshMap[it_meshName];
     }
-    
 
     glfwDestroyWindow(m_pMainWindow);
     glfwTerminate();
@@ -208,11 +218,16 @@ PixPhetamine::CRenderingCore::~CRenderingCore()
 
 void PixPhetamine::CRenderingCore::_LoadShaders()
 {
-    // for (auto const &it_shaderName : m_ShaderNames) {
-    //     std::string vertexShader = PIX::SHADERS_FOLDER + it_shaderName + PIX::SHADER_VERTEX_EXTENSION;
-    //     std::string fragmentShader = PIX::SHADERS_FOLDER + it_shaderName + PIX::SHADER_FRAGMENT_EXTENSION;
-    //     m_ShaderList[it_shaderName] = new PixPhetamine::LowLevelWrapper::CShader(vertexShader.c_str(), fragmentShader.c_str());
-    // }
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    for (auto const &ShaderName : m_ShaderNamesVec)
+    {
+        std::string VertexShaderFullPath = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + ShaderName + ".vs";
+        std::string FragmentShaderFullPath = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + ShaderName + ".fs";
+        m_ShaderMapByName[ShaderName] = new PixPhetamine::CShader(VertexShaderFullPath.c_str(), FragmentShaderFullPath.c_str());
+    }
+
+    LOG_CALLSTACK_POP();
 }
 
 void PixPhetamine::CRenderingCore::_ReloadShaders()
@@ -226,12 +241,34 @@ void PixPhetamine::CRenderingCore::_ReloadShaders()
 
 void PixPhetamine::CRenderingCore::_LoadMeshes()
 {
-    // STACK_TRACE;
-    // for (auto const &it_meshName : m_MeshNames) {
-    //     std::string meshPath = PIX::MODELS_FOLDER + it_meshName + PIX::MODELS_EXTENSION;
-    //     m_MeshList[it_meshName] = new PixPhetamine::CStaticMesh(meshPath.c_str());
-    // }
-    // UNSTACK_TRACE;
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    for (auto const &MeshName : m_MeshNamesVec)
+    {
+        if (MeshName == "Triangle")
+        {
+            m_MeshMapByName[MeshName] = new CMesh(MeshName, CMesh::BasicMeshes::Triangle);
+            m_MeshMapByName[MeshName]->LoadToGPU();
+        }
+        else if (MeshName == "Cube")
+        {
+            m_MeshMapByName[MeshName] = new CMesh(MeshName, CMesh::BasicMeshes::Cube);
+            m_MeshMapByName[MeshName]->LoadToGPU();
+        }
+        else if (MeshName == "Quad")
+        {
+            m_MeshMapByName[MeshName] = new CMesh(MeshName, CMesh::BasicMeshes::Quad);
+            m_MeshMapByName[MeshName]->LoadToGPU();
+        }
+        else
+        {
+            // std::string vertexShader = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + MeshName + ".vs";
+            // std::string fragmentShader = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + MeshName + ".fs";
+            // m_ShaderMapByName[it_shaderName] = new PixPhetamine::CShader(vertexShader.c_str(), fragmentShader.c_str());
+        }
+    }
+    
+    LOG_CALLSTACK_POP();
 }
 
 
@@ -246,12 +283,78 @@ void PixPhetamine::CRenderingCore::RunGameLoop()
 
     // m_secondTimer.start();
 
+    float V = 0;
+
     while(!glfwWindowShouldClose(m_pMainWindow))
     {
+        m_pInputHandler->UpdateInputs();
+
+        /* =========================================================================================== */
+        /* ==== Draw the Scene ======================================================================= */
+        /* =========================================================================================== */
+        
+        // GLenum gBufferTargets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT };
+        // PixPhetamine::LowLevelWrapper::initialiseDrawIntoBuffer(m_ShaderList["basic"]->id(), m_GBufferMS->getId(), gBufferTargets, 3);
+
+        /* Draw LionHeads */
+        //pxFloat type_fox[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+
+        //m_pMainCamera->SetPosition(glm::vec3(0.0f, V*100.0f, 1.0f));
+        m_pMainCamera->SetPosition(glm::vec3(0.0f, 10.0f, 0.1f));
+        m_pMainCamera->SetTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+
+        m_ViewProjectionMatrix = m_pMainCamera->GetViewProjectionMatrix();
+
+        V = V+0.01f;
+        if (V > 1.0f)
+            V = 0.0f;
+
+        
+
+        //glEnable(GL_DEPTH_TEST);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        CShader* pCurrentShader = m_ShaderMapByName["basic"];
+        CMesh* pCurrentMesh = m_MeshMapByName["Cube"];
+
+        glUseProgram(pCurrentShader->GetId());
+        glBindVertexArray(pCurrentMesh->GetVAO());
+        
+
+        for (size_t i = 0; i < 1000; ++i)
+        {
+            glm::mat4 ModelMatrix = glm::mat4(1);
+            //pxVec3f rotateY(0.0f, 1.0f, 0.0f);
+            ModelMatrix = glm::translate(ModelMatrix, glm::vec3((float)(i/100)*3.0f, 0.0f, (float)(i%100)*3.0f));
+            //M = glm::rotate(M, 90.0f, rotateY);
+            //ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
+
+            m_ModelViewProjectionMatrix = m_ViewProjectionMatrix * ModelMatrix;
+
+            
+            pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", m_ModelViewProjectionMatrix);
+            pCurrentShader->SendUniformVariable("u_Color", glm::vec3(V,1.0f-V,i/1000.0));
+            
+
+            //glUniformMatrix4fv(glGetUniformLocation(pCurrentShader->GetId(), "ModelViewProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(m_ModelViewProjectionMatrix));
+
+            // glUniform3fv(glGetUniformLocation(pCurrentShader->GetId(), "sun_direction"), 1, old_sunDirection);
+            // glUniform3fv(glGetUniformLocation(pCurrentShader->GetId(), "sun_color"), 1, sunColor);
+            // glUniform4fv(glGetUniformLocation(pCurrentShader->GetId(), "object_type"), 1, type_fox);
+
+            glDrawElements(GL_TRIANGLES, pCurrentMesh->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+        }
+
+        // disable
+        // glBindVertexArray(0);
+        // glUseProgram(0);
+
+        //STACK_MESSAGE("Scene Draw");
+        AssertOpenGLErrors();
+
         // OpenGL
         glfwSwapBuffers(m_pMainWindow);
-        //glfwPollEvents();
-        m_pInputHandler->UpdateInputs();
     }
 
 //     do {
@@ -261,27 +364,27 @@ void PixPhetamine::CRenderingCore::RunGameLoop()
 
 //         m_InputHandler->update();
 
-//         m_Camera->moveView((pxFloat)m_InputHandler->getMouseMotionX(), (pxFloat)m_InputHandler->getMouseMotionY());
+//         m_pMainCamera->moveView((pxFloat)m_InputHandler->getMouseMotionX(), (pxFloat)m_InputHandler->getMouseMotionY());
 
 //         pxFloat speed = 0.4f;
 
 //         if (m_InputHandler->getKey(CInputHandler::EInput::LEFT)) {
-//             m_Camera->moveCameraLeft(speed);
+//             m_pMainCamera->moveCameraLeft(speed);
 //         }
 //         if (m_InputHandler->getKey(CInputHandler::EInput::RIGHT)) {
-//             m_Camera->moveCameraRight(speed);
+//             m_pMainCamera->moveCameraRight(speed);
 //         }
 //         if (m_InputHandler->getKey(CInputHandler::EInput::UP)) {
-//             m_Camera->moveCameraForward(speed);
+//             m_pMainCamera->moveCameraForward(speed);
 //         }
 //         if (m_InputHandler->getKey(CInputHandler::EInput::DOWN)) {
-//             m_Camera->moveCameraBackward(speed);
+//             m_pMainCamera->moveCameraBackward(speed);
 //         }
 //         if (m_InputHandler->getKey(CInputHandler::EInput::SHOULDER_RIGHT)) {
-//             m_Camera->moveCameraUp(speed);
+//             m_pMainCamera->moveCameraUp(speed);
 //         }
 //         if (m_InputHandler->getKey(CInputHandler::EInput::SHOULDER_LEFT)) {
-//             m_Camera->moveCameraDown(speed);
+//             m_pMainCamera->moveCameraDown(speed);
 //         }
 
 //         /*if (pxUInt value = m_InputHandler->getBulletTime()) {
@@ -303,7 +406,7 @@ void PixPhetamine::CRenderingCore::RunGameLoop()
 //         /* =========================================================================================== */
 //         /* ==== Draw the Scene ======================================================================= */
 //         /* =========================================================================================== */
-//         m_ViewProjectionMatrix = m_Camera->getViewProjectionMatrix();
+//         m_ViewProjectionMatrix = m_pMainCamera->getViewProjectionMatrix();
 //         GLenum gBufferTargets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT };
 //         PixPhetamine::LowLevelWrapper::initialiseDrawIntoBuffer(m_ShaderList["basic"]->id(), m_GBufferMS->getId(), gBufferTargets, 3);
 
@@ -312,7 +415,7 @@ void PixPhetamine::CRenderingCore::RunGameLoop()
 
 
 //         // PRE SKYBOX OPENGL DIRECTIVES:
-//         m_skyBox->draw(m_ViewProjectionMatrix, m_Camera->getPosition());
+//         m_skyBox->draw(m_ViewProjectionMatrix, m_pMainCamera->getPosition());
 //         // POST SKYBOX OPENGL DIRECTIVES:
 //         glEnable(GL_DEPTH_TEST);
 //         glUseProgram(m_ShaderList["basic"]->id());
@@ -463,8 +566,8 @@ void PixPhetamine::CRenderingCore::RunGameLoop()
 
 void PixPhetamine::CRenderingCore::AssertOpenGLErrors()
 {
-    if (m_IsInDebugState == false)
-        return;
+    // if (m_IsInDebugState == false)
+    //     return;
 	GLenum status = glGetError();
 	if (status != GL_NO_ERROR)
     {

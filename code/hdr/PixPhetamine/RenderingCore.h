@@ -27,6 +27,9 @@
 // #include "CPostProcessPass.h"
 // #include "CSkybox.h"
 
+#include "PixPhetamine/Shader.h"
+#include "PixPhetamine/Mesh.h"
+#include "PixPhetamine/Camera.h"
 #include "PixPhetamine/InputHandler.h"
 
 namespace PixPhetamine
@@ -35,27 +38,30 @@ namespace PixPhetamine
 class CRenderingCore
 {
 private:
+
+    const int VIEWPORT_WIDTH = 1280;
+    const int VIEWPORT_HEIGHT = 720;
+
     bool m_IsRunning {false};
     bool m_IsInDebugState{false};
     std::vector<std::string> m_ErrorMessagesVec;
 
-    int m_Frame{ 0 };
-    unsigned long int m_ElapsedTime{ 0 };
+    int m_Frame{0};
+    unsigned long int m_ElapsedTime{0};
     //CTimer m_secondTimer; // Timer reset on each second for FPS computation
     char m_windowCaption[64]; // Window caption (updated on each frame to show FPS)
 
     GLFWwindow* m_pMainWindow {nullptr}; // Our window handle
 
     CInputHandler* m_pInputHandler; // Retrieve the inputs of player one
-    //PixPhetamine::CCamera* m_Camera; // Camera for the player one
+    CCamera* m_pMainCamera; // Camera for the player one
 
     std::vector<std::string> m_ShaderNamesVec;
     std::vector<std::string> m_MeshNamesVec;
 
-    //std::map<std::string, PixPhetamine::LowLevelWrapper::CShader*> m_ShaderMap; // List of the shaders used in the game
-    //std::map<std::string, PixPhetamine::CStaticMesh*> m_MeshMap;
+    std::map<std::string, PixPhetamine::CShader*> m_ShaderMapByName; // List of the shaders used in the game
+    std::map<std::string, PixPhetamine::CMesh*> m_MeshMapByName;
 
-    glm::mat4 m_ModelMatrix;
     glm::mat4 m_ViewProjectionMatrix;
     glm::mat4 m_ModelViewProjectionMatrix;
 
@@ -80,12 +86,13 @@ private:
     void _LoadShaders();
     void _ReloadShaders();
     void _LoadMeshes();
+    void _UploadMeshesToGPU();
 
 public:
     CRenderingCore(bool isInDebugState);
     ~CRenderingCore();
 
-    void AssertOpenGLErrors();
+    static void AssertOpenGLErrors();
 
     void RunGameLoop();
 };

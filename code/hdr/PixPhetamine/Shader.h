@@ -39,11 +39,11 @@ public:
     void Reload();
     inline unsigned int GetId() { return m_Id; }
 
-    void BindVariableName(const char * correspondingVariableNameInShader);
-    GLuint GetVariableAttachment(const char * correspondingVariableNameInShader) { return m_VariableNamesMap[correspondingVariableNameInShader]; }
+    void DeclareUniformVariableName(const char * correspondingVariableNameInShader);
+    //GLuint GetUniformVariableAttachment(const char * correspondingVariableNameInShader) { return m_VariableNamesMap[correspondingVariableNameInShader]; }
 
     template<typename SHADER_FRIENDLY_TYPE>
-    void SendVariable(const char * correspondingVariableNameInShader, SHADER_FRIENDLY_TYPE const& variable);
+    void SendUniformVariable(const char * correspondingVariableNameInShader, SHADER_FRIENDLY_TYPE const& variable);
 };
 
 }

@@ -1,15 +1,8 @@
 #include <iostream>
 
 #include "PixPhetamine/RenderingCore.h"
+#include "DendyEngine/EngineCore.h"
 #include "DendyCommon/Logger.h"
-
-// #include <stacktrace>
-
-// OpenGL Mathematics (0.9.9.8)
-// #include <glm/glm.hpp>
-// #include <glm/gtc/matrix_transform.hpp>
-// #include <glm/gtc/type_ptr.hpp>
-
 
 int main()
 {
@@ -21,10 +14,18 @@ int main()
 
 
     bool IsInDebug = true;
+
+    DendyEngine::CEngineCore* pEngine = new DendyEngine::CEngineCore(IsInDebug);
     PixPhetamine::CRenderingCore* pRenderingEngine = new PixPhetamine::CRenderingCore(IsInDebug);
 
-	pRenderingEngine->RunGameLoop();
+    pEngine->SetRenderingCoreInstance(pRenderingEngine);
 
+    do
+    {
+        pEngine->Update();
+    } while (pEngine->GetRunningState());
+    
+    delete pEngine;
 	delete pRenderingEngine;
 
     

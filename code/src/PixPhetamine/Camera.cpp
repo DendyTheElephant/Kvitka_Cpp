@@ -1,12 +1,10 @@
 #include "PixPhetamine/Camera.h"
 #include <math.h>
 
-PixPhetamine::CCamera::CCamera()
+PixPhetamine::CCamera::CCamera(unsigned int const& viewPortWidth, unsigned int const& viewPortHeight)
 {
-    int width, height;
-    //SDL_GetWindowSize(a_window, &width, &height);
-    m_Width = static_cast<float>(width);
-    m_Height = static_cast<float>(height);
+    m_Width = static_cast<float>(viewPortWidth);
+    m_Height = static_cast<float>(viewPortHeight);
 
     m_Direction = normalize(m_Direction);
 
@@ -72,6 +70,11 @@ void PixPhetamine::CCamera::SetPosition(glm::vec3 const& a_newPosition)
 {
     m_Position	= a_newPosition;
     m_Sight		= m_Position + m_Sight;
+}
+
+void PixPhetamine::CCamera::SetTarget(glm::vec3 const& newTarget)
+{
+    m_Sight = newTarget;
 }
 
 #include <algorithm>

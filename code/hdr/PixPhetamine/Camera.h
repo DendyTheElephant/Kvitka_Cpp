@@ -29,12 +29,12 @@ private:
     glm::vec3 m_Direction{ 0.0f, 0.0f, -1.0f };
     glm::vec3 m_Strafe;
 
-    glm::mat4 m_ProjectionMatrix;
-    glm::mat4 m_ViewMatrix;
+    glm::mat4 m_ProjectionMatrix{1};
+    glm::mat4 m_ViewMatrix{1};
 
 
 public:
-    CCamera();
+    CCamera(unsigned int const& viewPortWidth, unsigned int const& viewPortHeight);
     ~CCamera();
 
     glm::mat4 GetViewProjectionMatrix();
@@ -45,6 +45,7 @@ public:
 
     void SetFOV(float const& newAngle);
     void SetPosition(glm::vec3 const& newPosition);
+    void SetTarget(glm::vec3 const& newTarget);
 
     void MoveView(float const& dx, float const& dy);
     void MoveCameraForward(float const& distance);
