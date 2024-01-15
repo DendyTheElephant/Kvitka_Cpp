@@ -16,9 +16,6 @@ int main()
     bool IsInDebug = true;
 
     DendyEngine::CEngineCore* pEngine = new DendyEngine::CEngineCore(IsInDebug);
-    PixPhetamine::CRenderingCore* pRenderingEngine = new PixPhetamine::CRenderingCore(IsInDebug);
-
-    pEngine->SetRenderingCoreInstance(pRenderingEngine);
 
     do
     {
@@ -26,7 +23,6 @@ int main()
     } while (pEngine->GetRunningState());
     
     delete pEngine;
-	delete pRenderingEngine;
 
     
     DendyCommon::CLogger::DestroyInstance();

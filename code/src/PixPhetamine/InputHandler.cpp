@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-PixPhetamine::CInputHandler::CInputHandler(GLFWwindow* pGLFWindow)
+PixPhetamine::CInputHandler::CInputHandler(GLFWwindow* pGLFWindow):
+m_pMainWindow(pGLFWindow)
 {
     // // Set GLFW callbacks
     // glfwSetWindowSizeCallback(pGLFWindow, [](GLFWwindow* window, int width, int height)
@@ -154,5 +155,7 @@ void PixPhetamine::CInputHandler::_UpdateGamepads()
 void PixPhetamine::CInputHandler::UpdateInputs()
 {
     glfwPollEvents();
+    if (glfwWindowShouldClose(m_pMainWindow))
+        m_IsWindowClosed = true;
     _UpdateGamepads();
 }

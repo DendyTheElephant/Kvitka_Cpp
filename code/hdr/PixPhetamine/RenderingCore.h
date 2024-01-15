@@ -51,10 +51,8 @@ private:
     //CTimer m_secondTimer; // Timer reset on each second for FPS computation
     char m_windowCaption[64]; // Window caption (updated on each frame to show FPS)
 
-    GLFWwindow* m_pMainWindow {nullptr}; // Our window handle
-
-    CInputHandler* m_pInputHandler; // Retrieve the inputs of player one
-    CCamera* m_pMainCamera; // Camera for the player one
+    GLFWwindow* m_pMainWindow{nullptr}; // Our window handle
+    CCamera* m_pMainCamera{nullptr}; // Camera for the player one
 
     std::vector<std::string> m_ShaderNamesVec;
     std::vector<std::string> m_MeshNamesVec;
@@ -94,7 +92,8 @@ public:
 
     static void AssertOpenGLErrors();
 
-    void RunGameLoop();
+    void Render();
+    inline GLFWwindow* GetGLFWWindow() const {return m_pMainWindow;}
 };
 
 }

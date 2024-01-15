@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PixPhetamine/RenderingCore.h"
+#include "PixPhetamine/InputHandler.h"
 #include "DendyEngine/GameObject.h"
 
 #define GLM_FORCE_RADIANS
@@ -20,7 +21,9 @@ private:
     bool m_IsRunning {false};
     bool m_IsInDebugState{false};
 
-    PixPhetamine::CRenderingCore* m_pRenderingEngineInstance;
+    PixPhetamine::CRenderingCore* m_pRenderingEngineInstance{nullptr};
+    PixPhetamine::CInputHandler* m_pInputHandler{nullptr};
+
     std::unordered_map<unsigned int,IGameObject*> m_pGameObjectsMapById;
 
     std::vector<std::string> m_ShaderNamesVec;
@@ -33,16 +36,13 @@ private:
     glm::mat4 m_ModelViewProjectionMatrix;
 
 private:
-    void _LoadShaders();
-    void _ReloadShaders();
-    void _LoadMeshes();
-    void _UploadMeshesToGPU();
+    void _InitialiseRendering();
+    void _InitialiseInputManager();
 
 public:
     CEngineCore(bool isInDebugState);
     ~CEngineCore();
 
-    void SetRenderingCoreInstance(PixPhetamine::CRenderingCore* pRenderingEngineInstance);
     bool GetRunningState() const { return m_IsRunning; }
 
     void Update();

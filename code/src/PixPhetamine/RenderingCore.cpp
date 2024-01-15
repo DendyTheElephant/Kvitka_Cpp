@@ -4,7 +4,8 @@
 #include <iostream>
 
 PixPhetamine::CRenderingCore::CRenderingCore(bool isInDebugState):
-m_IsInDebugState(isInDebugState)
+m_IsInDebugState(isInDebugState),
+m_IsRunning(true)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
@@ -82,9 +83,7 @@ m_IsInDebugState(isInDebugState)
     std::cerr << "----------------------------------------------------------------" << std::endl;
 
 
-    // Init InputHandler
-    m_pInputHandler = new CInputHandler(m_pMainWindow);
-    m_pMainCamera = new PixPhetamine::CCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+    
 
     /* ============================================== */
     /* Insert names of shaders to load in ShaderNames */
@@ -121,6 +120,9 @@ m_IsInDebugState(isInDebugState)
 
     m_ShaderMapByName["basic"]->DeclareUniformVariableName("u_ModelViewProjectionMatrix");
     m_ShaderMapByName["basic"]->DeclareUniformVariableName("u_Color");
+
+
+    m_pMainCamera = new PixPhetamine::CCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
     
 
     // STACK_MESSAGE("Creation of FrameBuffers");
@@ -276,86 +278,83 @@ void PixPhetamine::CRenderingCore::_LoadMeshes()
 
 
 
-void PixPhetamine::CRenderingCore::RunGameLoop()
+void PixPhetamine::CRenderingCore::Render()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
-    m_IsRunning = true;
 
     // m_secondTimer.start();
 
-    float V = 0;
+    
 
-    while(!glfwWindowShouldClose(m_pMainWindow))
+    
+    /* =========================================================================================== */
+    /* ==== Draw the Scene ======================================================================= */
+    /* =========================================================================================== */
+    
+    // GLenum gBufferTargets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT };
+    // PixPhetamine::LowLevelWrapper::initialiseDrawIntoBuffer(m_ShaderList["basic"]->id(), m_GBufferMS->getId(), gBufferTargets, 3);
+
+    /* Draw LionHeads */
+    //pxFloat type_fox[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+
+    //m_pMainCamera->SetPosition(glm::vec3(0.0f, V*100.0f, 1.0f));
+    m_pMainCamera->SetPosition(glm::vec3(0.0f, 10.0f, 0.1f));
+    m_pMainCamera->SetTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    m_ViewProjectionMatrix = m_pMainCamera->GetViewProjectionMatrix();
+
+    static float V = 0;
+    V = V+0.01f;
+    if (V > 1.0f)
+        V = 0.0f;
+
+    
+
+    //glEnable(GL_DEPTH_TEST);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    CShader* pCurrentShader = m_ShaderMapByName["basic"];
+    CMesh* pCurrentMesh = m_MeshMapByName["Cube"];
+
+    glUseProgram(pCurrentShader->GetId());
+    glBindVertexArray(pCurrentMesh->GetVAO());
+    
+
+    for (size_t i = 0; i < 1000; ++i)
     {
-        m_pInputHandler->UpdateInputs();
+        glm::mat4 ModelMatrix = glm::mat4(1);
+        //pxVec3f rotateY(0.0f, 1.0f, 0.0f);
+        ModelMatrix = glm::translate(ModelMatrix, glm::vec3((float)(i/100)*3.0f, 0.0f, (float)(i%100)*3.0f));
+        //M = glm::rotate(M, 90.0f, rotateY);
+        //ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
 
-        /* =========================================================================================== */
-        /* ==== Draw the Scene ======================================================================= */
-        /* =========================================================================================== */
-        
-        // GLenum gBufferTargets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT };
-        // PixPhetamine::LowLevelWrapper::initialiseDrawIntoBuffer(m_ShaderList["basic"]->id(), m_GBufferMS->getId(), gBufferTargets, 3);
-
-        /* Draw LionHeads */
-        //pxFloat type_fox[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-        //m_pMainCamera->SetPosition(glm::vec3(0.0f, V*100.0f, 1.0f));
-        m_pMainCamera->SetPosition(glm::vec3(0.0f, 10.0f, 0.1f));
-        m_pMainCamera->SetTarget(glm::vec3(0.0f, 0.0f, 0.0f));
-
-        m_ViewProjectionMatrix = m_pMainCamera->GetViewProjectionMatrix();
-
-        V = V+0.01f;
-        if (V > 1.0f)
-            V = 0.0f;
+        m_ModelViewProjectionMatrix = m_ViewProjectionMatrix * ModelMatrix;
 
         
-
-        //glEnable(GL_DEPTH_TEST);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        CShader* pCurrentShader = m_ShaderMapByName["basic"];
-        CMesh* pCurrentMesh = m_MeshMapByName["Cube"];
-
-        glUseProgram(pCurrentShader->GetId());
-        glBindVertexArray(pCurrentMesh->GetVAO());
+        pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", m_ModelViewProjectionMatrix);
+        pCurrentShader->SendUniformVariable("u_Color", glm::vec3(V,1.0f-V,i/1000.0));
         
 
-        for (size_t i = 0; i < 1000; ++i)
-        {
-            glm::mat4 ModelMatrix = glm::mat4(1);
-            //pxVec3f rotateY(0.0f, 1.0f, 0.0f);
-            ModelMatrix = glm::translate(ModelMatrix, glm::vec3((float)(i/100)*3.0f, 0.0f, (float)(i%100)*3.0f));
-            //M = glm::rotate(M, 90.0f, rotateY);
-            //ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
+        //glUniformMatrix4fv(glGetUniformLocation(pCurrentShader->GetId(), "ModelViewProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(m_ModelViewProjectionMatrix));
 
-            m_ModelViewProjectionMatrix = m_ViewProjectionMatrix * ModelMatrix;
+        // glUniform3fv(glGetUniformLocation(pCurrentShader->GetId(), "sun_direction"), 1, old_sunDirection);
+        // glUniform3fv(glGetUniformLocation(pCurrentShader->GetId(), "sun_color"), 1, sunColor);
+        // glUniform4fv(glGetUniformLocation(pCurrentShader->GetId(), "object_type"), 1, type_fox);
 
-            
-            pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", m_ModelViewProjectionMatrix);
-            pCurrentShader->SendUniformVariable("u_Color", glm::vec3(V,1.0f-V,i/1000.0));
-            
-
-            //glUniformMatrix4fv(glGetUniformLocation(pCurrentShader->GetId(), "ModelViewProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(m_ModelViewProjectionMatrix));
-
-            // glUniform3fv(glGetUniformLocation(pCurrentShader->GetId(), "sun_direction"), 1, old_sunDirection);
-            // glUniform3fv(glGetUniformLocation(pCurrentShader->GetId(), "sun_color"), 1, sunColor);
-            // glUniform4fv(glGetUniformLocation(pCurrentShader->GetId(), "object_type"), 1, type_fox);
-
-            glDrawElements(GL_TRIANGLES, pCurrentMesh->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
-        }
-
-        // disable
-        // glBindVertexArray(0);
-        // glUseProgram(0);
-
-        //STACK_MESSAGE("Scene Draw");
-        AssertOpenGLErrors();
-
-        // OpenGL
-        glfwSwapBuffers(m_pMainWindow);
+        glDrawElements(GL_TRIANGLES, pCurrentMesh->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
     }
+
+    // disable
+    // glBindVertexArray(0);
+    // glUseProgram(0);
+
+    //STACK_MESSAGE("Scene Draw");
+    AssertOpenGLErrors();
+
+    // OpenGL
+    glfwSwapBuffers(m_pMainWindow);
+    
 
 //     do {
 //         STACK_TRACE;
