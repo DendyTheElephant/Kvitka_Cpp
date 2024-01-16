@@ -2,6 +2,7 @@
 #include "DendyCommon/Logger.h"
 
 #include "DendyEngine/Actor.h"
+#include "DendyEngine/Terrain.h"
 
 #include <iostream>
 
@@ -14,6 +15,10 @@ m_IsRunning(true)
     m_pGameObjectsMapById[IGameObject::GetGameObjectIdIncrement()] = new CActor("Cossack01");
     m_pGameObjectsMapById[IGameObject::GetGameObjectIdIncrement()] = new CActor("Cossack02");
 
+    std::unique_ptr<CTerrain> pTerrain = std::make_unique<CTerrain>();
+    
+    std::cout << pTerrain->GetHeightAtPosition(glm::vec2(1.1f,0.8f)) << std::endl;
+
     _InitialiseRendering();
     _InitialiseInputManager();
 
@@ -24,7 +29,8 @@ DendyEngine::CEngineCore::~CEngineCore()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    delete m_pRenderingEngineInstance;
+    m_pInputHandler.release();
+    m_pRenderingEngineInstance.release();
 
     LOG_CALLSTACK_POP();
 }
@@ -33,7 +39,7 @@ void DendyEngine::CEngineCore::_InitialiseRendering()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pRenderingEngineInstance = new PixPhetamine::CRenderingCore(m_IsInDebugState);
+    m_pRenderingEngineInstance = std::make_unique<PixPhetamine::CRenderingCore>(m_IsInDebugState);
 
     LOG_CALLSTACK_POP();
 }
@@ -42,7 +48,7 @@ void DendyEngine::CEngineCore::_InitialiseInputManager()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pInputHandler = new PixPhetamine::CInputHandler(m_pRenderingEngineInstance->GetGLFWWindow());
+    m_pInputHandler = std::make_unique<PixPhetamine::CInputHandler>(m_pRenderingEngineInstance->GetGLFWWindow());
 
     LOG_CALLSTACK_POP();
 }

@@ -9,7 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <unordered_map>
+#include <memory>
 
 namespace DendyEngine
 {
@@ -21,19 +21,10 @@ private:
     bool m_IsRunning {false};
     bool m_IsInDebugState{false};
 
-    PixPhetamine::CRenderingCore* m_pRenderingEngineInstance{nullptr};
-    PixPhetamine::CInputHandler* m_pInputHandler{nullptr};
+    std::unique_ptr<PixPhetamine::CRenderingCore> m_pRenderingEngineInstance;
+    std::unique_ptr<PixPhetamine::CInputHandler> m_pInputHandler;
 
     std::unordered_map<unsigned int,IGameObject*> m_pGameObjectsMapById;
-
-    std::vector<std::string> m_ShaderNamesVec;
-    std::vector<std::string> m_MeshNamesVec;
-
-    std::map<std::string, PixPhetamine::CShader*> m_ShaderMapByName; // List of the shaders used in the game
-    std::map<std::string, PixPhetamine::CMesh*> m_MeshMapByName;
-
-    glm::mat4 m_ViewProjectionMatrix;
-    glm::mat4 m_ModelViewProjectionMatrix;
 
 private:
     void _InitialiseRendering();

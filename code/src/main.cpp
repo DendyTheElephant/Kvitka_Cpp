@@ -4,10 +4,17 @@
 #include "DendyEngine/EngineCore.h"
 #include "DendyCommon/Logger.h"
 
+
 int main()
 {
-
-    std::cout << __cplusplus << std::endl;
+    if (__cplusplus > 202101L) std::cout << "C++23("<<__cplusplus<<"L)";
+    else if (__cplusplus > 202002L) std::cout << "C++20("<<__cplusplus<<"L)";
+    else if (__cplusplus > 201703L) std::cout << "C++17("<<__cplusplus<<"L)";
+    else if (__cplusplus > 201402L) std::cout << "C++14("<<__cplusplus<<"L)";
+    else if (__cplusplus > 201103L) std::cout << "C++11("<<__cplusplus<<"L)";
+    else if (__cplusplus > 199711L) std::cout << "C++98("<<__cplusplus<<"L)";
+    else std::cout << "pre-standard C++." << __cplusplus;
+    std::cout << std::endl;
 
     DendyCommon::CLogger* pLogger = &DendyCommon::CLogger::GetInstance();
     pLogger->SetOutputFile("G:\\DyCode\\Kvitka_Cpp\\LogError.txt");
@@ -16,17 +23,15 @@ int main()
     bool IsInDebug = true;
 
     DendyEngine::CEngineCore* pEngine = new DendyEngine::CEngineCore(IsInDebug);
-
-    do
+    while(pEngine->GetRunningState())
     {
         pEngine->Update();
-    } while (pEngine->GetRunningState());
+    }
     
     delete pEngine;
 
     
     DendyCommon::CLogger::DestroyInstance();
-
 
     return 0;
 }
