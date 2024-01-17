@@ -17,7 +17,7 @@ class CCamera
 private:
     float m_ViewAngle{ 70.0f };
     const float MIN_DEPTH_OF_FIELD{ 0.1f };
-    const float MAX_DEPTH_OF_FIELD{ 1000.0f };
+    const float MAX_DEPTH_OF_FIELD{ 10000.0f };
     const glm::vec3 Y_AXIS{ 0.0f, 1.0f, 0.0f };
     float m_Width;
     float m_Height;

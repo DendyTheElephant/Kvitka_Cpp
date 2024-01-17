@@ -2,7 +2,7 @@
 #include "DendyCommon/Logger.h"
 
 #include "DendyEngine/Actor.h"
-#include "DendyEngine/Terrain.h"
+
 
 #include <iostream>
 
@@ -15,12 +15,18 @@ m_IsRunning(true)
     m_pGameObjectsMapById[IGameObject::GetGameObjectIdIncrement()] = new CActor("Cossack01");
     m_pGameObjectsMapById[IGameObject::GetGameObjectIdIncrement()] = new CActor("Cossack02");
 
-    std::unique_ptr<CTerrain> pTerrain = std::make_unique<CTerrain>();
+    //m_pTerrain = std::make_unique<CTerrain>(1.0f);
+
+    m_pTerrain = new CTerrain(4.0f);
     
-    std::cout << pTerrain->GetHeightAtPosition(glm::vec2(1.1f,0.8f)) << std::endl;
+    // std::cout << pTerrain->GetHeightAtPosition(glm::vec2(0.0f,0.0f)) << std::endl;
+    // std::cout << pTerrain->GetHeightAtPosition(glm::vec2(0.5f,0.5f)) << std::endl;
+    // std::cout << pTerrain->GetHeightAtPosition(glm::vec2(0.9f,0.8f)) << std::endl;
 
     _InitialiseRendering();
     _InitialiseInputManager();
+
+    m_pTerrain->LoadToGPU();
 
     LOG_CALLSTACK_POP();
 }
@@ -76,7 +82,9 @@ void DendyEngine::CEngineCore::Update()
         
     }
 
-    m_pRenderingEngineInstance->Render();
+
+    m_pRenderingEngineInstance->Render(m_pTerrain);
+
 
 
     LOG_CALLSTACK_POP();

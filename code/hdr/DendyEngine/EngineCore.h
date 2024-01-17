@@ -3,6 +3,7 @@
 #include "PixPhetamine/RenderingCore.h"
 #include "PixPhetamine/InputHandler.h"
 #include "DendyEngine/GameObject.h"
+#include "DendyEngine/Terrain.h"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -25,6 +26,9 @@ private:
     std::unique_ptr<PixPhetamine::CInputHandler> m_pInputHandler;
 
     std::unordered_map<unsigned int,IGameObject*> m_pGameObjectsMapById;
+
+    // std::unique_ptr<CTerrain> m_pTerrain;
+    PixPhetamine::IMesh* m_pTerrain;
 
 private:
     void _InitialiseRendering();

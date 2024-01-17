@@ -1,8 +1,19 @@
 #include "PixPhetamine/Mesh.h"
 #include "DendyCommon/Logger.h"
 
+PixPhetamine::IMesh::~IMesh()
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+    if (m_IsLoadedInGPU)
+        // UnloadFromGPU();
+        LOG_CRITICAL_ERROR("Trying to delete Mesh ["+m_Name+"] but it is still loaded on the GPU side, make sure to unload first!");
+        //std::cout << "Should unload from GPU first!" << std::endl;
+    m_VAOHandle = 0;
+    LOG_CALLSTACK_POP();
+}
+
 PixPhetamine::CMesh::CMesh(std::string name, std::string filePath):
-m_Name(name)
+IMesh(name)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
@@ -39,7 +50,7 @@ m_Name(name)
 }
 
 PixPhetamine::CMesh::CMesh(std::string name, BasicMeshes basicMesh):
-m_Name(name)
+IMesh(name)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
@@ -141,7 +152,7 @@ m_Name(name)
 
 PixPhetamine::CMesh::~CMesh()
 {
-    //m_VAO->free();
+    
 }
 
 #include <array>
@@ -205,3 +216,4 @@ void PixPhetamine::CMesh::UnloadFromGPU()
 {
     glDeleteBuffers(1, &m_VAOHandle);
 }
+

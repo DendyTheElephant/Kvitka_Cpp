@@ -44,6 +44,7 @@ private:
 
     bool m_IsRunning {false};
     bool m_IsInDebugState{false};
+    bool m_IsInWireframe{false};
     std::vector<std::string> m_ErrorMessagesVec;
 
     int m_Frame{0};
@@ -93,6 +94,7 @@ public:
     static void AssertOpenGLErrors();
 
     void Render();
+    void Render(IMesh* pMeshToRender);
     inline GLFWwindow* GetGLFWWindow() const {return m_pMainWindow;}
 };
 
