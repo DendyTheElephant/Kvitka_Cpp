@@ -18,8 +18,8 @@ class CTerrain: public PixPhetamine::IMesh
 {
 protected:
     float m_Scale{1.0f};
-    //static constexpr size_t c_TerrainSize{2048};
-    static constexpr size_t c_TerrainSize{32};
+    static constexpr size_t c_TerrainSize{2048};
+    //static constexpr size_t c_TerrainSize{32};
     std::array<float,c_TerrainSize*c_TerrainSize> m_HeightsArray;
     
     // Rendering

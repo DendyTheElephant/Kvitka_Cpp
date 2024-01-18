@@ -25,7 +25,7 @@ private:
     std::unique_ptr<PixPhetamine::CRenderingCore> m_pRenderingEngineInstance;
     std::unique_ptr<PixPhetamine::CInputHandler> m_pInputHandler;
 
-    std::unordered_map<unsigned int,IGameObject*> m_pGameObjectsMapById;
+    std::unordered_map<DendyCommon::CSerial,std::unique_ptr<CGameObject>,DendyCommon::CSerialHasher> m_pGameObjectsOwnerMapBySerial;
 
     // std::unique_ptr<CTerrain> m_pTerrain;
     PixPhetamine::IMesh* m_pTerrain;

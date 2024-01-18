@@ -9,17 +9,20 @@
 namespace DendyEngine
 {
 
-class IGameObject
+class CGameObject
 {
 protected:
     DendyCommon::CSerial m_Serial;
     std::unordered_map<std::string,IGameComponent*> m_GameComponentsMapByComponentType;
 
 public:
-    IGameObject(std::string name);
-    ~IGameObject();
+    CGameObject(std::string name);
+    ~CGameObject();
 
-    virtual void Update() = 0;
+    std::string GetName() const {return m_Serial.GetName();}
+    DendyCommon::CSerial GetSerial() const {return m_Serial;}
+
+    void Update();
 
     void AddComponent(IGameComponent* pComponent) { m_GameComponentsMapByComponentType[pComponent->GetComponentTypeName()] = pComponent; }
     IGameComponent* GetComponent(std::string componentTypeName);

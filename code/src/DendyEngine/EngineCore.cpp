@@ -1,9 +1,6 @@
 #include "DendyEngine/EngineCore.h"
 #include "DendyCommon/Logger.h"
 
-#include "DendyEngine/Actor.h"
-
-
 #include <iostream>
 
 DendyEngine::CEngineCore::CEngineCore(bool isInDebugState):
@@ -12,8 +9,14 @@ m_IsRunning(true)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pGameObjectsMapById[1] = new CActor("Cossack01");
-    m_pGameObjectsMapById[2] = new CActor("Cossack02");
+    //std::unique_ptr<CGameObject> pGameObject;
+    std::unique_ptr<CEngineCore::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01"); 
+    
+    m_pGameObjectsOwnerMapBySerial.insert(std::make_pair(pGameObject->GetSerial(), std::move(pGameObject)));
+
+    //m_pGameObjectsOwnerMapBySerial.insert( {pGameObject->GetSerial(), std::move(pGameObject)} );
+    //m_pGameObjectsMapById[] = new CGameObject("Cossack01");
+    //m_pGameObjectsMapById[2] = new CGameObject("Cossack02");
 
 
     //m_pTerrain = std::make_unique<CTerrain>(1.0f);
