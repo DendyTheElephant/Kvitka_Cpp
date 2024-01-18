@@ -3,7 +3,7 @@
 DendyEngine::CActor::CActor(std::string name):
 IGameObject(name)
 {
-    m_Name = name;
+    
 }
 
 DendyEngine::CActor::~CActor()

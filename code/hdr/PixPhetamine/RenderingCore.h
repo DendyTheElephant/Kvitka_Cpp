@@ -45,7 +45,6 @@ private:
     bool m_IsRunning {false};
     bool m_IsInDebugState{false};
     bool m_IsInWireframe{false};
-    std::vector<std::string> m_ErrorMessagesVec;
 
     int m_Frame{0};
     unsigned long int m_ElapsedTime{0};

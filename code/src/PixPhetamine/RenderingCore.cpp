@@ -228,8 +228,8 @@ void PixPhetamine::CRenderingCore::_LoadShaders()
 
     for (auto const &ShaderName : m_ShaderNamesVec)
     {
-        std::string VertexShaderFullPath = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + ShaderName + ".vs";
-        std::string FragmentShaderFullPath = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + ShaderName + ".fs";
+        std::string VertexShaderFullPath = "shaders\\" + ShaderName + ".vs";//"G:\\DyCode\\Kvitka_Cpp\\shaders\\" + ShaderName + ".vs";
+        std::string FragmentShaderFullPath = "shaders\\" + ShaderName + ".fs";
         m_ShaderMapByName[ShaderName] = new PixPhetamine::CShader(VertexShaderFullPath.c_str(), FragmentShaderFullPath.c_str());
     }
 

@@ -12,8 +12,9 @@ m_IsRunning(true)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pGameObjectsMapById[IGameObject::GetGameObjectIdIncrement()] = new CActor("Cossack01");
-    m_pGameObjectsMapById[IGameObject::GetGameObjectIdIncrement()] = new CActor("Cossack02");
+    m_pGameObjectsMapById[1] = new CActor("Cossack01");
+    m_pGameObjectsMapById[2] = new CActor("Cossack02");
+
 
     //m_pTerrain = std::make_unique<CTerrain>(1.0f);
 

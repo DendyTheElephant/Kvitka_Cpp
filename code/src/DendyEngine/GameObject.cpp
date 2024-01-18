@@ -1,11 +1,8 @@
 #include "DendyEngine/GameObject.h"
 
-unsigned int DendyEngine::IGameObject::s_GameObjectIdIncrement = 1;
-
-DendyEngine::IGameObject::IGameObject(std::string name):
-m_Id(s_GameObjectIdIncrement++), m_Name(name)
+DendyEngine::IGameObject::IGameObject(std::string name)
 {
-
+    m_Serial.SetName(name);
 }
 
 DendyEngine::IGameObject::~IGameObject()

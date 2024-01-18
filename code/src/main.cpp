@@ -3,6 +3,7 @@
 #include "PixPhetamine/RenderingCore.h"
 #include "DendyEngine/EngineCore.h"
 #include "DendyCommon/Logger.h"
+#include "DendyCommon/Timer.h"
 
 
 int main()
@@ -22,10 +23,22 @@ int main()
 
     bool IsInDebug = true;
 
+    DendyCommon::CTimer Timer;
+    int Counter = 0;
+
     DendyEngine::CEngineCore* pEngine = new DendyEngine::CEngineCore(IsInDebug);
     while(pEngine->GetRunningState())
     {
+        Timer.Reset();
         pEngine->Update();
+        Counter++;
+        if (Counter == 99)
+        {
+            Counter = 0;
+            Timer.Pause();
+            std::cout << "Global Update: Elapsed " << (Timer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
+        }
+        
     }
     
     delete pEngine;
