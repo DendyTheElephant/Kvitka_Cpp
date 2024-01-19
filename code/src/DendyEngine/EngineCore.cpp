@@ -10,9 +10,13 @@ m_IsRunning(true)
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
     //std::unique_ptr<CGameObject> pGameObject;
-    std::unique_ptr<CEngineCore::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01"); 
+    std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01"); 
     
-    m_pGameObjectsOwnerMapBySerial.insert(std::make_pair(pGameObject->GetSerial(), std::move(pGameObject)));
+    DendyCommon::CSerial SerialCossack01 = pGameObject->GetSerial();
+    std::cout << "Serial:" << SerialCossack01 << std::endl;
+    m_pGameObjectsOwnerMapBySerial.insert(std::make_pair(SerialCossack01, std::move(pGameObject)));
+
+    //DendyEngine::CGameObject* pGameObjectRetrieven = m_pGameObjectsOwnerMapBySerial.get(SerialCossack01);
 
     //m_pGameObjectsOwnerMapBySerial.insert( {pGameObject->GetSerial(), std::move(pGameObject)} );
     //m_pGameObjectsMapById[] = new CGameObject("Cossack01");
@@ -27,10 +31,15 @@ m_IsRunning(true)
     // std::cout << pTerrain->GetHeightAtPosition(glm::vec2(0.5f,0.5f)) << std::endl;
     // std::cout << pTerrain->GetHeightAtPosition(glm::vec2(0.9f,0.8f)) << std::endl;
 
+    system("pause>nul");
+    m_IsRunning = false;
+    LOG_CALLSTACK_POP();
+    return;
+
     _InitialiseRendering();
     _InitialiseInputManager();
 
-    m_pTerrain->LoadToGPU();
+    // m_pTerrain->LoadToGPU();
 
     LOG_CALLSTACK_POP();
 }
@@ -75,19 +84,19 @@ void DendyEngine::CEngineCore::Update()
         return;
     }
     
-    for (auto& [GameObjectId, pGameObject]: m_pGameObjectsMapById)
-    {
-        pGameObject->Update();
-    }
+    // for (auto& [GameObjectId, pGameObject]: m_pGameObjectsOwnerMapBySerial)
+    // {
+    //     pGameObject->Update();
+    // }
 
-    for (auto& [GameObjectId, pGameObject]: m_pGameObjectsMapById)
+    for (auto& [GameObjectId, pGameObject]: m_pGameObjectsOwnerMapBySerial)
     {
         pGameObject->GetComponent("Mesh");
         
     }
 
 
-    m_pRenderingEngineInstance->Render(m_pTerrain);
+    //m_pRenderingEngineInstance->Render(m_pTerrain);
 
 
 

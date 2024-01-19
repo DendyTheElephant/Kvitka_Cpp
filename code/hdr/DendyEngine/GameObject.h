@@ -16,6 +16,7 @@ protected:
     std::unordered_map<std::string,IGameComponent*> m_GameComponentsMapByComponentType;
 
 public:
+    CGameObject(CGameObject& original);
     CGameObject(std::string name);
     ~CGameObject();
 

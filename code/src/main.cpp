@@ -26,6 +26,8 @@ int main()
     DendyCommon::CTimer Timer;
     int Counter = 0;
 
+    //system("pause>nul");
+
     DendyEngine::CEngineCore* pEngine = new DendyEngine::CEngineCore(IsInDebug);
     while(pEngine->GetRunningState())
     {
