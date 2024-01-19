@@ -1,21 +1,27 @@
 #pragma once
 
+#include "DendyEngine/GameObject.h"
+
 #include <string>
+#include <iostream>
 
 namespace DendyEngine
 {
 
+class CGameObject;
+
 class IGameComponent
 {
 protected:
-
-protected:
+    CGameObject* m_pGameObjectOwner;
 
 public:
-    IGameComponent() {};
+    IGameComponent(CGameObject* pOwner): m_pGameObjectOwner(pOwner) { std::cout << "Constructor of [IGameComponent] of " << m_pGameObjectOwner << std::endl; }
     virtual ~IGameComponent() = default;
 
-    static const std::string GetComponentTypeName() { return ""; }
+    CGameObject* GetOwner() const { return m_pGameObjectOwner; }
+
+    static const std::string GetComponentTypeName() = delete;
 };
 
 }

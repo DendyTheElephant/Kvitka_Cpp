@@ -10,23 +10,30 @@ m_IsRunning(true)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    //std::unique_ptr<CGameObject> pGameObject;
     {
-        std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01"); 
-    
-        DendyCommon::CSerial SerialCossack01 = pGameObject->GetSerial();
-        std::cout << "Serial:" << SerialCossack01 << std::endl;
-        m_pGameObjectsOwnerMapBySerial.insert(std::make_pair(SerialCossack01, std::move(pGameObject)));
-        m_pGameObjectsOwnerMapBySerial.at(SerialCossack01)->AddComponent<CTransformComponent>(std::string("CossackTransformComponent"));
+        std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01");
+        
+        CTransformComponent* pTransformComponent = pGameObject->AddComponent<CTransformComponent>();
+        std::cout << *(pTransformComponent->GetOwner()) << std::endl;
+        
+        size_t GameObjectHandle = pGameObject->GetUID();
+        m_pOwnedGameObjectsMap.insert( { GameObjectHandle, std::move(pGameObject) } );
     }
     
 
     {
-        for (auto& [GameObjectId, pGameObject]: m_pGameObjectsOwnerMapBySerial)
+        CGameObject* pGOToDestroy;
+        for (auto& [GameObjectHandle, pGameObject]: m_pOwnedGameObjectsMap)
         {
-            pGameObject->GetComponent<CTransformComponent>(std::string("Transform"));
+            CTransformComponent* pTransformComponent = pGameObject->GetComponent<CTransformComponent>();
+            pGOToDestroy = pTransformComponent->GetOwner();//pGameObject.get();
         }
+
+        
+        m_pOwnedGameObjectsMap.erase(pGOToDestroy->GetUID());
+        //m_pOwnedGameObjectsSet.clear();
     }
+    
     
 
     //DendyEngine::CGameObject* pGameObjectRetrieven = m_pGameObjectsOwnerMapBySerial.get(SerialCossack01);

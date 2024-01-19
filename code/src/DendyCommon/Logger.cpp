@@ -104,6 +104,6 @@ void DendyCommon::CLogger::LogCriticalError(std::string errorMessage)
 		m_OutputStream.close();
 	}
 
-	pfd::message("X_X : Dendy Engine Critical Error:", m_CallStack.top()+'\n'+errorMessage, pfd::choice::ok, pfd::icon::error);
+	pfd::message("X_X : Dendy Engine Critical Error:", m_CallStack.top()+"\n\n\n"+errorMessage, pfd::choice::ok, pfd::icon::error);
 	exit(EXIT_FAILURE);
 }
