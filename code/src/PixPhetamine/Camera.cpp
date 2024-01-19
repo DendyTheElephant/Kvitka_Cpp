@@ -1,4 +1,4 @@
-#include "PixPhetamine/Camera.h"
+#include <PixPhetamine/Camera.h>
 #include <math.h>
 
 PixPhetamine::CCamera::CCamera(unsigned int const& viewPortWidth, unsigned int const& viewPortHeight)

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "DendyCommon/Logger.h"
-#include "DendyEngine/GameComponent.h"
-#include "DendyCommon/Handle.h"
+#include <DendyCommon/Logger.h>
+#include <DendyEngine/GameComponents.h>
 
 #include <string>
 #include <unordered_map>
@@ -13,6 +12,11 @@
 namespace DendyEngine
 {
 
+class IGameComponent;
+
+template<class TGameComponent>
+class IGameSystem;
+
 class CGameObject
 {
 protected:
@@ -21,7 +25,7 @@ protected:
     
     const std::size_t m_UID{0};
     std::string m_Name{""};
-    std::unordered_map<std::string,std::unique_ptr<IGameComponent>> m_OwnedGameComponentsMapByComponentTypeName;
+    std::unordered_map<std::string,IGameComponent*> m_GameComponentsMapByComponentTypeName;
 
 public:
     // Forbid contructor by copy
@@ -53,38 +57,57 @@ public:
 
 
 
-    template<class TGameComponent>
-    TGameComponent* AddComponent()
+    // template<class TGameComponent>
+    // TGameComponent* AddComponent()
+    // {
+    //     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    //     std::string ComponentTypeName = typeid(TGameComponent).name();
+
+    //     if (m_OwnedGameComponentsMapByComponentTypeName.contains(ComponentTypeName))
+    //     {
+    //         std::ostringstream SS;
+    //         SS << "On " << *this << " try to AddComponent<" << ComponentTypeName << "> but insertion failed: component already there!";
+    //         LOG_CRITICAL_ERROR(SS.str());
+    //         return nullptr;
+    //     }
+
+    //     std::unique_ptr<IGameComponent> pComponent = std::make_unique<TGameComponent>(this);
+    //     m_OwnedGameComponentsMapByComponentTypeName.insert({ComponentTypeName, std::move(pComponent)});
+
+
+    //     //TGameComponent* pComponentReference = .first.second.get();
+    //     TGameComponent* pComponentReference = static_cast<TGameComponent*>(m_OwnedGameComponentsMapByComponentTypeName.at(ComponentTypeName).get());
+        
+    //     LOG_CALLSTACK_POP();
+    //     return pComponentReference;
+    // }
+
+    void AddComponent(std::string const& componentTypeName, IGameComponent* pComponent)
     {
         LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-        std::string ComponentTypeName = TGameComponent::GetComponentTypeName();
-
-        if (m_OwnedGameComponentsMapByComponentTypeName.contains(ComponentTypeName))
+        std::string ComponentTypeName = typeid(pComponent).name();
+        if (m_GameComponentsMapByComponentTypeName.contains(ComponentTypeName))
         {
             std::ostringstream SS;
             SS << "On " << *this << " try to AddComponent<" << ComponentTypeName << "> but insertion failed: component already there!";
             LOG_CRITICAL_ERROR(SS.str());
-            return nullptr;
         }
 
-        std::unique_ptr<IGameComponent> pComponent = std::make_unique<TGameComponent>(this);
-        m_OwnedGameComponentsMapByComponentTypeName.insert({ComponentTypeName, std::move(pComponent)});
-
-
-        //TGameComponent* pComponentReference = .first.second.get();
-        TGameComponent* pComponentReference = static_cast<TGameComponent*>(m_OwnedGameComponentsMapByComponentTypeName.at(ComponentTypeName).get());
+        //m_GameComponentsMapByComponentTypeName.insert({ComponentTypeName, std::move(pComponent)});
+        m_GameComponentsMapByComponentTypeName.insert({ComponentTypeName, pComponent});
         
         LOG_CALLSTACK_POP();
-        return pComponentReference;
     }
 
     template<class TGameComponent>
     bool HasComponent() const
     {
-        std::string ComponentTypeName = TGameComponent::GetComponentTypeName();
-        auto it_Component = m_OwnedGameComponentsMapByComponentTypeName.find(ComponentTypeName);
-        if ( it_Component == m_OwnedGameComponentsMapByComponentTypeName.end() )
+        //std::string ComponentTypeName = TGameComponent::GetComponentTypeName();
+        std::string ComponentTypeName = typeid(TGameComponent).name();
+        auto it_Component = m_GameComponentsMapByComponentTypeName.find(ComponentTypeName);
+        if ( it_Component == m_GameComponentsMapByComponentTypeName.end() )
             return false;
         else
             return true;
@@ -95,9 +118,10 @@ public:
     {
         LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-        std::string ComponentTypeName = TGameComponent::GetComponentTypeName();
-        auto it_Component = m_OwnedGameComponentsMapByComponentTypeName.find(ComponentTypeName);
-        if ( it_Component == m_OwnedGameComponentsMapByComponentTypeName.end() )
+        //std::string ComponentTypeName = TGameComponent::GetComponentTypeName();
+        std::string ComponentTypeName = typeid(TGameComponent).name();
+        auto it_Component = m_GameComponentsMapByComponentTypeName.find(ComponentTypeName);
+        if ( it_Component == m_GameComponentsMapByComponentTypeName.end() )
         {
             std::ostringstream SS;
             SS << "On CGameObject" << *this << " try to GetComponent<" << ComponentTypeName << "> but doesn't exist!";
@@ -107,7 +131,7 @@ public:
         else
         {
             LOG_CALLSTACK_POP();
-            return static_cast<TGameComponent*>(it_Component->second.get());
+            return static_cast<TGameComponent*>(it_Component->second);
         }
     }
 };
@@ -122,23 +146,5 @@ struct hash<DendyEngine::CGameObject>
 {
     auto operator()(const DendyEngine::CGameObject &gameObject) const -> size_t {return hash<size_t>()(gameObject.m_UID);}
 };
-
-
-// template <>
-// struct hash<DendyEngine::CGameObject>
-// {
-//     //using hash_type = std::hash<std::string_view>;
-//     using is_transparent = void;
-
-//     std::size_t operator()(const DendyEngine::CGameObject &gameObject) const
-//     {
-//         return std::hash<std::string_view>{}(static_cast<size_t>(gameObject.m_UID));
-//     }
-//     std::size_t operator()(const size_t uid) const
-//     {
-//         return std::hash<std::string_view>{}(uid);
-//     }
-// };
-
 
 }  // namespace std

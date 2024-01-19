@@ -1,9 +1,8 @@
 #include <iostream>
 
-#include "PixPhetamine/RenderingCore.h"
-#include "DendyEngine/EngineCore.h"
-#include "DendyCommon/Logger.h"
-#include "DendyCommon/Timer.h"
+#include <DendyEngine/EngineCore.h>
+#include <DendyCommon/Logger.h>
+#include <DendyCommon/Timer.h>
 
 
 int main()
@@ -38,7 +37,7 @@ int main()
         {
             Counter = 0;
             Timer.Pause();
-            std::cout << "Global Update: Elapsed " << (Timer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
+            //std::cout << "Global Update: Elapsed " << (Timer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
         }
         
     }
@@ -47,6 +46,8 @@ int main()
 
     
     DendyCommon::CLogger::DestroyInstance();
+
+    system("pause>nul");
 
     return 0;
 }

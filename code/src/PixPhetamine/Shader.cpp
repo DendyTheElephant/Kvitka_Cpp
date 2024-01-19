@@ -1,6 +1,6 @@
-#include "PixPhetamine/Shader.h"
-#include "DendyCommon/Logger.h"
-#include "PixPhetamine/RenderingCore.h"
+#include <PixPhetamine/Shader.h>
+#include <DendyCommon/Logger.h>
+#include <PixPhetamine/RenderingSystem.h>
 
 #include <iostream>
 #include <vector>
@@ -93,7 +93,7 @@ void PixPhetamine::CShader::_Load(std::string vertexCode, std::string fragmentCo
     glDeleteShader(vertexId);
     glDeleteShader(fragmentId);
 
-    PixPhetamine::CRenderingCore::AssertOpenGLErrors();
+    PixPhetamine::CRenderingSystem::AssertOpenGLErrors();
     LOG_CALLSTACK_POP();
 }
 
@@ -187,7 +187,7 @@ void PixPhetamine::CShader::DeclareUniformVariableName(const char * correspondin
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
     _CheckContext();
     m_VariableNamesMap[correspondingVariableNameInShader] = glGetUniformLocation(m_Id, correspondingVariableNameInShader);
-    PixPhetamine::CRenderingCore::AssertOpenGLErrors();
+    PixPhetamine::CRenderingSystem::AssertOpenGLErrors();
     LOG_CALLSTACK_POP();
 }
 
@@ -203,7 +203,7 @@ void PixPhetamine::CShader::SendUniformVariable(const char * correspondingVariab
     if (m_VariableNamesMap.count(correspondingVariableNameInShader) != 0)
     {
         glUniform1f(m_VariableNamesMap[correspondingVariableNameInShader], a_variable);
-        PixPhetamine::CRenderingCore::AssertOpenGLErrors();
+        PixPhetamine::CRenderingSystem::AssertOpenGLErrors();
     }
     else
     {
@@ -221,7 +221,7 @@ void PixPhetamine::CShader::SendUniformVariable(const char * correspondingVariab
     if (m_VariableNamesMap.count(correspondingVariableNameInShader) != 0)
     {
         glUniform1i(m_VariableNamesMap[correspondingVariableNameInShader], a_variable);
-        PixPhetamine::CRenderingCore::AssertOpenGLErrors();
+        PixPhetamine::CRenderingSystem::AssertOpenGLErrors();
     }
     else 
     {
@@ -239,7 +239,7 @@ void PixPhetamine::CShader::SendUniformVariable(const char * correspondingVariab
     if (m_VariableNamesMap.count(correspondingVariableNameInShader) != 0)
     {
         glUniform3f(m_VariableNamesMap[correspondingVariableNameInShader], a_variable[0], a_variable[1], a_variable[2]);
-        PixPhetamine::CRenderingCore::AssertOpenGLErrors();
+        PixPhetamine::CRenderingSystem::AssertOpenGLErrors();
     }
     else
     {
@@ -257,7 +257,7 @@ void PixPhetamine::CShader::SendUniformVariable(const char * correspondingVariab
     if (m_VariableNamesMap.count(correspondingVariableNameInShader) != 0)
     {
         glUniform4f(m_VariableNamesMap[correspondingVariableNameInShader], a_variable[0], a_variable[1], a_variable[2], a_variable[3]);
-        PixPhetamine::CRenderingCore::AssertOpenGLErrors();
+        PixPhetamine::CRenderingSystem::AssertOpenGLErrors();
     }
     else
     {
@@ -275,7 +275,7 @@ void PixPhetamine::CShader::SendUniformVariable(const char * correspondingVariab
     if (m_VariableNamesMap.count(correspondingVariableNameInShader) != 0)
     {
         glUniformMatrix4fv(m_VariableNamesMap[correspondingVariableNameInShader], 1, GL_FALSE, glm::value_ptr(a_variable));
-        PixPhetamine::CRenderingCore::AssertOpenGLErrors();
+        PixPhetamine::CRenderingSystem::AssertOpenGLErrors();
     }
     else
     {

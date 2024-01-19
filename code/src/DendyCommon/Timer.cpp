@@ -1,4 +1,4 @@
-#include "DendyCommon/Timer.h"
+#include <DendyCommon/Timer.h>
 
 void DendyCommon::CTimer::_UpdateElapsedTicks()
 {

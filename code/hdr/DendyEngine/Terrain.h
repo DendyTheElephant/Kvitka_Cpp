@@ -8,7 +8,7 @@
 #include <array>
 #include <memory>
 
-#include "PixPhetamine/Mesh.h"
+#include <PixPhetamine/Mesh.h>
 
 
 namespace DendyEngine

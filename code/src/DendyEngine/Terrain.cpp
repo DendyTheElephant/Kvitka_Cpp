@@ -1,6 +1,6 @@
-#include "DendyEngine/Terrain.h"
-#include "DendyCommon/Logger.h"
-#include "DendyCommon/Math.h"
+#include <DendyEngine/Terrain.h>
+#include <DendyCommon/Logger.h>
+#include <DendyCommon/Math.h>
 
 #include <algorithm>
 
@@ -96,6 +96,8 @@ void DendyEngine::CTerrain::LoadToGPU()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndicesHandle);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_FaceIndicesVec.size()*sizeof(GLuint), m_FaceIndicesVec.data(), GL_STATIC_DRAW);
 
+    
+    m_IsLoadedInGPU = true;
 
     LOG_CALLSTACK_POP();
 }

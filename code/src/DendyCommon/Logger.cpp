@@ -1,5 +1,5 @@
-﻿#include "DendyCommon/Logger.h"
-#include "PixPhetamine/PortableFileDialog.h"
+﻿#include <DendyCommon/Logger.h>
+#include <PixPhetamine/PortableFileDialog.h>
 
 DendyCommon::CLogger::~CLogger() {
 	if (m_OutputStream.is_open())

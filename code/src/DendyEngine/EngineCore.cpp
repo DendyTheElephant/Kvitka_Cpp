@@ -1,6 +1,5 @@
-#include "DendyEngine/EngineCore.h"
-#include "DendyCommon/Logger.h"
-#include "DendyEngine/TransformComponent.h"
+#include <DendyEngine/EngineCore.h>
+#include <DendyCommon/Logger.h>
 
 #include <iostream>
 
@@ -10,56 +9,10 @@ m_IsRunning(true)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    {
-        std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01");
-        
-        CTransformComponent* pTransformComponent = pGameObject->AddComponent<CTransformComponent>();
-        std::cout << *(pTransformComponent->GetOwner()) << std::endl;
-        
-        size_t GameObjectHandle = pGameObject->GetUID();
-        m_pOwnedGameObjectsMap.insert( { GameObjectHandle, std::move(pGameObject) } );
-    }
-    
-
-    {
-        CGameObject* pGOToDestroy;
-        for (auto& [GameObjectHandle, pGameObject]: m_pOwnedGameObjectsMap)
-        {
-            CTransformComponent* pTransformComponent = pGameObject->GetComponent<CTransformComponent>();
-            pGOToDestroy = pTransformComponent->GetOwner();//pGameObject.get();
-        }
-
-        
-        m_pOwnedGameObjectsMap.erase(pGOToDestroy->GetUID());
-        //m_pOwnedGameObjectsSet.clear();
-    }
-    
-    
-
-    //DendyEngine::CGameObject* pGameObjectRetrieven = m_pGameObjectsOwnerMapBySerial.get(SerialCossack01);
-
-    //m_pGameObjectsOwnerMapBySerial.insert( {pGameObject->GetSerial(), std::move(pGameObject)} );
-    //m_pGameObjectsMapById[] = new CGameObject("Cossack01");
-    //m_pGameObjectsMapById[2] = new CGameObject("Cossack02");
-
-
-    //m_pTerrain = std::make_unique<CTerrain>(1.0f);
-
-    m_pTerrain = new CTerrain(4.0f);
-    
-    // std::cout << pTerrain->GetHeightAtPosition(glm::vec2(0.0f,0.0f)) << std::endl;
-    // std::cout << pTerrain->GetHeightAtPosition(glm::vec2(0.5f,0.5f)) << std::endl;
-    // std::cout << pTerrain->GetHeightAtPosition(glm::vec2(0.9f,0.8f)) << std::endl;
-
-    system("pause>nul");
-    m_IsRunning = false;
-    LOG_CALLSTACK_POP();
-    return;
-
     _InitialiseRendering();
     _InitialiseInputManager();
-
-    // m_pTerrain->LoadToGPU();
+    _InitialiseGameSystems();
+    _InitialiseGameObjects();
 
     LOG_CALLSTACK_POP();
 }
@@ -68,8 +21,10 @@ DendyEngine::CEngineCore::~CEngineCore()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
+    m_pOwnedGameObjectsMap.clear();
+
     m_pInputHandler.release();
-    m_pRenderingEngineInstance.release();
+    m_pRenderingSystem.release();
 
     LOG_CALLSTACK_POP();
 }
@@ -78,7 +33,7 @@ void DendyEngine::CEngineCore::_InitialiseRendering()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pRenderingEngineInstance = std::make_unique<PixPhetamine::CRenderingCore>(m_IsInDebugState);
+    m_pRenderingSystem = std::make_unique<PixPhetamine::CRenderingSystem>(m_IsInDebugState);
 
     LOG_CALLSTACK_POP();
 }
@@ -87,7 +42,54 @@ void DendyEngine::CEngineCore::_InitialiseInputManager()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pInputHandler = std::make_unique<PixPhetamine::CInputHandler>(m_pRenderingEngineInstance->GetGLFWWindow());
+    m_pInputHandler = std::make_unique<PixPhetamine::CInputHandler>(m_pRenderingSystem->GetGLFWWindow());
+
+    LOG_CALLSTACK_POP();
+}
+
+void DendyEngine::CEngineCore::_InitialiseGameObjects()
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    // Create Cossack
+    {
+        std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01");
+
+        // Create components
+        CSpatialNavigationComponent* pSpatialNavigationComponent = m_pSystemSpatialNavigation->CreateComponent(pGameObject.get());
+        pSpatialNavigationComponent->Step.x = 0.001f;
+
+        // Insert and hold in Map    
+        size_t GameObjectHandle = pGameObject->GetUID();
+        m_pOwnedGameObjectsMap.insert( { GameObjectHandle, std::move(pGameObject) } );
+    }
+    
+
+    m_pTerrain = new CTerrain(4.0f);
+
+    // {
+    //     CGameObject* pGOToDestroy;
+    //     for (auto& [GameObjectHandle, pGameObject]: m_pOwnedGameObjectsMap)
+    //     {
+    //         CTransformComponent* pTransformComponent = pGameObject->GetComponent<CTransformComponent>();
+    //         pGOToDestroy = pTransformComponent->GetOwner();//pGameObject.get();
+    //     }
+
+        
+    //     m_pOwnedGameObjectsMap.erase(pGOToDestroy->GetUID());
+    //     //m_pOwnedGameObjectsSet.clear();
+    // }
+
+    LOG_CALLSTACK_POP();
+}
+
+void DendyEngine::CEngineCore::_InitialiseGameSystems()
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    m_pSystemSpatialNavigation = std::make_unique<CGameSystem<CSpatialNavigationComponent>>();
+
+    m_pRenderingSystem = std::make_unique<PixPhetamine::CRenderingSystem>(m_IsInDebugState);
 
     LOG_CALLSTACK_POP();
 }
@@ -104,15 +106,19 @@ void DendyEngine::CEngineCore::Update()
         return;
     }
     
-    // for (auto& [GameObjectId, pGameObject]: m_pGameObjectsOwnerMapBySerial)
-    // {
-    //     pGameObject->Update();
-    // }
 
-    
+    if (m_pTerrain->GetIsLoadedInGPUState() == false)
+        m_pTerrain->LoadToGPU();
 
+    m_pSystemSpatialNavigation->Update();
 
-    //m_pRenderingEngineInstance->Render(m_pTerrain);
+    //m_pRenderingSystem->Render(m_pTerrain);
+
+    //glm::vec4 Position4{0,0,0,1};
+    //glm::mat4 Matrix = m_pOwnedGameObjectsMap.at(1).get()->GetComponent<CTransformComponent>()->TranformMatrix;
+    //Position4 = Matrix * Position4;
+    //std::cout << "(" << Position4.x << ", " << Position4.y << ", " << Position4.z << ")" << std::endl;
+    //std::cout << "(" << Matrix[3][1] << ", " << Position4.y << ", " << Matrix[3][3] << ")" << std::endl;
 
 
 

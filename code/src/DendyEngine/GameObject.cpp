@@ -1,4 +1,4 @@
-#include "DendyEngine/GameObject.h"
+#include <DendyEngine/GameObject.h>
 
 # include <iostream>
 
@@ -11,7 +11,7 @@ m_Name(name)
 
 DendyEngine::CGameObject::~CGameObject()
 {
-    m_OwnedGameComponentsMapByComponentTypeName.clear();
+    m_GameComponentsMapByComponentTypeName.clear();
     std::cout << "Detructor of "<< *this << std::endl;
 }
 
