@@ -5,11 +5,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <string>
+#include <iostream>
 
 namespace DendyEngine
 {
 
-class CTransformComponent
+class CTransformComponent: IGameComponent
 {
 protected:
     glm::mat4 m_TranformMatrix{1};
@@ -17,7 +18,7 @@ protected:
 protected:
 
 public:
-    CTransformComponent() {};
+    CTransformComponent(std::string const& name) { std::cout << "Ctor of Component ["<<GetComponentTypeName()<<"]["<<name<<"]" << std::endl; }
     ~CTransformComponent();
 
     const glm::mat4 GetTransformMatrix() const { return m_TranformMatrix; }

@@ -13,7 +13,7 @@ protected:
 
 public:
     IGameComponent() {};
-    virtual ~IGameComponent() = 0;
+    virtual ~IGameComponent() = default;
 
     static const std::string GetComponentTypeName() { return ""; }
 };

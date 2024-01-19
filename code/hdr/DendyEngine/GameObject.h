@@ -5,6 +5,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <memory>
 
 namespace DendyEngine
 {
@@ -13,7 +14,7 @@ class CGameObject
 {
 protected:
     DendyCommon::CSerial m_Serial;
-    std::unordered_map<std::string,IGameComponent*> m_GameComponentsMapByComponentType;
+    std::unordered_map<std::string,std::unique_ptr<IGameComponent>> m_GameComponentsMapByComponentType;
 
 public:
     CGameObject(CGameObject& original);
@@ -25,8 +26,33 @@ public:
 
     void Update();
 
-    void AddComponent(IGameComponent* pComponent) { m_GameComponentsMapByComponentType[pComponent->GetComponentTypeName()] = pComponent; }
-    IGameComponent* GetComponent(std::string componentTypeName);
+    template<class TGameComponent>
+    void AddComponent(std::string const& name)
+    {
+        std::string ComponentTypeName = TGameComponent::GetComponentTypeName();
+
+        std::unique_ptr<TGameComponent> pComponent = std::make_unique<TGameComponent>(name);
+        m_GameComponentsMapByComponentType.insert(ComponentTypeName, std::move(pComponent));
+    }
+
+
+
+    template<class TGameComponent>
+    TGameComponent* GetComponent(std::string const& componentTypeName)
+    {
+        return nullptr;
+        // auto it_Component = m_GameComponentsMapByComponentType.find(componentTypeName);
+        // if ( it_Component == m_GameComponentsMapByComponentType.end() )
+        // {
+        //     return nullptr;
+        // }
+        // else
+        // {
+        //     std::string ComponentTypeName = it_Component->second.get()->GetComponentTypeName();
+        //     if (ComponentTypeName == "Transform")
+        //         return static_cast<CTransformComponent*>(it_Component->second.get());
+        // }
+    }
 };
 
 }

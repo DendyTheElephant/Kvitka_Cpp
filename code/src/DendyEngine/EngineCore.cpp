@@ -1,5 +1,6 @@
 #include "DendyEngine/EngineCore.h"
 #include "DendyCommon/Logger.h"
+#include "DendyEngine/TransformComponent.h"
 
 #include <iostream>
 
@@ -10,11 +11,23 @@ m_IsRunning(true)
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
     //std::unique_ptr<CGameObject> pGameObject;
-    std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01"); 
+    {
+        std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01"); 
     
-    DendyCommon::CSerial SerialCossack01 = pGameObject->GetSerial();
-    std::cout << "Serial:" << SerialCossack01 << std::endl;
-    m_pGameObjectsOwnerMapBySerial.insert(std::make_pair(SerialCossack01, std::move(pGameObject)));
+        DendyCommon::CSerial SerialCossack01 = pGameObject->GetSerial();
+        std::cout << "Serial:" << SerialCossack01 << std::endl;
+        m_pGameObjectsOwnerMapBySerial.insert(std::make_pair(SerialCossack01, std::move(pGameObject)));
+        m_pGameObjectsOwnerMapBySerial.at(SerialCossack01)->AddComponent<CTransformComponent>(std::string("CossackTransformComponent"));
+    }
+    
+
+    {
+        for (auto& [GameObjectId, pGameObject]: m_pGameObjectsOwnerMapBySerial)
+        {
+            pGameObject->GetComponent<CTransformComponent>(std::string("Transform"));
+        }
+    }
+    
 
     //DendyEngine::CGameObject* pGameObjectRetrieven = m_pGameObjectsOwnerMapBySerial.get(SerialCossack01);
 
@@ -89,11 +102,7 @@ void DendyEngine::CEngineCore::Update()
     //     pGameObject->Update();
     // }
 
-    for (auto& [GameObjectId, pGameObject]: m_pGameObjectsOwnerMapBySerial)
-    {
-        pGameObject->GetComponent("Mesh");
-        
-    }
+    
 
 
     //m_pRenderingEngineInstance->Render(m_pTerrain);
