@@ -1,5 +1,6 @@
 #pragma once
 
+#include <PixPhetamine/RenderingSystem.h>
 #include <DendyEngine/GameObject.h>
 #include <unordered_set>
 #include <memory>
@@ -28,6 +29,18 @@ public:
     }
     
 
+    void Update();
+};
+
+
+
+class CRenderablePawn: public CGameSystem<CRenderablePawnComponent>
+{
+protected:
+    PixPhetamine::CRenderingSystem* m_pRenderingSystem;
+
+public:
+    CRenderablePawn(PixPhetamine::CRenderingSystem* pRendering):m_pRenderingSystem(pRendering) {}
     void Update();
 };
 

@@ -55,48 +55,20 @@ public:
     //     return std::string("{") + gameObject.m_Name + std::string("|") + std::to_string(gameObject.m_UID) + std::string("}"; 
     // }
 
-
-
-    // template<class TGameComponent>
-    // TGameComponent* AddComponent()
-    // {
-    //     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
-
-    //     std::string ComponentTypeName = typeid(TGameComponent).name();
-
-    //     if (m_OwnedGameComponentsMapByComponentTypeName.contains(ComponentTypeName))
-    //     {
-    //         std::ostringstream SS;
-    //         SS << "On " << *this << " try to AddComponent<" << ComponentTypeName << "> but insertion failed: component already there!";
-    //         LOG_CRITICAL_ERROR(SS.str());
-    //         return nullptr;
-    //     }
-
-    //     std::unique_ptr<IGameComponent> pComponent = std::make_unique<TGameComponent>(this);
-    //     m_OwnedGameComponentsMapByComponentTypeName.insert({ComponentTypeName, std::move(pComponent)});
-
-
-    //     //TGameComponent* pComponentReference = .first.second.get();
-    //     TGameComponent* pComponentReference = static_cast<TGameComponent*>(m_OwnedGameComponentsMapByComponentTypeName.at(ComponentTypeName).get());
-        
-    //     LOG_CALLSTACK_POP();
-    //     return pComponentReference;
-    // }
-
     void AddComponent(std::string const& componentTypeName, IGameComponent* pComponent)
     {
         LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-        std::string ComponentTypeName = typeid(pComponent).name();
-        if (m_GameComponentsMapByComponentTypeName.contains(ComponentTypeName))
+        //std::string ComponentTypeName = typeid(pComponent).name();
+        if (m_GameComponentsMapByComponentTypeName.contains(componentTypeName))
         {
             std::ostringstream SS;
-            SS << "On " << *this << " try to AddComponent<" << ComponentTypeName << "> but insertion failed: component already there!";
+            SS << "On " << *this << " try to AddComponent<" << componentTypeName << "> but insertion failed: component already there!";
             LOG_CRITICAL_ERROR(SS.str());
         }
 
         //m_GameComponentsMapByComponentTypeName.insert({ComponentTypeName, std::move(pComponent)});
-        m_GameComponentsMapByComponentTypeName.insert({ComponentTypeName, pComponent});
+        m_GameComponentsMapByComponentTypeName.insert({componentTypeName, pComponent});
         
         LOG_CALLSTACK_POP();
     }

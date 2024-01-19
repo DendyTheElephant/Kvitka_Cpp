@@ -56,8 +56,14 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01");
 
         // Create components
-        CSpatialNavigationComponent* pSpatialNavigationComponent = m_pSystemSpatialNavigation->CreateComponent(pGameObject.get());
-        pSpatialNavigationComponent->Step.x = 0.001f;
+        { // SpatialNavigation
+            CSpatialNavigationComponent* pComponent = m_pSystemSpatialNavigation->CreateComponent(pGameObject.get());
+            pComponent->Step.x = 0.001f;
+        }
+        { // Renderable Pawn
+            CRenderablePawnComponent* pComponent = m_pSystemRenderablePawn->CreateComponent(pGameObject.get());
+            pComponent->Height = 2.0f;
+        }        
 
         // Insert and hold in Map    
         size_t GameObjectHandle = pGameObject->GetUID();
@@ -67,18 +73,6 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
 
     m_pTerrain = new CTerrain(4.0f);
 
-    // {
-    //     CGameObject* pGOToDestroy;
-    //     for (auto& [GameObjectHandle, pGameObject]: m_pOwnedGameObjectsMap)
-    //     {
-    //         CTransformComponent* pTransformComponent = pGameObject->GetComponent<CTransformComponent>();
-    //         pGOToDestroy = pTransformComponent->GetOwner();//pGameObject.get();
-    //     }
-
-        
-    //     m_pOwnedGameObjectsMap.erase(pGOToDestroy->GetUID());
-    //     //m_pOwnedGameObjectsSet.clear();
-    // }
 
     LOG_CALLSTACK_POP();
 }
@@ -87,9 +81,10 @@ void DendyEngine::CEngineCore::_InitialiseGameSystems()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pSystemSpatialNavigation = std::make_unique<CGameSystem<CSpatialNavigationComponent>>();
-
     m_pRenderingSystem = std::make_unique<PixPhetamine::CRenderingSystem>(m_IsInDebugState);
+
+    m_pSystemSpatialNavigation = std::make_unique<CGameSystem<CSpatialNavigationComponent>>();
+    m_pSystemRenderablePawn = std::make_unique<CRenderablePawn>(m_pRenderingSystem.get());
 
     LOG_CALLSTACK_POP();
 }
@@ -111,6 +106,7 @@ void DendyEngine::CEngineCore::Update()
         m_pTerrain->LoadToGPU();
 
     m_pSystemSpatialNavigation->Update();
+    m_pSystemRenderablePawn->Update();
 
     //m_pRenderingSystem->Render(m_pTerrain);
 

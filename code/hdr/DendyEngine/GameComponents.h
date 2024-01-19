@@ -19,7 +19,7 @@ protected:
     CGameObject* m_pGameObjectOwner;
 
 public:
-    IGameComponent(CGameObject* pOwner): m_pGameObjectOwner(pOwner) { std::cout << "Constructor of [IGameComponent] of " << m_pGameObjectOwner << std::endl; }
+    IGameComponent(CGameObject* pOwner): m_pGameObjectOwner(pOwner) {}
     virtual ~IGameComponent() = default;
 
     CGameObject* GetOwner() const { return m_pGameObjectOwner; }
@@ -35,7 +35,7 @@ struct CSpatialNavigationComponent: public IGameComponent { using IGameComponent
     float Speed{0.0f};
 };
 
-struct CRenderablePawn: public IGameComponent { using IGameComponent::IGameComponent;
+struct CRenderablePawnComponent: public IGameComponent { using IGameComponent::IGameComponent;
     glm::vec3 Color{1,1,1};
     float Radius{0.5f};
     float Height{1.0f};
