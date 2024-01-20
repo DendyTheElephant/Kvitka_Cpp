@@ -1,8 +1,14 @@
 #include <iostream>
+//import <iostream>;
 
 #include <DendyEngine/EngineCore.h>
 #include <DendyCommon/Logger.h>
 #include <DendyCommon/Timer.h>
+
+#include <DendyEngine/ECS/ECSEngine.h>
+
+
+
 
 
 int main()
@@ -18,6 +24,15 @@ int main()
 
     DendyCommon::CLogger* pLogger = &DendyCommon::CLogger::GetInstance();
     pLogger->SetOutputFile("G:\\DyCode\\Kvitka_Cpp\\LogError.txt");
+
+
+    DendyEngine::ECS::CECSEngine* pECSEngine = new DendyEngine::ECS::CECSEngine();
+
+    
+    
+
+    
+    pECSEngine->GetGameObjectsSetWithComponents<DendyEngine::ECS::EComponentType::Position1,DendyEngine::ECS::EComponentType::Position2>();
 
 
     bool IsInDebug = true;

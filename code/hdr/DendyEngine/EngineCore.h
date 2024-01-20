@@ -1,8 +1,8 @@
 #pragma once
 
 #include <PixPhetamine/InputHandler.h>
-#include <DendyEngine/GameObject.h>
-#include <DendyEngine/GameSystems.h>
+#include <DendyEngine/ECS/GameObject.h>
+#include <DendyEngine/ECS/GameSystems.h>
 #include <DendyEngine/Terrain.h>
 
 #include <PixPhetamine/RenderingSystem.h>
@@ -43,6 +43,7 @@ private:
     void _InitialiseInputManager();
     void _InitialiseGameSystems();
     void _InitialiseGameObjects();
+    
     
 
 

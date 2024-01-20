@@ -1,4 +1,4 @@
-#include <DendyEngine/GameObject.h>
+#include <DendyEngine/ECS/GameObject.h>
 
 # include <iostream>
 

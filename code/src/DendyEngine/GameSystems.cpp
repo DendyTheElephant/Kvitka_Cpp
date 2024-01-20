@@ -1,5 +1,5 @@
-#include <DendyEngine/GameSystems.h>
-#include <DendyEngine/GameComponents.h>
+#include <DendyEngine/ECS/GameSystems.h>
+#include <DendyEngine/ECS/GameComponents.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>

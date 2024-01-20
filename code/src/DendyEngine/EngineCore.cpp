@@ -53,6 +53,16 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
 
     // Create Cossack
     {
+        // CGameObject* pGameObject = pECSEngine->CreateGameObject("Cossack01");
+        // pECSEngine->AddComponent(pGameObject, EGameComponentType::WalkingCharacter);
+        // {
+        //     auto pComponent = pECSEngine->AddComponent<RenderableCharacter>(pGameObject);
+        //     pComponent->Sprite = "blabla.png";
+        // }
+        
+        // pECSEngine->GetGameObjectSetByComponents(EGameComponentType::RenderableCharacter, EGameComponentType::RenderableCharacter)
+
+
         std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01");
 
         // Create components
@@ -65,7 +75,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
             pComponent->Height = 2.0f;
         }        
 
-        // Insert and hold in Map    
+        // Insert and hold in Map
         size_t GameObjectHandle = pGameObject->GetUID();
         m_pOwnedGameObjectsMap.insert( { GameObjectHandle, std::move(pGameObject) } );
     }
