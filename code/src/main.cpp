@@ -28,11 +28,17 @@ int main()
 
     DendyEngine::ECS::CECSEngine* pECSEngine = new DendyEngine::ECS::CECSEngine();
 
-    
-    
+    DendyEngine::ECS::CGameObject* pGameObject = pECSEngine->AddGameObject("Kossack001");
+    DendyEngine::ECS::STransform* pTransform = pECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
+    pTransform->X = 42.0f;
 
-    
-    pECSEngine->GetGameObjectsSetWithComponents<DendyEngine::ECS::EComponentType::Position1,DendyEngine::ECS::EComponentType::Position2>();
+    DendyEngine::ECS::STransform* pOtherTransform = pECSEngine->GetComponent<DendyEngine::ECS::STransform>(pGameObject);
+
+    for (auto pGameObject : pECSEngine->GetGameObjectsVecWithComponents<DendyEngine::ECS::STransform>())
+    {
+        std::cout << *pGameObject << std::endl;
+    }
+    //pECSEngine->GetGameObjectsSetWithComponents<DendyEngine::ECS::EGameComponentType::Transform,DendyEngine::ECS::EGameComponentType::SimpleMesh>();
 
 
     bool IsInDebug = true;

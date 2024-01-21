@@ -27,7 +27,7 @@ private:
     
     std::unique_ptr<PixPhetamine::CInputHandler> m_pInputHandler;
 
-    std::unordered_map<size_t,std::unique_ptr<CGameObject>> m_pOwnedGameObjectsMap;
+    //std::unordered_map<size_t,std::unique_ptr<CGameObject>> m_pOwnedGameObjectsMap;
 
     // std::unique_ptr<CTerrain> m_pTerrain;
     PixPhetamine::IMesh* m_pTerrain;
@@ -35,8 +35,8 @@ private:
 
 
     std::unique_ptr<PixPhetamine::CRenderingSystem> m_pRenderingSystem;
-    std::unique_ptr<DendyEngine::CGameSystem<DendyEngine::CSpatialNavigationComponent>> m_pSystemSpatialNavigation;
-    std::unique_ptr<DendyEngine::CRenderablePawn> m_pSystemRenderablePawn;
+    //std::unique_ptr<DendyEngine::CGameSystem<DendyEngine::CSpatialNavigationComponent>> m_pSystemSpatialNavigation;
+    //std::unique_ptr<DendyEngine::CRenderablePawn> m_pSystemRenderablePawn;
 
 private:
     void _InitialiseRendering();

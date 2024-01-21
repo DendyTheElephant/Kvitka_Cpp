@@ -21,7 +21,7 @@ DendyEngine::CEngineCore::~CEngineCore()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pOwnedGameObjectsMap.clear();
+    // m_pOwnedGameObjectsMap.clear();
 
     m_pInputHandler.release();
     m_pRenderingSystem.release();
@@ -63,21 +63,21 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         // pECSEngine->GetGameObjectSetByComponents(EGameComponentType::RenderableCharacter, EGameComponentType::RenderableCharacter)
 
 
-        std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01");
+        // std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01");
 
-        // Create components
-        { // SpatialNavigation
-            CSpatialNavigationComponent* pComponent = m_pSystemSpatialNavigation->CreateComponent(pGameObject.get());
-            pComponent->Step.x = 0.001f;
-        }
-        { // Renderable Pawn
-            CRenderablePawnComponent* pComponent = m_pSystemRenderablePawn->CreateComponent(pGameObject.get());
-            pComponent->Height = 2.0f;
-        }        
+        // // Create components
+        // { // SpatialNavigation
+        //     CSpatialNavigationComponent* pComponent = m_pSystemSpatialNavigation->CreateComponent(pGameObject.get());
+        //     pComponent->Step.x = 0.001f;
+        // }
+        // { // Renderable Pawn
+        //     CRenderablePawnComponent* pComponent = m_pSystemRenderablePawn->CreateComponent(pGameObject.get());
+        //     pComponent->Height = 2.0f;
+        // }        
 
-        // Insert and hold in Map
-        size_t GameObjectHandle = pGameObject->GetUID();
-        m_pOwnedGameObjectsMap.insert( { GameObjectHandle, std::move(pGameObject) } );
+        // // Insert and hold in Map
+        // size_t GameObjectHandle = pGameObject->GetUID();
+        // m_pOwnedGameObjectsMap.insert( { GameObjectHandle, std::move(pGameObject) } );
     }
     
 
@@ -93,8 +93,8 @@ void DendyEngine::CEngineCore::_InitialiseGameSystems()
 
     m_pRenderingSystem = std::make_unique<PixPhetamine::CRenderingSystem>(m_IsInDebugState);
 
-    m_pSystemSpatialNavigation = std::make_unique<CGameSystem<CSpatialNavigationComponent>>();
-    m_pSystemRenderablePawn = std::make_unique<CRenderablePawn>(m_pRenderingSystem.get());
+    // m_pSystemSpatialNavigation = std::make_unique<CGameSystem<CSpatialNavigationComponent>>();
+    // m_pSystemRenderablePawn = std::make_unique<CRenderablePawn>(m_pRenderingSystem.get());
 
     LOG_CALLSTACK_POP();
 }
@@ -115,8 +115,8 @@ void DendyEngine::CEngineCore::Update()
     if (m_pTerrain->GetIsLoadedInGPUState() == false)
         m_pTerrain->LoadToGPU();
 
-    m_pSystemSpatialNavigation->Update();
-    m_pSystemRenderablePawn->Update();
+    // m_pSystemSpatialNavigation->Update();
+    // m_pSystemRenderablePawn->Update();
 
     //m_pRenderingSystem->Render(m_pTerrain);
 
