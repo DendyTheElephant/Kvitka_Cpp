@@ -23,8 +23,8 @@ DendyEngine::CEngineCore::~CEngineCore()
 
     // m_pOwnedGameObjectsMap.clear();
 
-    m_pInputHandler.release();
-    m_pRenderingSystem.release();
+    m_pOwnedInputHandler.release();
+    m_pOwnedRenderingSystem.release();
 
     LOG_CALLSTACK_POP();
 }
@@ -33,7 +33,7 @@ void DendyEngine::CEngineCore::_InitialiseRendering()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pRenderingSystem = std::make_unique<PixPhetamine::CRenderingSystem>(m_IsInDebugState);
+    m_pOwnedRenderingSystem = std::make_unique<PixPhetamine::CRenderingSystem>(m_IsInDebugState);
 
     LOG_CALLSTACK_POP();
 }
@@ -42,7 +42,7 @@ void DendyEngine::CEngineCore::_InitialiseInputManager()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pInputHandler = std::make_unique<PixPhetamine::CInputHandler>(m_pRenderingSystem->GetGLFWWindow());
+    m_pOwnedInputHandler = std::make_unique<PixPhetamine::CInputHandler>(m_pOwnedRenderingSystem->GetGLFWWindow());
 
     LOG_CALLSTACK_POP();
 }
@@ -51,35 +51,43 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
+
+    // Create MainCamera
+    {
+        ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Camera");
+        ECS::SCamera* pCamera = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SCamera>(pGameObject);
+    }
+
+
+
     // Create Cossack
     {
-        // CGameObject* pGameObject = pECSEngine->CreateGameObject("Cossack01");
-        // pECSEngine->AddComponent(pGameObject, EGameComponentType::WalkingCharacter);
-        // {
-        //     auto pComponent = pECSEngine->AddComponent<RenderableCharacter>(pGameObject);
-        //     pComponent->Sprite = "blabla.png";
-        // }
-        
-        // pECSEngine->GetGameObjectSetByComponents(EGameComponentType::RenderableCharacter, EGameComponentType::RenderableCharacter)
+        ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Kossack001");
+        ECS::STransform* pTransform = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
 
+        float PositionX = 0.0f;
+        float PositionY = 0.0f;
+        float PositionZ = 0.0f;
+        pTransform->TransformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(PositionX, PositionY, PositionZ));
 
-        // std::unique_ptr<DendyEngine::CGameObject> pGameObject = std::make_unique<CGameObject>("Cossack01");
-
-        // // Create components
-        // { // SpatialNavigation
-        //     CSpatialNavigationComponent* pComponent = m_pSystemSpatialNavigation->CreateComponent(pGameObject.get());
-        //     pComponent->Step.x = 0.001f;
-        // }
-        // { // Renderable Pawn
-        //     CRenderablePawnComponent* pComponent = m_pSystemRenderablePawn->CreateComponent(pGameObject.get());
-        //     pComponent->Height = 2.0f;
-        // }        
-
-        // // Insert and hold in Map
-        // size_t GameObjectHandle = pGameObject->GetUID();
-        // m_pOwnedGameObjectsMap.insert( { GameObjectHandle, std::move(pGameObject) } );
+        ECS::SRenderablePawn* pRenderablePawn = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SRenderablePawn>(pGameObject);
+        pRenderablePawn->Color = glm::vec3(1.0f, 0.0f, 0.0f);
     }
-    
+
+
+
+    {
+        ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Kossack002");
+        ECS::STransform* pTransform = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
+
+        float PositionX = 2.0f;
+        float PositionY = 0.0f;
+        float PositionZ = 0.0f;
+        pTransform->TransformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(PositionX, PositionY, PositionZ));
+
+        ECS::SRenderablePawn* pRenderablePawn = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SRenderablePawn>(pGameObject);
+        pRenderablePawn->Color = glm::vec3(1.0f, 1.0f, 0.0f);
+    }
 
     m_pTerrain = new CTerrain(4.0f);
 
@@ -91,10 +99,8 @@ void DendyEngine::CEngineCore::_InitialiseGameSystems()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pRenderingSystem = std::make_unique<PixPhetamine::CRenderingSystem>(m_IsInDebugState);
+    m_pOwnedECSEngine = std::make_unique<DendyEngine::ECS::CECSEngine>();
 
-    // m_pSystemSpatialNavigation = std::make_unique<CGameSystem<CSpatialNavigationComponent>>();
-    // m_pSystemRenderablePawn = std::make_unique<CRenderablePawn>(m_pRenderingSystem.get());
 
     LOG_CALLSTACK_POP();
 }
@@ -103,8 +109,8 @@ void DendyEngine::CEngineCore::Update()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pInputHandler->UpdateInputs();
-    if (m_pInputHandler->GetWindowClosedState())
+    m_pOwnedInputHandler->UpdateInputs();
+    if (m_pOwnedInputHandler->GetWindowClosedState())
     {
         m_IsRunning = false;
         LOG_CALLSTACK_POP();
@@ -115,10 +121,71 @@ void DendyEngine::CEngineCore::Update()
     if (m_pTerrain->GetIsLoadedInGPUState() == false)
         m_pTerrain->LoadToGPU();
 
+
+
+
+    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SCamera>())
+    {
+        glm::vec2 LeftStickValue = m_pOwnedInputHandler->GetLeftStickValue();
+        float ZoomValue = m_pOwnedInputHandler->GetZoomValue();
+        if (LeftStickValue.x != 0.0f || LeftStickValue.y != 0.0f || ZoomValue != 0.0f)
+        {
+            glm::vec3 Move{LeftStickValue.x, ZoomValue, LeftStickValue.y};
+            Move = Move * 0.1f;
+
+            ECS::SCamera* pCamera = m_pOwnedECSEngine->GetComponent<ECS::SCamera>(pGameObject);
+            pCamera->TargetPosition = pCamera->TargetPosition + Move;
+
+            m_pOwnedRenderingSystem->SetCameraLookAt(pCamera->TargetPosition);
+        }
+    }
+
+
+
+
+
+    static float s_PosX = 0.0f;
+    static float s_PosZ = 0.0f;
+    static bool s_State = false;
+    if (s_State)
+        if (s_PosX < 8.0f)
+        {
+            s_PosX += 0.01f;
+            s_PosZ += 0.01f;
+        }
+        else
+            s_State = false;
+    else
+        if (s_PosX > -8.0f)
+        {
+            s_PosX -= 0.0025f;
+            s_PosZ -= 0.0025f;
+        }
+        else
+            s_State = true;
+
+    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::STransform, ECS::SRenderablePawn>())
+    {
+        //std::cout << *pGameObject << std::endl;
+        ECS::STransform* pTransform = m_pOwnedECSEngine->GetComponent<ECS::STransform>(pGameObject);
+        ECS::SRenderablePawn* pRenderablePawn = m_pOwnedECSEngine->GetComponent<ECS::SRenderablePawn>(pGameObject);
+
+        glm::mat4 TransformMatrix{1.0f};
+        glm::vec4 Position{s_PosX,0.0f,s_PosZ,1.0f};
+        Position = pTransform->TransformMatrix * Position;
+        float TerrainHeight = m_pTerrain->GetHeightAtPosition(glm::vec3(Position));
+        
+        TransformMatrix = glm::translate(pTransform->TransformMatrix, glm::vec3(s_PosX, TerrainHeight*1.0f, s_PosZ));
+
+        m_pOwnedRenderingSystem->AddPawnInstance(TransformMatrix, pRenderablePawn->Color);
+    }
+
     // m_pSystemSpatialNavigation->Update();
     // m_pSystemRenderablePawn->Update();
 
-    //m_pRenderingSystem->Render(m_pTerrain);
+    //m_pOwnedRenderingSystem->Render(m_pTerrain);
+    m_pOwnedRenderingSystem->RenderScene(m_pTerrain);
+    //m_pOwnedRenderingSystem->Render();
 
     //glm::vec4 Position4{0,0,0,1};
     //glm::mat4 Matrix = m_pOwnedGameObjectsMap.at(1).get()->GetComponent<CTransformComponent>()->TranformMatrix;

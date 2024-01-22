@@ -93,6 +93,7 @@ m_IsRunning(true)
     /* Insert names of shaders to load in ShaderNames */
     /* ============================================== */
     m_ShaderNamesVec.push_back("basic");
+    m_ShaderNamesVec.push_back("terrain");
     // m_ShaderNamesVec.push_back("postprocess");
     // m_ShaderNamesVec.push_back("downsampling");
     // m_ShaderNamesVec.push_back("blurH");
@@ -107,6 +108,7 @@ m_IsRunning(true)
     m_MeshNamesVec.push_back("Cube");
     m_MeshNamesVec.push_back("Quad");
     m_MeshNamesVec.push_back("Triangle");
+    m_MeshNamesVec.push_back("Pawn");
     //m_MeshNamesVec.push_back("sphere");
     /* =========================================== */
 
@@ -121,6 +123,9 @@ m_IsRunning(true)
     std::cout << "Loading Meshes [COMPLETE]" << std::endl;
 
     AssertOpenGLErrors();
+
+
+    m_ShaderMapByName["terrain"]->DeclareUniformVariableName("u_ModelViewProjectionMatrix");
 
     m_ShaderMapByName["basic"]->DeclareUniformVariableName("u_ModelViewProjectionMatrix");
     m_ShaderMapByName["basic"]->DeclareUniformVariableName("u_Color");
@@ -266,6 +271,11 @@ void PixPhetamine::CRenderingSystem::_LoadMeshes()
             m_MeshMapByName[MeshName] = new CMesh(MeshName, CMesh::BasicMeshes::Quad);
             m_MeshMapByName[MeshName]->LoadToGPU();
         }
+        else if (MeshName == "Pawn")
+        {
+            m_MeshMapByName[MeshName] = new CMesh(MeshName, CMesh::BasicMeshes::Pawn);
+            m_MeshMapByName[MeshName]->LoadToGPU();
+        }
         else
         {
             // std::string vertexShader = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + MeshName + ".vs";
@@ -277,9 +287,63 @@ void PixPhetamine::CRenderingSystem::_LoadMeshes()
     LOG_CALLSTACK_POP();
 }
 
+void PixPhetamine::CRenderingSystem::AddPawnInstance(glm::mat4 const& transformMatrix,glm::vec3 const& color)
+{
+    m_PawnIntanceDataVec.push_back({transformMatrix,color});
+}
+
+void PixPhetamine::CRenderingSystem::RenderScene(IMesh* pTerrainMesh)
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    
+    m_pMainCamera->SetPosition(m_CameraLookAtPosition + glm::vec3(0.0f, 20.0f, 10.1f));
+    m_pMainCamera->SetTarget(m_CameraLookAtPosition);
+
+    m_ViewProjectionMatrix = m_pMainCamera->GetViewProjectionMatrix();
 
 
+    CShader* pCurrentShader = m_ShaderMapByName["terrain"];
+    glUseProgram(pCurrentShader->GetId());
+    
+    { // Render Terrain
+        glBindVertexArray(pTerrainMesh->GetVAO());
 
+        glm::mat4 ModelMatrix = glm::mat4(1.0f);
+        m_ModelViewProjectionMatrix = m_ViewProjectionMatrix * ModelMatrix;
+
+        pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", m_ModelViewProjectionMatrix);
+
+        glDrawElements(GL_TRIANGLES, pTerrainMesh->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+    }
+
+    pCurrentShader = m_ShaderMapByName["basic"];
+    glUseProgram(pCurrentShader->GetId());
+    { // Render Pawns
+        CMesh* pMeshToRender = m_MeshMapByName["Pawn"];
+        glBindVertexArray(pMeshToRender->GetVAO());
+
+        for (auto [PawnTransformMatrix,PawnColor] : m_PawnIntanceDataVec)
+        {
+            m_ModelViewProjectionMatrix = m_ViewProjectionMatrix * PawnTransformMatrix;
+
+            pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", m_ModelViewProjectionMatrix);
+            pCurrentShader->SendUniformVariable("u_Color", PawnColor);
+
+            glDrawElements(GL_TRIANGLES, pMeshToRender->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+        }
+    }
+
+
+    AssertOpenGLErrors();
+    m_PawnIntanceDataVec.clear();
+
+    // OpenGL
+    glfwSwapBuffers(m_pMainWindow);
+    LOG_CALLSTACK_POP();
+}
 
 
 void PixPhetamine::CRenderingSystem::Render()
@@ -289,19 +353,7 @@ void PixPhetamine::CRenderingSystem::Render()
     // m_secondTimer.start();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    m_IsInWireframe;
     
-    /* =========================================================================================== */
-    /* ==== Draw the Scene ======================================================================= */
-    /* =========================================================================================== */
-    
-    // GLenum gBufferTargets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT };
-    // PixPhetamine::LowLevelWrapper::initialiseDrawIntoBuffer(m_ShaderList["basic"]->id(), m_GBufferMS->getId(), gBufferTargets, 3);
-
-    /* Draw LionHeads */
-    //pxFloat type_fox[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-    //m_pMainCamera->SetPosition(glm::vec3(0.0f, V*100.0f, 1.0f));
     m_pMainCamera->SetPosition(glm::vec3(0.0f, 10.0f, 0.1f));
     m_pMainCamera->SetTarget(glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -312,26 +364,17 @@ void PixPhetamine::CRenderingSystem::Render()
     if (V > 1.0f)
         V = 0.0f;
 
-    
-
-    //glEnable(GL_DEPTH_TEST);
-    
-    // glClear(GL_COLOR_BUFFER_BIT);
-
     CShader* pCurrentShader = m_ShaderMapByName["basic"];
-    CMesh* pCurrentMesh = m_MeshMapByName["Cube"];
-
     glUseProgram(pCurrentShader->GetId());
-    glBindVertexArray(pCurrentMesh->GetVAO());
+    
+    CMesh* pMeshToRender = m_MeshMapByName["Cube"];
+    glBindVertexArray(pMeshToRender->GetVAO());
     
 
-    for (size_t i = 0; i < 1000; ++i)
+    for (size_t i = 0; i < 2; ++i)
     {
         glm::mat4 ModelMatrix = glm::mat4(1);
-        //pxVec3f rotateY(0.0f, 1.0f, 0.0f);
         ModelMatrix = glm::translate(ModelMatrix, glm::vec3((float)(i/100)*3.0f, 0.0f, (float)(i%100)*3.0f));
-        //M = glm::rotate(M, 90.0f, rotateY);
-        //ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
 
         m_ModelViewProjectionMatrix = m_ViewProjectionMatrix * ModelMatrix;
 
@@ -339,7 +382,7 @@ void PixPhetamine::CRenderingSystem::Render()
         pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", m_ModelViewProjectionMatrix);
         pCurrentShader->SendUniformVariable("u_Color", glm::vec3(V,1.0f-V,i/1000.0));
 
-        glDrawElements(GL_TRIANGLES, pCurrentMesh->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+        glDrawElements(GL_TRIANGLES, pMeshToRender->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
     }
 
     AssertOpenGLErrors();
@@ -350,6 +393,37 @@ void PixPhetamine::CRenderingSystem::Render()
     LOG_CALLSTACK_POP();
 }
 
+
+void PixPhetamine::CRenderingSystem::Render(std::string meshName, glm::mat4 const& transformMatrix, glm::vec3 const& color)
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    m_pMainCamera->SetPosition(glm::vec3(0.0f, 100.0f, 200.0f));
+    m_pMainCamera->SetTarget(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    m_ViewProjectionMatrix = m_pMainCamera->GetViewProjectionMatrix();
+
+    CMesh* pMeshToRender = m_MeshMapByName[meshName];
+    CShader* pCurrentShader = m_ShaderMapByName["basic"];
+
+    glUseProgram(pCurrentShader->GetId());
+    glBindVertexArray(pMeshToRender->GetVAO());
+
+    m_ModelViewProjectionMatrix = m_ViewProjectionMatrix * transformMatrix;
+
+    pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", m_ModelViewProjectionMatrix);
+    pCurrentShader->SendUniformVariable("u_Color", color);
+
+    glDrawElements(GL_TRIANGLES, pMeshToRender->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+
+    AssertOpenGLErrors();
+
+    // OpenGL
+    glfwSwapBuffers(m_pMainWindow);
+    LOG_CALLSTACK_POP();
+}
 
 void PixPhetamine::CRenderingSystem::Render(IMesh* pMeshToRender)
 {

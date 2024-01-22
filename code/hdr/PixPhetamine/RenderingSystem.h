@@ -64,6 +64,9 @@ private:
     glm::mat4 m_ViewProjectionMatrix;
     glm::mat4 m_ModelViewProjectionMatrix;
 
+    std::vector<std::pair<glm::mat4,glm::vec3>> m_PawnIntanceDataVec;
+    glm::vec3 m_CameraLookAtPosition{0.0f};
+
     // PixPhetamine::PostProcess::CFrameBuffer* m_GBufferMS;
     // PixPhetamine::PostProcess::CFrameBuffer* m_GBufferAA;
     // PixPhetamine::PostProcess::CFrameBuffer* m_DownSampled;
@@ -93,7 +96,12 @@ public:
     static void AssertOpenGLErrors();
 
     void Render();
+    void Render(std::string meshName, glm::mat4 const& transformMatrix, glm::vec3 const& color);
     void Render(IMesh* pMeshToRender);
+
+    void AddPawnInstance(glm::mat4 const& transformMatrix, glm::vec3 const& color);
+    void RenderScene(IMesh* pTerrainMesh);
+    void SetCameraLookAt(glm::vec3 const& targetPosition) {m_CameraLookAtPosition = targetPosition;}
     inline GLFWwindow* GetGLFWWindow() const {return m_pMainWindow;}
 };
 

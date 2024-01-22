@@ -19,6 +19,7 @@ class CTerrain: public PixPhetamine::IMesh
 protected:
     float m_Scale{1.0f};
     static constexpr size_t c_TerrainSize{2048};
+    static constexpr float c_TerrainMaxHeight{40};
     //static constexpr size_t c_TerrainSize{32};
     std::array<float,c_TerrainSize*c_TerrainSize> m_HeightsArray;
     
@@ -30,6 +31,7 @@ protected:
 protected:
     inline float const _GetHeight(size_t const& index) const {return m_HeightsArray.at(index);}
     inline float const _GetHeight(size_t const& x, size_t const& y) const {return m_HeightsArray.at(y*c_TerrainSize+x);}
+    inline void _SetHeight(size_t const& x, size_t const& y, float value) { m_HeightsArray.at(y*c_TerrainSize+x) = value; }
 
     void _InitialiseMesh();
 
@@ -37,8 +39,11 @@ public:
     CTerrain(float scale);
     ~CTerrain();
 
+    inline constexpr float GetMaxHeight() const {return c_TerrainMaxHeight;}
     float GetHeightAtPosition(glm::vec2 const& position) const;
     float GetHeightAtPosition(glm::vec3 const& position) const;
+    glm::vec3 GetNormalAtPosition(glm::vec2 const& position) const;
+    glm::vec3 GetNormalAtPosition(glm::vec3 const& position) const;
     float ComputeDistance(glm::vec3 positionStart, glm::vec3 positionEnd) const {return 0.0f;}
 
     // Rendering

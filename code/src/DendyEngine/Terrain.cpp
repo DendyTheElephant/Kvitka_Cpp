@@ -2,37 +2,76 @@
 #include <DendyCommon/Logger.h>
 #include <DendyCommon/Math.h>
 
-#include <algorithm>
+#include <CImg.h>
 
+#include <algorithm>
 #include <random>
 #include <iostream>
+
 DendyEngine::CTerrain::CTerrain(float scale):
 IMesh("myTerrain")
 {
     m_Scale = scale;
     m_HeightsArray.fill(0.0f);
 
-    std::random_device RandomDevice;
-
-    //
-    // Engines 
-    //
-    std::mt19937 RandomMersenneEngine(RandomDevice());
-    //std::knuth_b RandomMersenneEngine(RandomDevice());
-    //std::default_random_engine RandomMersenneEngine(RandomDevice()) ;
-
-    //
-    // Distribtuions
-    //
-    std::uniform_real_distribution<> dist(0, 0.5);
-    //std::normal_distribution<> dist(2, 2);
-    //std::student_t_distribution<> dist(5);
-    //std::poisson_distribution<> dist(2);
-    //std::extreme_value_distribution<> dist(0,2);
     
-    auto RandomGenerator = [&dist, &RandomMersenneEngine](){return dist(RandomMersenneEngine);};
+    // read image in any Format
+    cimg_library::CImg<unsigned char> Image("ressources/images/heightmap.bmp"); //T=unsigned char, meaning R/G/B must be whole number
+    auto ImageData = Image.data();
 
-    std::generate(begin(m_HeightsArray), end(m_HeightsArray), RandomGenerator);
+    // read and write a pixel
+    int w=Image.width();
+    int h=Image.height();
+    int c=Image.spectrum();
+    std::cout << "Dimensions: " << w << "x" << h << " " << c << " channels" << std::endl;
+
+
+    //cimg_library::CImgDisplay main_disp(Image,"Click a point");
+    // while (!main_disp.is_closed()) {
+    //     main_disp.wait();
+    // }
+    // Dump all pixels
+    for(int y=0;y<h;y++){
+        for(int x=0;x<w;x++){
+            float Height = (float)Image(x,y,0,0) / 255.0f;
+            _SetHeight(x,y,Height*c_TerrainMaxHeight);
+            //std::cout << "["<< y<< ',' << x <<"]: " << Height << std::endl;
+            // int R = (int)Image(x,y,0,0);
+            // int G = (int)Image(x,y,0,1);
+            // int B = (int)Image(x,y,0,2);
+            // std::cout << y << "," << x << " R:" << R << std::endl;
+            // std::cout << y << "," << x << " G:" << G << std::endl;
+            // std::cout << y << "," << x << " B:" << B << std::endl;
+        }
+    }
+
+
+
+
+
+
+
+    // std::random_device RandomDevice;
+
+    // //
+    // // Engines 
+    // //
+    // std::mt19937 RandomMersenneEngine(RandomDevice());
+    // //std::knuth_b RandomMersenneEngine(RandomDevice());
+    // //std::default_random_engine RandomMersenneEngine(RandomDevice()) ;
+
+    // //
+    // // Distribtuions
+    // //
+    // std::uniform_real_distribution<> dist(0, c_TerrainMaxHeight);
+    // //std::normal_distribution<> dist(2, 2);
+    // //std::student_t_distribution<> dist(5);
+    // //std::poisson_distribution<> dist(2);
+    // //std::extreme_value_distribution<> dist(0,2);
+    
+    // auto RandomGenerator = [&dist, &RandomMersenneEngine](){return dist(RandomMersenneEngine);};
+
+    // std::generate(begin(m_HeightsArray), end(m_HeightsArray), RandomGenerator);
 
     //m_HeightsArray.at(c_TerrainSize*c_TerrainSize/2.0f+c_TerrainSize/2.0f) = 500.0f;
 
@@ -116,7 +155,7 @@ void DendyEngine::CTerrain::_InitialiseMesh()
         float PosX = iHeight % c_TerrainSize;
         float PosZ = iHeight / c_TerrainSize;
         m_PositionsVec.push_back((PosX-c_TerrainSize/2.0f) * m_Scale);
-        m_PositionsVec.push_back(_GetHeight(iHeight) * m_Scale);
+        m_PositionsVec.push_back(_GetHeight(iHeight));
         m_PositionsVec.push_back((PosZ-c_TerrainSize/2.0f) * m_Scale);
 
 
@@ -135,9 +174,9 @@ void DendyEngine::CTerrain::_InitialiseMesh()
         m_FaceIndicesVec.push_back(iFaces+1); // Top right
         
 
-        // m_FaceIndicesVec.push_back(iFaces+c_TerrainSize+1); // Bottom right
-        // m_FaceIndicesVec.push_back(iFaces+1); // Top right
-        // m_FaceIndicesVec.push_back(iFaces+c_TerrainSize); // Bottom left
+        //m_FaceIndicesVec.push_back(iFaces+c_TerrainSize+1); // Bottom right
+        //m_FaceIndicesVec.push_back(iFaces+1); // Top right
+        //m_FaceIndicesVec.push_back(iFaces+c_TerrainSize); // Bottom left
     }
 
     LOG_CALLSTACK_POP();
@@ -154,8 +193,8 @@ float DendyEngine::CTerrain::GetHeightAtPosition(glm::vec2 const& position) cons
 //#endif // _DEBUG
 
     glm::vec2 PositionInTerrainSpace;
-    PositionInTerrainSpace.x = (position.x + static_cast<float>(c_TerrainSize)/2.0) / m_Scale;
-    PositionInTerrainSpace.y = (position.y + static_cast<float>(c_TerrainSize)/2.0) / m_Scale;
+    PositionInTerrainSpace.x = (position.x / m_Scale + static_cast<float>(c_TerrainSize)/2.0);
+    PositionInTerrainSpace.y = (position.y / m_Scale + static_cast<float>(c_TerrainSize)/2.0);
 
     int FloorX = static_cast<int>(std::floor(PositionInTerrainSpace.x));
     int FloorY = static_cast<int>(std::floor(PositionInTerrainSpace.y));
@@ -172,7 +211,7 @@ float DendyEngine::CTerrain::GetHeightAtPosition(glm::vec2 const& position) cons
     // float HeightBot = std::lerp(HeightBotLeft, HeightBotRight, FractionX);
 
     // float Height = std::lerp(HeightTop, HeightBot, FractionY);
-
+    
     // Triangle Barycentric
     float Height;
     if (FractionX < 1.0f - FractionY)
@@ -187,6 +226,16 @@ float DendyEngine::CTerrain::GetHeightAtPosition(glm::vec2 const& position) cons
 
     LOG_CALLSTACK_POP();
     return Height;
+}
+
+glm::vec3 DendyEngine::CTerrain::GetNormalAtPosition(glm::vec2 const& position) const
+{
+    return glm::vec3(0.0f);
+}
+
+glm::vec3 DendyEngine::CTerrain::GetNormalAtPosition(glm::vec3 const& position) const
+{
+    return glm::vec3(0.0f);
 }
 
 float DendyEngine::CTerrain::GetHeightAtPosition(glm::vec3 const& position) const

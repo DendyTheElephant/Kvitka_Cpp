@@ -60,10 +60,15 @@ m_pMainWindow(pGLFWindow)
     //     }
     // });
 
-    // glfwSetScrollCallback(pGLFWindow, [](GLFWwindow* window, double xOffset, double yOffset)
-    // {
-    //     std::cout << "Mouse scrolled!" << std::endl;
-    // });
+    glfwSetScrollCallback(pGLFWindow, [](GLFWwindow* window, double xOffset, double yOffset)
+    {
+        if (yOffset != 0.0)
+        {
+            // m_IsZoomValueChanged = true;
+            // m_ZoomValue = yOffset;
+            std::cout << "Mouse scrolled! x:" << xOffset << " y:" << yOffset << std::endl;
+        }
+    });
 
     // glfwSetCursorPosCallback(pGLFWindow, [](GLFWwindow* window, double xPos, double yPos)
     // {
@@ -91,6 +96,11 @@ m_pMainWindow(pGLFWindow)
 PixPhetamine::CInputHandler::~CInputHandler()
 {
     
+}
+
+void PixPhetamine::CInputHandler::_OnMouseScroll(GLFWwindow* pGLFWindow, double xOffset, double yOffset)
+{
+
 }
 
 #include <algorithm>
@@ -157,5 +167,41 @@ void PixPhetamine::CInputHandler::UpdateInputs()
     glfwPollEvents();
     if (glfwWindowShouldClose(m_pMainWindow))
         m_IsWindowClosed = true;
+    
+    // Parse Left Stick on Keyboard
+    float LeftStickHorizontalValue{0.0f}, LeftStickVerticalValue{0.0f};
+    if (glfwGetKey(m_pMainWindow, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(m_pMainWindow, GLFW_KEY_D) == GLFW_RELEASE)
+        LeftStickHorizontalValue = -1.0;
+    else if (glfwGetKey(m_pMainWindow, GLFW_KEY_D) == GLFW_PRESS && glfwGetKey(m_pMainWindow, GLFW_KEY_A) == GLFW_RELEASE)
+        LeftStickHorizontalValue = 1.0;
+
+    if (glfwGetKey(m_pMainWindow, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(m_pMainWindow, GLFW_KEY_S) == GLFW_RELEASE)
+        LeftStickVerticalValue = -1.0;
+    else if (glfwGetKey(m_pMainWindow, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(m_pMainWindow, GLFW_KEY_W) == GLFW_RELEASE)
+        LeftStickVerticalValue = 1.0;
+
+    if (LeftStickVerticalValue != 0.0f || LeftStickHorizontalValue != 0.0f)
+    {
+        m_LeftStickValue = glm::normalize(glm::vec2(LeftStickHorizontalValue, LeftStickVerticalValue));
+    }
+    else
+    {
+        m_LeftStickValue.x = 0;
+        m_LeftStickValue.y = 0;
+    }
+
+    if (glfwGetKey(m_pMainWindow, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        m_ZoomValue = -1.0;
+    }
+    else if (glfwGetKey(m_pMainWindow, GLFW_KEY_E) == GLFW_PRESS)
+    {
+        m_ZoomValue = 1.0;
+    }
+    else
+    {
+        m_ZoomValue = 0.0;
+    }
+
     _UpdateGamepads();
 }

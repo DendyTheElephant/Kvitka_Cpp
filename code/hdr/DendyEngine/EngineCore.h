@@ -1,11 +1,11 @@
 #pragma once
 
 #include <PixPhetamine/InputHandler.h>
-#include <DendyEngine/ECS/GameObject.h>
-#include <DendyEngine/ECS/GameSystems.h>
 #include <DendyEngine/Terrain.h>
+#include <DendyEngine/ECS/ECSEngine.h>
 
 #include <PixPhetamine/RenderingSystem.h>
+#include <DendyEngine/Terrain.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -25,16 +25,17 @@ private:
     bool m_IsInDebugState{false};
 
     
-    std::unique_ptr<PixPhetamine::CInputHandler> m_pInputHandler;
+    std::unique_ptr<PixPhetamine::CInputHandler> m_pOwnedInputHandler;
+    std::unique_ptr<DendyEngine::ECS::CECSEngine> m_pOwnedECSEngine;
 
     //std::unordered_map<size_t,std::unique_ptr<CGameObject>> m_pOwnedGameObjectsMap;
 
     // std::unique_ptr<CTerrain> m_pTerrain;
-    PixPhetamine::IMesh* m_pTerrain;
+    DendyEngine::CTerrain* m_pTerrain;
 
 
 
-    std::unique_ptr<PixPhetamine::CRenderingSystem> m_pRenderingSystem;
+    std::unique_ptr<PixPhetamine::CRenderingSystem> m_pOwnedRenderingSystem;
     //std::unique_ptr<DendyEngine::CGameSystem<DendyEngine::CSpatialNavigationComponent>> m_pSystemSpatialNavigation;
     //std::unique_ptr<DendyEngine::CRenderablePawn> m_pSystemRenderablePawn;
 
@@ -43,8 +44,6 @@ private:
     void _InitialiseInputManager();
     void _InitialiseGameSystems();
     void _InitialiseGameObjects();
-    
-    
 
 
 public:

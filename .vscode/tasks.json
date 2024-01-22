@@ -17,6 +17,7 @@
                 "${workspaceFolder}/code/src/DendyEngine/*.cpp",
                 "${workspaceFolder}/include/glad.c",
                 "-lglfw3dll",
+                "-lgdi32",
                 "-o",
                 "${workspaceFolder}/Kvitka.exe"
             ],

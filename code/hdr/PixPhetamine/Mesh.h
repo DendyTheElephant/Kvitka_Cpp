@@ -39,7 +39,8 @@ public:
     {
         Triangle,
         Quad,
-        Cube
+        Cube,
+        Pawn
     };
 
     CMesh(std::string name, std::string filePath);

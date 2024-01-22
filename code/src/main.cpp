@@ -26,19 +26,7 @@ int main()
     pLogger->SetOutputFile("G:\\DyCode\\Kvitka_Cpp\\LogError.txt");
 
 
-    DendyEngine::ECS::CECSEngine* pECSEngine = new DendyEngine::ECS::CECSEngine();
-
-    DendyEngine::ECS::CGameObject* pGameObject = pECSEngine->AddGameObject("Kossack001");
-    DendyEngine::ECS::STransform* pTransform = pECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
-    pTransform->X = 42.0f;
-
-    DendyEngine::ECS::STransform* pOtherTransform = pECSEngine->GetComponent<DendyEngine::ECS::STransform>(pGameObject);
-
-    for (auto pGameObject : pECSEngine->GetGameObjectsVecWithComponents<DendyEngine::ECS::STransform>())
-    {
-        std::cout << *pGameObject << std::endl;
-    }
-    //pECSEngine->GetGameObjectsSetWithComponents<DendyEngine::ECS::EGameComponentType::Transform,DendyEngine::ECS::EGameComponentType::SimpleMesh>();
+    
 
 
     bool IsInDebug = true;
@@ -58,7 +46,8 @@ int main()
         {
             Counter = 0;
             Timer.Pause();
-            //std::cout << "Global Update: Elapsed " << (Timer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
+            std::cout << "Global Update: Elapsed " << (Timer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
+            //system("pause>nul");
         }
         
     }
@@ -68,7 +57,7 @@ int main()
     
     DendyCommon::CLogger::DestroyInstance();
 
-    system("pause>nul");
+    //system("pause>nul");6
 
     return 0;
 }

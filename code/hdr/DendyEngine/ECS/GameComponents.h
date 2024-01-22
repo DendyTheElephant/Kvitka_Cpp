@@ -1,46 +1,51 @@
-// #pragma once
+#pragma once
 
-// #include <DendyEngine/ECS/GameObject.h>
+#include <DendyEngine/ECS/GameComponentBase.h>
 
-// #include <string>
-// #include <iostream>
+#include <glm/glm.hpp>
 
-// #include <glm/glm.hpp>
+#include <vector>
+#include <memory>
+#include <unordered_map>
 
+namespace DendyEngine::ECS
+{
 
-// namespace DendyEngine
-// {
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// Define Enum
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+enum class EGameComponentType
+{
+    Transform,
+    RenderablePawn,
+    Camera,
+    MovementDecision
+};
 
-// class CGameObject;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// Define Data
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct STransform : CGameComponent<STransform,EGameComponentType::Transform>
+{
+    //STransform(float posX, float posZ)
+    glm::mat4 TransformMatrix{1.0f};
+};
 
-// class IGameComponent
-// {
-// protected:
-//     CGameObject* m_pGameObjectOwner;
+struct SMovementDecision : CGameComponent<SMovementDecision,EGameComponentType::MovementDecision>
+{
+    glm::vec2 Direction;
+    float MaxDistance;
+};
 
-// public:
-//     IGameComponent(CGameObject* pOwner): m_pGameObjectOwner(pOwner) {}
-//     virtual ~IGameComponent() = default;
+struct SRenderablePawn : CGameComponent<SRenderablePawn,EGameComponentType::RenderablePawn>
+{
+    glm::vec3 Color{1.0f};
+};
 
-//     CGameObject* GetOwner() const { return m_pGameObjectOwner; }
-// };
+struct SCamera : CGameComponent<SCamera,EGameComponentType::Camera>
+{
+    glm::vec3 TargetPosition{0.0f, 0.0f, 0.0f};
+    glm::vec3 ArmTranslation{0.0f,20.0f,10.0f};
+};
 
-
-// struct CTransformComponent: public IGameComponent { using IGameComponent::IGameComponent;
-//     glm::mat4 TranformMatrix{1};
-// };
-
-// struct CSpatialNavigationComponent: public IGameComponent { using IGameComponent::IGameComponent;
-//     glm::vec2 Step{0};
-//     float Speed{0.0f};
-// };
-
-// struct CRenderablePawnComponent: public IGameComponent { using IGameComponent::IGameComponent;
-//     glm::vec3 Color{1,1,1};
-//     float Radius{0.5f};
-//     float Height{1.0f};
-// };
-
-
-
-// }
+}
