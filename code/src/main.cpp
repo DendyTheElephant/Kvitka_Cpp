@@ -4,7 +4,6 @@
 #include <DendyEngine/EngineCore.h>
 #include <DendyCommon/Logger.h>
 #include <DendyCommon/Timer.h>
-#include <PixPhetamine/Texture.h>
 
 #include <DendyEngine/ECS/ECSEngine.h>
 
@@ -26,9 +25,6 @@ int main()
 
     DendyCommon::CLogger* pLogger = &DendyCommon::CLogger::GetInstance();
     pLogger->SetOutputFile("LogError.txt");
-
-
-    //PixPhetamine::CTexture("ressources/images/test.png", PixPhetamine::CTexture::ETextureType::NORMAL, false);
 
 
     bool IsInDebug = true;

@@ -33,6 +33,8 @@
 #include <PixPhetamine/Camera.h>
 #include <PixPhetamine/InputHandler.h>
 
+#include <memory>
+
 namespace PixPhetamine
 {
 
@@ -43,10 +45,10 @@ private:
     bool m_IsInDebugState{false};
     bool m_IsInWireframe{false};
 
-    int m_Frame{0};
-    unsigned long int m_ElapsedTime{0};
+    //int m_Frame{0};
+    //unsigned long int m_ElapsedTime{0};
     //CTimer m_secondTimer; // Timer reset on each second for FPS computation
-    char m_windowCaption[64]; // Window caption (updated on each frame to show FPS)
+    //char m_windowCaption[64]; // Window caption (updated on each frame to show FPS)
 
     GLFWwindow* m_pMainWindow{nullptr}; // Our window handle
     CCamera* m_pMainCamera{nullptr}; // Camera for the player one
@@ -54,11 +56,8 @@ private:
     std::vector<std::string> m_ShaderNamesVec;
     std::vector<std::string> m_MeshNamesVec;
 
-    std::map<std::string, PixPhetamine::CShader*> m_ShaderMapByName; // List of the shaders used in the game
-    std::map<std::string, PixPhetamine::CMesh*> m_MeshMapByName;
-
-    glm::mat4 m_ViewProjectionMatrix;
-    glm::mat4 m_ModelViewProjectionMatrix;
+    std::map<std::string, std::unique_ptr<PixPhetamine::CShader>> m_ShaderMapByName; // List of the shaders used in the game
+    std::map<std::string, std::unique_ptr<PixPhetamine::CMesh>> m_MeshMapByName;
 
     std::vector<std::pair<glm::mat4,glm::vec3>> m_PawnIntanceDataVec;
     glm::vec3 m_CameraLookAtPosition{0.0f};
@@ -80,7 +79,6 @@ private:
 
 
 private:
-    //void _FramebufferSizeCallback(GLFWwindow* window, int width, int height);
     void _LoadShaders();
     void _ReloadShaders();
     void _LoadMeshes();
@@ -91,12 +89,9 @@ public:
 
     static void AssertOpenGLErrors();
 
-    void Render();
-    void Render(std::string meshName, glm::mat4 const& transformMatrix, glm::vec3 const& color);
-    void Render(IMesh* pMeshToRender);
-
+    void InitialiseTerrain(size_t terrainSize, float scale, const float* pHeightsVec);
     void AddPawnInstance(glm::mat4 const& transformMatrix, glm::vec3 const& color);
-    void RenderScene(IMesh* pTerrainMesh);
+    void RenderScene();
     void SetCameraLookAt(glm::vec3 const& targetPosition) {m_CameraLookAtPosition = targetPosition;}
     inline GLFWwindow* GetGLFWWindow() const {return m_pMainWindow;}
 };

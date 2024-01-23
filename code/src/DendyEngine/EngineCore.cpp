@@ -11,6 +11,7 @@ m_IsRunning(true)
 
     _InitialiseRendering();
     _InitialiseInputManager();
+    _InitialiseTerrain();
     _InitialiseGameSystems();
     _InitialiseGameObjects();
 
@@ -43,6 +44,16 @@ void DendyEngine::CEngineCore::_InitialiseInputManager()
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
     m_pOwnedInputHandler = std::make_unique<PixPhetamine::CInputHandler>(m_pOwnedRenderingSystem->GetGLFWWindow());
+
+    LOG_CALLSTACK_POP();
+}
+
+void DendyEngine::CEngineCore::_InitialiseTerrain()
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    m_pOwnedTerrain = std::make_unique<DendyEngine::CTerrain>();
+    m_pOwnedRenderingSystem->InitialiseTerrain(m_pOwnedTerrain->GetTerrainSize(), m_pOwnedTerrain->GetScale(), m_pOwnedTerrain->GetData());
 
     LOG_CALLSTACK_POP();
 }
@@ -89,7 +100,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         pRenderablePawn->Color = glm::vec3(1.0f, 1.0f, 0.0f);
     }
 
-    m_pTerrain = new CTerrain();
+    
 
 
     LOG_CALLSTACK_POP();
@@ -116,10 +127,6 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         LOG_CALLSTACK_POP();
         return;
     }
-    
-
-    if (m_pTerrain->GetIsLoadedInGPUState() == false)
-        m_pTerrain->LoadToGPU();
 
 
 
@@ -173,18 +180,15 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         glm::mat4 TransformMatrix{1.0f};
         glm::vec4 Position{s_PosX,0.0f,s_PosZ,1.0f};
         Position = pTransform->TransformMatrix * Position;
-        float TerrainHeight = m_pTerrain->GetHeightAtPosition(glm::vec3(Position));
+        float TerrainHeight = m_pOwnedTerrain->GetHeightAtPosition(glm::vec3(Position));
         
         TransformMatrix = glm::translate(pTransform->TransformMatrix, glm::vec3(s_PosX, TerrainHeight*1.0f, s_PosZ));
 
         m_pOwnedRenderingSystem->AddPawnInstance(TransformMatrix, pRenderablePawn->Color);
     }
 
-    // m_pSystemSpatialNavigation->Update();
-    // m_pSystemRenderablePawn->Update();
-
     //m_pOwnedRenderingSystem->Render(m_pTerrain);
-    m_pOwnedRenderingSystem->RenderScene(m_pTerrain);
+    m_pOwnedRenderingSystem->RenderScene();
     //m_pOwnedRenderingSystem->Render();
 
     //glm::vec4 Position4{0,0,0,1};

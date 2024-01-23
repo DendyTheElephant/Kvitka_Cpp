@@ -26,12 +26,12 @@ private:
 
     
     std::unique_ptr<PixPhetamine::CInputHandler> m_pOwnedInputHandler;
-    std::unique_ptr<DendyEngine::ECS::CECSEngine> m_pOwnedECSEngine;
+    std::unique_ptr<ECS::CECSEngine> m_pOwnedECSEngine;
 
     //std::unordered_map<size_t,std::unique_ptr<CGameObject>> m_pOwnedGameObjectsMap;
 
     // std::unique_ptr<CTerrain> m_pTerrain;
-    DendyEngine::CTerrain* m_pTerrain;
+    std::unique_ptr<CTerrain> m_pOwnedTerrain;
 
 
 
@@ -42,6 +42,7 @@ private:
 private:
     void _InitialiseRendering();
     void _InitialiseInputManager();
+    void _InitialiseTerrain();
     void _InitialiseGameSystems();
     void _InitialiseGameObjects();
 

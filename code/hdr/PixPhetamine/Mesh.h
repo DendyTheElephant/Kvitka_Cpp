@@ -1,41 +1,21 @@
 #pragma once
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <glad/glad.h>
 #include <string>
 #include <vector>
-#include <glad/glad.h>
 
 namespace PixPhetamine
 {
 
-class IMesh
+class CMesh
 {
-protected:
-    std::string m_Name;
-    GLuint m_VAOHandle{0};
-    std::vector<GLfloat> m_PositionsVec;
-    bool m_IsLoadedInGPU{false};
-
 public:
-    IMesh(std::string name):m_Name(name) {}
-    virtual ~IMesh();
-
-    virtual void LoadToGPU() = 0;
-    virtual void UnloadFromGPU() = 0;
-    inline bool const GetIsLoadedInGPUState() const {return m_IsLoadedInGPU;}
-
-    GLuint GetVAO() const {return m_VAOHandle;}
-    virtual GLuint GetTriangleCount() const = 0;
-};
-
-class CMesh: public IMesh
-{
-private:
-    std::vector<GLfloat> m_NormalsVec;
-    std::vector<GLfloat> m_TextureCoordinatesVec;
-    std::vector<GLuint> m_FaceIndicesVec;
-
-public:
-    enum class BasicMeshes
+    enum class EBasicMeshes
     {
         Triangle,
         Quad,
@@ -43,13 +23,35 @@ public:
         Pawn
     };
 
-    CMesh(std::string name, std::string filePath);
-    CMesh(std::string name, BasicMeshes basicMesh);
+private:
+    std::string m_Name;
+    GLuint m_VAOHandle{0};
+    std::vector<GLfloat> m_PositionsVec;
+    std::vector<GLfloat> m_NormalsVec;
+    std::vector<GLfloat> m_TextureCoordinatesVec;
+    std::vector<GLuint> m_FaceIndicesVec;
+    bool m_IsLoadedInGPU;
+    const bool m_HasNormals;
+    const bool m_HasTextureCoordinates;
+
+
+public:
+    CMesh(std::string name, bool hasNormals, bool hasTextureCoordinates);
+    CMesh(std::string name, std::string filePath, bool hasNormals, bool hasTextureCoordinates);
+    CMesh(std::string name, EBasicMeshes basicMesh, bool hasNormals, bool hasTextureCoordinates);
     ~CMesh();
 
-    void LoadToGPU() override;
-    void UnloadFromGPU() override;
-    GLuint GetTriangleCount() const override {return m_FaceIndicesVec.size();}
+    void AddPosition(glm::vec3 const& position);
+    void AddNormal(glm::vec3 const& normal);
+    void AddTextureCoordinate(glm::vec2 const& textureCoordinate);
+    void AddTriangleIndices(uint32_t v1, uint32_t v2, uint32_t v3);
+
+    void LoadToGPU();
+    void UnloadFromGPU();
+    GLuint GetVAO() const {return m_VAOHandle;}
+    GLuint GetTriangleCount() const {return m_FaceIndicesVec.size();}
+
+    inline bool const GetIsLoadedInGPUState() const {return m_IsLoadedInGPU;}
 };
 
 }

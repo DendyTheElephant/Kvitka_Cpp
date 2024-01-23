@@ -13,9 +13,14 @@ namespace DendyCommon::Math
     //     return theArray.at(x*theArray + y
     // }
 
+    inline static size_t Access2DTo1D(size_t x, size_t y, size_t width)
+    {
+        return y*width+x;
+    }
+
     // Compute barycentric coordinates (u, v, w) for
-// point p with respect to triangle (a, b, c)
-    static float BarycentricCoordinates(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 pos)
+    // point p with respect to triangle (a, b, c)
+    inline static float BarycentricCoordinates(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 pos)
     {
 		float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
 		float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
