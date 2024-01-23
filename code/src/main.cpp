@@ -1,14 +1,16 @@
-#include <iostream>
+
 //import <iostream>;
 
 #include <DendyEngine/EngineCore.h>
 #include <DendyCommon/Logger.h>
 #include <DendyCommon/Timer.h>
+#include <PixPhetamine/Texture.h>
 
 #include <DendyEngine/ECS/ECSEngine.h>
 
 
-
+#include <thread>
+#include <iostream>
 
 
 int main()
@@ -23,31 +25,40 @@ int main()
     std::cout << std::endl;
 
     DendyCommon::CLogger* pLogger = &DendyCommon::CLogger::GetInstance();
-    pLogger->SetOutputFile("G:\\DyCode\\Kvitka_Cpp\\LogError.txt");
+    pLogger->SetOutputFile("LogError.txt");
 
 
-    
+    //PixPhetamine::CTexture("ressources/images/test.png", PixPhetamine::CTexture::ETextureType::NORMAL, false);
 
 
     bool IsInDebug = true;
 
     DendyCommon::CTimer Timer;
+    //DendyCommon::CTimer RealTimer;
     int Counter = 0;
 
     //system("pause>nul");
+    float DeltaTimeMs = 0.0f;
 
     DendyEngine::CEngineCore* pEngine = new DendyEngine::CEngineCore(IsInDebug);
     while(pEngine->GetRunningState())
     {
         Timer.Reset();
-        pEngine->Update();
+        //RealTimer.Reset();
+        pEngine->Update(DeltaTimeMs);
         Counter++;
+        Timer.Pause();
+        DeltaTimeMs = Timer.GetElapsedNanoseconds()/1000000.0f / 16.0f;
         if (Counter == 99)
         {
             Counter = 0;
-            Timer.Pause();
+            
+            //std::this_thread::sleep_for(std::chrono::milliseconds(16 - Timer.GetElapsedMiliseconds()));
             std::cout << "Global Update: Elapsed " << (Timer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
+            //RealTimer.Pause();
+            //std::cout << "Global Real Update: Elapsed " << (RealTimer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)RealTimer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
             //system("pause>nul");
+
         }
         
     }

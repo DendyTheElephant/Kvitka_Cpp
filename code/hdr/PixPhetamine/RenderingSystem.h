@@ -39,10 +39,6 @@ namespace PixPhetamine
 class CRenderingSystem
 {
 private:
-
-    const int VIEWPORT_WIDTH = 1280;
-    const int VIEWPORT_HEIGHT = 720;
-
     bool m_IsRunning {false};
     bool m_IsInDebugState{false};
     bool m_IsInWireframe{false};

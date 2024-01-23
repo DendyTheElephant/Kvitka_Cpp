@@ -17,7 +17,7 @@ namespace DendyEngine
 class CTerrain: public PixPhetamine::IMesh
 {
 protected:
-    float m_Scale{1.0f};
+    float m_Scale{4.0f};
     static constexpr size_t c_TerrainSize{2048};
     static constexpr float c_TerrainMaxHeight{40};
     //static constexpr size_t c_TerrainSize{32};
@@ -36,7 +36,7 @@ protected:
     void _InitialiseMesh();
 
 public:
-    CTerrain(float scale);
+    CTerrain();
     ~CTerrain();
 
     inline constexpr float GetMaxHeight() const {return c_TerrainMaxHeight;}

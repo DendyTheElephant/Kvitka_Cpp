@@ -16,6 +16,7 @@
                 "${workspaceFolder}/code/src/PixPhetamine/*.cpp",
                 "${workspaceFolder}/code/src/DendyEngine/*.cpp",
                 "${workspaceFolder}/include/glad.c",
+                "${workspaceFolder}/include/lodepng.cpp",
                 "-lglfw3dll",
                 "-lgdi32",
                 "-o",

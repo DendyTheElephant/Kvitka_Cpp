@@ -89,7 +89,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         pRenderablePawn->Color = glm::vec3(1.0f, 1.0f, 0.0f);
     }
 
-    m_pTerrain = new CTerrain(4.0f);
+    m_pTerrain = new CTerrain();
 
 
     LOG_CALLSTACK_POP();
@@ -105,7 +105,7 @@ void DendyEngine::CEngineCore::_InitialiseGameSystems()
     LOG_CALLSTACK_POP();
 }
 
-void DendyEngine::CEngineCore::Update()
+void DendyEngine::CEngineCore::Update(float deltaTime)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
@@ -131,7 +131,7 @@ void DendyEngine::CEngineCore::Update()
         if (LeftStickValue.x != 0.0f || LeftStickValue.y != 0.0f || ZoomValue != 0.0f)
         {
             glm::vec3 Move{LeftStickValue.x, ZoomValue, LeftStickValue.y};
-            Move = Move * 0.1f;
+            Move = Move * 10.0f * deltaTime;
 
             ECS::SCamera* pCamera = m_pOwnedECSEngine->GetComponent<ECS::SCamera>(pGameObject);
             pCamera->TargetPosition = pCamera->TargetPosition + Move;
@@ -150,16 +150,16 @@ void DendyEngine::CEngineCore::Update()
     if (s_State)
         if (s_PosX < 8.0f)
         {
-            s_PosX += 0.01f;
-            s_PosZ += 0.01f;
+            s_PosX += 0.1f * deltaTime;
+            s_PosZ += 0.1f * deltaTime;
         }
         else
             s_State = false;
     else
         if (s_PosX > -8.0f)
         {
-            s_PosX -= 0.0025f;
-            s_PosZ -= 0.0025f;
+            s_PosX -= 0.025f * deltaTime;
+            s_PosZ -= 0.025f * deltaTime;
         }
         else
             s_State = true;

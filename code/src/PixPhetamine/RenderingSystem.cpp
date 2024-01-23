@@ -1,5 +1,6 @@
 #include <PixPhetamine/RenderingSystem.h>
 #include <DendyCommon/Logger.h>
+#include <PixPhetamine/Definitions.h>
 
 #include <iostream>
 
@@ -22,17 +23,8 @@ m_IsRunning(true)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // const char* FramebufferVertexShaderSource = R"(#version 460 core
-    // layout (location = 0) in vec3 pos;
-    // layout (location = 1) in vec2 uvs;
-    // out vec2 UVs;
-    // void main()
-    // {
-    //     gl_Position = vec4(2.0 * pos.x, 2.0* pos.y, 2.0*pos.z, 1.000);
-    //     UVs = uvs;
-    // })";
 
-    m_pMainWindow = glfwCreateWindow(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, "Kvitka - V0.00.01", NULL, NULL);
+    m_pMainWindow = glfwCreateWindow(PixPhetamine::Definitions::c_WindowWidth, PixPhetamine::Definitions::c_WindowHeight, "Kvitka - V0.00.01", NULL, NULL);
     if (m_pMainWindow == nullptr)
     {
         LOG_CRITICAL_ERROR("Failed to open GLFW window");
@@ -45,7 +37,7 @@ m_IsRunning(true)
     }
 
 
-    glViewport(0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+    glViewport(0, 0, PixPhetamine::Definitions::c_WindowWidth, PixPhetamine::Definitions::c_WindowHeight);
     //glfwSetFramebufferSizeCallback(pMainWindow, _FramebufferSizeCallback);
 
     // Retrieve the GPU - OpenGL Current specs for the platform --> Log file
@@ -131,7 +123,7 @@ m_IsRunning(true)
     m_ShaderMapByName["basic"]->DeclareUniformVariableName("u_Color");
 
 
-    m_pMainCamera = new PixPhetamine::CCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+    m_pMainCamera = new PixPhetamine::CCamera(PixPhetamine::Definitions::c_WindowWidth, PixPhetamine::Definitions::c_WindowHeight);
     
 
     // STACK_MESSAGE("Creation of FrameBuffers");

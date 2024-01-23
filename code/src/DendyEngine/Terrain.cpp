@@ -2,28 +2,38 @@
 #include <DendyCommon/Logger.h>
 #include <DendyCommon/Math.h>
 
-#include <CImg.h>
+//#include <CImg.h>
+#include <lodepng.h>
 
 #include <algorithm>
 #include <random>
 #include <iostream>
 
-DendyEngine::CTerrain::CTerrain(float scale):
+DendyEngine::CTerrain::CTerrain():
 IMesh("myTerrain")
 {
-    m_Scale = scale;
-    m_HeightsArray.fill(0.0f);
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    
+    // Load file and decode image.
+    std::vector<unsigned char> Data;
+    unsigned Width, Height;
+    unsigned Error = lodepng::decode(Data, Width, Height, "ressources/images/ruggedTerrainHeightmap.png");
+    if (Error != 0)
+    {
+        LOG_CRITICAL_ERROR(lodepng_error_text(Error));
+    }
+
+    //m_HeightsArray.fill(0.0f);
+
     // read image in any Format
-    cimg_library::CImg<unsigned char> Image("ressources/images/heightmap.bmp"); //T=unsigned char, meaning R/G/B must be whole number
-    auto ImageData = Image.data();
+    // cimg_library::CImg<unsigned char> Image("ressources/images/ruggedTerrainHeightmap.png"); //T=unsigned char, meaning R/G/B must be whole number
+    // auto ImageData = Image.data();
 
-    // read and write a pixel
-    int w=Image.width();
-    int h=Image.height();
-    int c=Image.spectrum();
-    std::cout << "Dimensions: " << w << "x" << h << " " << c << " channels" << std::endl;
+    // // read and write a pixel
+    // int w=Image.width();
+    // int h=Image.height();
+    // int c=Image.spectrum();
+    // std::cout << "Dimensions: " << w << "x" << h << " " << c << " channels" << std::endl;
 
 
     //cimg_library::CImgDisplay main_disp(Image,"Click a point");
@@ -31,17 +41,18 @@ IMesh("myTerrain")
     //     main_disp.wait();
     // }
     // Dump all pixels
-    for(int y=0;y<h;y++){
-        for(int x=0;x<w;x++){
-            float Height = (float)Image(x,y,0,0) / 255.0f;
+    for (int y=0; y<Height; y++)
+    {
+        for (int x=0; x<Width; x++)
+        {
+            size_t Coordinate = y*c_TerrainSize * 4+x * 4;
+            // float MinValue255 = 18.0f;
+            // float MaxValue255 = 45.0f;
+            float MinValue255 = 0.0f;
+            float MaxValue255 = 255.0f;
+            float Height = (float)(Data.at(Coordinate)-MinValue255) / MaxValue255;
+            //float Height = (float)Image(x,y,0,0) / 255.0f;
             _SetHeight(x,y,Height*c_TerrainMaxHeight);
-            //std::cout << "["<< y<< ',' << x <<"]: " << Height << std::endl;
-            // int R = (int)Image(x,y,0,0);
-            // int G = (int)Image(x,y,0,1);
-            // int B = (int)Image(x,y,0,2);
-            // std::cout << y << "," << x << " R:" << R << std::endl;
-            // std::cout << y << "," << x << " G:" << G << std::endl;
-            // std::cout << y << "," << x << " B:" << B << std::endl;
         }
     }
 

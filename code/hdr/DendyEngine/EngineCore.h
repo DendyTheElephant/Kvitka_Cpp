@@ -52,7 +52,7 @@ public:
 
     bool GetRunningState() const { return m_IsRunning; }
 
-    void Update();
+    void Update(float deltaTime);
 };
 
 }
