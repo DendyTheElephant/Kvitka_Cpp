@@ -128,7 +128,12 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         return;
     }
 
-
+    if (m_pOwnedInputHandler->GetKeyRReleased())
+    {
+        m_pOwnedTerrain->LoadFromFiles("ressources/images/ruggedTerrainHeightmap.png");
+        m_pOwnedRenderingSystem->InitialiseTerrain(m_pOwnedTerrain->GetTerrainSize(), m_pOwnedTerrain->GetScale(), m_pOwnedTerrain->GetData());
+        m_pOwnedRenderingSystem->ReloadShaders();
+    }
 
 
     for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SCamera>())

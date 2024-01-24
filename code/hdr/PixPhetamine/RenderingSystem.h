@@ -34,6 +34,7 @@
 #include <PixPhetamine/InputHandler.h>
 
 #include <memory>
+#include <unordered_map>
 
 namespace PixPhetamine
 {
@@ -56,8 +57,11 @@ private:
     std::vector<std::string> m_ShaderNamesVec;
     std::vector<std::string> m_MeshNamesVec;
 
-    std::map<std::string, std::unique_ptr<PixPhetamine::CShader>> m_ShaderMapByName; // List of the shaders used in the game
-    std::map<std::string, std::unique_ptr<PixPhetamine::CMesh>> m_MeshMapByName;
+    std::unordered_map<std::string, std::unique_ptr<PixPhetamine::CShader>> m_ShaderMapByName; // List of the shaders used in the game
+    std::unordered_map<std::string, std::unique_ptr<PixPhetamine::CMesh>> m_MeshMapByName;
+
+    //uint16_t m_TerrainSubdivisions{4}
+    std::unordered_map<std::string, std::unique_ptr<PixPhetamine::CMesh>> m_MeshTerrainMapBy;
 
     std::vector<std::pair<glm::mat4,glm::vec3>> m_PawnIntanceDataVec;
     glm::vec3 m_CameraLookAtPosition{0.0f};
@@ -80,7 +84,6 @@ private:
 
 private:
     void _LoadShaders();
-    void _ReloadShaders();
     void _LoadMeshes();
 
 public:
@@ -92,6 +95,7 @@ public:
     void InitialiseTerrain(size_t terrainSize, float scale, const float* pHeightsVec);
     void AddPawnInstance(glm::mat4 const& transformMatrix, glm::vec3 const& color);
     void RenderScene();
+    void ReloadShaders();
     void SetCameraLookAt(glm::vec3 const& targetPosition) {m_CameraLookAtPosition = targetPosition;}
     inline GLFWwindow* GetGLFWWindow() const {return m_pMainWindow;}
 };

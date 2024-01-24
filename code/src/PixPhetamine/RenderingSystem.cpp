@@ -233,15 +233,6 @@ void PixPhetamine::CRenderingSystem::_LoadShaders()
     LOG_CALLSTACK_POP();
 }
 
-void PixPhetamine::CRenderingSystem::_ReloadShaders()
-{
-    // STACK_TRACE;
-    // for (auto const &it_shaderName : m_ShaderNames) {
-    //     m_ShaderList[it_shaderName]->reload();
-    // }
-    // UNSTACK_TRACE;
-}
-
 void PixPhetamine::CRenderingSystem::_LoadMeshes()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
@@ -289,6 +280,8 @@ void PixPhetamine::CRenderingSystem::InitialiseTerrain(size_t terrainSize, float
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
+    if (m_MeshMapByName["Terrain"] != nullptr && m_MeshMapByName["Terrain"]->GetIsLoadedInGPUState())
+        m_MeshMapByName["Terrain"]->UnloadFromGPU();
     m_MeshMapByName["Terrain"] = std::make_unique<CMesh>("Terrain", true, true);
     CMesh* pMesh = m_MeshMapByName["Terrain"].get();
 
@@ -308,7 +301,7 @@ void PixPhetamine::CRenderingSystem::InitialiseTerrain(size_t terrainSize, float
     for (size_t iFaces=0; iFaces<terrainSize*terrainSize; iFaces++)
     {
         // Top left, bottom left, top right
-        pMesh->AddTriangleIndices(iFaces, iFaces+terrainSize, iFaces);
+        pMesh->AddTriangleIndices(iFaces, iFaces+terrainSize, iFaces+1);
         
         // Bottom right, top right, bottom left
         pMesh->AddTriangleIndices(iFaces+terrainSize+1, iFaces+1, iFaces+terrainSize);
@@ -372,7 +365,15 @@ void PixPhetamine::CRenderingSystem::RenderScene()
     LOG_CALLSTACK_POP();
 }
 
-
+void PixPhetamine::CRenderingSystem::ReloadShaders()
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+    for (const auto& [ShaderName, Shader] : m_ShaderMapByName)
+    {
+        Shader->Reload();
+    }
+    LOG_CALLSTACK_POP();
+}
 
 void PixPhetamine::CRenderingSystem::AssertOpenGLErrors()
 {

@@ -11,8 +11,8 @@ namespace DendyEngine
 class CTerrain
 {
 protected:
-    static constexpr float m_Scale{4.0f};
-    static constexpr size_t c_TerrainSize{2048};
+    static constexpr float c_Scale{1.0f};
+    static constexpr size_t c_TerrainSize{4096};
     static constexpr float c_TerrainMaxHeight{40};
     std::array<float,c_TerrainSize*c_TerrainSize> m_HeightsArray;
 
@@ -25,6 +25,8 @@ public:
     CTerrain();
     ~CTerrain();
 
+    void LoadFromFiles(std::string fileNameHeightmap);
+
     inline constexpr float GetMaxHeight() const {return c_TerrainMaxHeight;}
     float GetHeightAtPosition(glm::vec2 const& position) const;
     float GetHeightAtPosition(glm::vec3 const& position) const;
@@ -33,7 +35,7 @@ public:
     float ComputeDistance(glm::vec3 positionStart, glm::vec3 positionEnd) const {return 0.0f;}
 
     constexpr const float* GetData() const {return m_HeightsArray.data();}
-    constexpr const float GetScale() const {return m_Scale;}
+    constexpr const float GetScale() const {return c_Scale;}
     constexpr const size_t GetTerrainSize() const {return c_TerrainSize;}
     constexpr const float GetTerrainMaxHeight() const {return c_TerrainMaxHeight;}
 

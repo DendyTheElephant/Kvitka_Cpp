@@ -309,5 +309,6 @@ void PixPhetamine::CMesh::LoadToGPU()
 void PixPhetamine::CMesh::UnloadFromGPU()
 {
     glDeleteBuffers(1, &m_VAOHandle);
+    m_IsLoadedInGPU = false;
 }
 

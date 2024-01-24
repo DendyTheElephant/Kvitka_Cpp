@@ -54,6 +54,7 @@ public:
     bool GetRunningState() const { return m_IsRunning; }
 
     void Update(float deltaTime);
+    void SetWindowCaption(std::string str) { glfwSetWindowTitle(m_pOwnedRenderingSystem->GetGLFWWindow(),str.c_str());}
 };
 
 }

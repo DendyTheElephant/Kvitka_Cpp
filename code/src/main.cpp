@@ -44,13 +44,22 @@ int main()
         pEngine->Update(DeltaTimeMs);
         Counter++;
         Timer.Pause();
+        std::this_thread::sleep_for(std::chrono::milliseconds(Timer.GetElapsedMiliseconds()));
         DeltaTimeMs = Timer.GetElapsedNanoseconds()/1000000.0f / 16.0f;
-        if (Counter == 99)
+
+        
+
+        if (Counter == 10)
         {
             Counter = 0;
+            std::string Caption;
+            Caption += std::string("Global Update: Elapsed ");
+            Caption += std::string( std::to_string(Timer.GetElapsedNanoseconds()/1000000.0f));
+            Caption += std::string("ms, fps: ");
+            Caption += std::string( std::to_string(1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f));
+            pEngine->SetWindowCaption( Caption );
             
-            //std::this_thread::sleep_for(std::chrono::milliseconds(16 - Timer.GetElapsedMiliseconds()));
-            std::cout << "Global Update: Elapsed " << (Timer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
+            //std::cout << "Global Update: Elapsed " << (Timer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)Timer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
             //RealTimer.Pause();
             //std::cout << "Global Real Update: Elapsed " << (RealTimer.GetElapsedNanoseconds()/1000000.0f) << "ms, fps: " << (1.0f/(float)RealTimer.GetElapsedNanoseconds()*1000000000.0f) << std::endl;
             //system("pause>nul");

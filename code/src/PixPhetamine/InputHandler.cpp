@@ -203,5 +203,18 @@ void PixPhetamine::CInputHandler::UpdateInputs()
         m_ZoomValue = 0.0;
     }
 
+    m_KeyRReleased = false;
+    if (glfwGetKey(m_pMainWindow, GLFW_KEY_R) == GLFW_PRESS)
+    {
+        m_KeyR = true;
+    }
+    else if (glfwGetKey(m_pMainWindow, GLFW_KEY_R) == GLFW_RELEASE)
+    {
+        if (m_KeyR)
+            m_KeyRReleased = true;
+        m_KeyR = false;
+    }
+    
+
     _UpdateGamepads();
 }

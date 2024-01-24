@@ -11,16 +11,7 @@
 
 DendyEngine::CTerrain::CTerrain()
 {
-    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
-
-    // Load file and decode image.
-    std::vector<unsigned char> Data;
-    unsigned Width, Height;
-    unsigned Error = lodepng::decode(Data, Width, Height, "ressources/images/ruggedTerrainHeightmap.png");
-    if (Error != 0)
-    {
-        LOG_CRITICAL_ERROR(lodepng_error_text(Error));
-    }
+    LoadFromFiles("ressources/images/ruggedTerrainHeightmap.png");
 
     //m_HeightsArray.fill(0.0f);
 
@@ -40,20 +31,7 @@ DendyEngine::CTerrain::CTerrain()
     //     main_disp.wait();
     // }
     // Dump all pixels
-    for (int y=0; y<Height; y++)
-    {
-        for (int x=0; x<Width; x++)
-        {
-            size_t Coordinate = y*c_TerrainSize * 4+x * 4;
-            // float MinValue255 = 18.0f;
-            // float MaxValue255 = 45.0f;
-            float MinValue255 = 0.0f;
-            float MaxValue255 = 255.0f;
-            float Height = (float)(Data.at(Coordinate)-MinValue255) / MaxValue255;
-            //float Height = (float)Image(x,y,0,0) / 255.0f;
-            _SetHeight(x,y,Height*c_TerrainMaxHeight);
-        }
-    }
+    
 
 
 
@@ -91,19 +69,50 @@ DendyEngine::CTerrain::~CTerrain()
     
 }
 
+void DendyEngine::CTerrain::LoadFromFiles(std::string fileNameHeightmap)
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    // Load file and decode image.
+    std::vector<unsigned char> Data;
+    unsigned Width, Height;
+    unsigned Error = lodepng::decode(Data, Width, Height, fileNameHeightmap);
+    if (Error != 0)
+    {
+        LOG_CRITICAL_ERROR(lodepng_error_text(Error));
+    }
+
+    for (int y=0; y<Height; y++)
+    {
+        for (int x=0; x<Width; x++)
+        {
+            size_t Coordinate = y*c_TerrainSize * 4+x * 4;
+            // float MinValue255 = 18.0f;
+            // float MaxValue255 = 45.0f;
+            float MinValue255 = 0.0f;
+            float MaxValue255 = 255.0f;
+            float Height = (float)(Data.at(Coordinate)-MinValue255) / MaxValue255;
+            //float Height = (float)Image(x,y,0,0) / 255.0f;
+            _SetHeight(x,y,Height*c_TerrainMaxHeight);
+        }
+    }
+
+    LOG_CALLSTACK_POP();
+}
+
 float DendyEngine::CTerrain::GetHeightAtPosition(glm::vec2 const& position) const
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 //#if defined(_DEBUG)
-    if (std::abs(position.x) > static_cast<float>(c_TerrainSize)/2.0*m_Scale)
+    if (std::abs(position.x) > static_cast<float>(c_TerrainSize)/2.0*c_Scale)
         LOG_CRITICAL_ERROR("position.x value ["+std::to_string(position.x)+"] out of terrain!");
-    if (std::abs(position.y) > static_cast<float>(c_TerrainSize)/2.0*m_Scale)
+    if (std::abs(position.y) > static_cast<float>(c_TerrainSize)/2.0*c_Scale)
         LOG_CRITICAL_ERROR("position.y value ["+std::to_string(position.y)+"] out of terrain!");
 //#endif // _DEBUG
 
     glm::vec2 PositionInTerrainSpace;
-    PositionInTerrainSpace.x = (position.x / m_Scale + static_cast<float>(c_TerrainSize)/2.0);
-    PositionInTerrainSpace.y = (position.y / m_Scale + static_cast<float>(c_TerrainSize)/2.0);
+    PositionInTerrainSpace.x = (position.x / c_Scale + static_cast<float>(c_TerrainSize)/2.0);
+    PositionInTerrainSpace.y = (position.y / c_Scale + static_cast<float>(c_TerrainSize)/2.0);
 
     int FloorX = static_cast<int>(std::floor(PositionInTerrainSpace.x));
     int FloorY = static_cast<int>(std::floor(PositionInTerrainSpace.y));
