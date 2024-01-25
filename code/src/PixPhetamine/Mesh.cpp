@@ -1,6 +1,8 @@
 #include <PixPhetamine/Mesh.h>
 #include <DendyCommon/Logger.h>
 
+#include <sstream>
+
 PixPhetamine::CMesh::CMesh(std::string name, bool hasNormals, bool hasTextureCoordinates):
 m_Name(name),
 m_HasNormals(hasNormals),
@@ -17,33 +19,61 @@ m_HasTextureCoordinates(hasTextureCoordinates)
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
     // /* Fills the RAM with the mesh */
-    // std::string Line;
+    std::string Line;
 
-    // std::ifstream objetFile(filePath, std::ios::in);
-    // if (!objetFile.is_open())
-    // {
-    //     LOG_CRITICAL_ERROR("Loading Mesh from file, but File ["+std::string(filePath)+"] not found!");
-    // }
+    std::ifstream objetFile(filePath, std::ios::in);
+    if (!objetFile.is_open())
+    {
+        LOG_CRITICAL_ERROR("Loading Mesh from file, but File ["+std::string(filePath)+"] not found!");
+    }
 
-    // float PositionX, PositionY, PositionZ, NormalX, NormalY, NormalZ, TextureCoordinateU, TextureCoordinateV;
-    // unsigned int VertexIndex1, VertexIndex2, VertexIndex3;
-    // while (getline(objetFile, Line))
-    // {
-    //     if (Line.substr(0, 2) == "v ")
-    //     {
-    //         std::istringstream InputStream(Line.substr(2));
-    //         InputStream >> PositionX >> PositionY >> PositionZ >> NormalX >> NormalY >> NormalZ >> TextureCoordinateU >> TextureCoordinateV;
-    //         m_vertices.push_back(posX); m_vertices.push_back(posY); m_vertices.push_back(posZ);
-    //         m_normals.push_back(normalX); m_normals.push_back(normalY); m_normals.push_back(normalZ);
-    //         m_colors.push_back(colorR); m_colors.push_back(colorG); m_colors.push_back(colorB);
-    //     }
-    //     else if (Line.substr(0, 2) == "f ")
-    //     {
-    //         std::istringstream s(Line.substr(2));
-    //         s >> vertexNdx1 >> vertexNdx2 >> vertexNdx3;
-    //         m_faces.push_back(vertexNdx1); m_faces.push_back(vertexNdx2); m_faces.push_back(vertexNdx3);
-    //     }
-    // }
+    float PositionX, PositionY, PositionZ, NormalX, NormalY, NormalZ, TextureCoordinateU, TextureCoordinateV;
+    unsigned int VertexIndex1, VertexIndex2, VertexIndex3, NormalIndex1, NormalIndex2, NormalIndex3, TextureCoordinateIndex1, TextureCoordinateIndex2;
+    char Slash;
+    std::vector<glm::vec3> NormalsVec;
+    std::vector<glm::vec2> TextureCoordinatesVec;
+    while (getline(objetFile, Line))
+    {
+        if (Line.substr(0, 2) == "v ")
+        {
+            std::istringstream InputStream(Line.substr(2));
+            InputStream >> PositionX >> PositionY >> PositionZ;
+            m_PositionsVec.push_back(PositionX);
+            m_PositionsVec.push_back(PositionY);
+            m_PositionsVec.push_back(PositionZ);
+        }
+        else if (hasNormals && Line.substr(0, 2) == "vn")
+        {
+            std::istringstream InputStream(Line.substr(2));
+            InputStream >> NormalX >> NormalY >> NormalZ;
+            NormalsVec.push_back({NormalX, NormalY, NormalZ});
+        }
+        else if (hasTextureCoordinates && Line.substr(0, 2) == "vt")
+        {
+            std::istringstream InputStream(Line.substr(2));
+            InputStream >> TextureCoordinateU >> TextureCoordinateV;
+            TextureCoordinatesVec.push_back({TextureCoordinateU, TextureCoordinateV});
+        }
+        else if (Line.substr(0, 2) == "f ")
+        {
+            if (hasNormals == false && hasTextureCoordinates == false)
+            {
+                std::istringstream InputStream(Line.substr(2));
+                InputStream >> VertexIndex1 >> VertexIndex2 >> VertexIndex3;
+                m_FaceIndicesVec.push_back(VertexIndex1-1);
+                m_FaceIndicesVec.push_back(VertexIndex2-1);
+                m_FaceIndicesVec.push_back(VertexIndex3-1);
+            }
+            else if (hasNormals == true && hasTextureCoordinates == false)
+            {
+                std::istringstream InputStream(Line.substr(2));
+                InputStream >> VertexIndex1 >> Slash >> Slash >> NormalIndex1 >> VertexIndex2 >> Slash >> Slash >> NormalIndex2 >> VertexIndex2 >> Slash >> Slash >> NormalIndex3;
+                m_FaceIndicesVec.push_back(VertexIndex1-1);
+                m_FaceIndicesVec.push_back(VertexIndex2-1);
+                m_FaceIndicesVec.push_back(VertexIndex3-1);
+            }
+        }
+    }
 
     LOG_CALLSTACK_POP();
 }

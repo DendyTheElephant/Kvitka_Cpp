@@ -32,6 +32,9 @@ namespace PixPhetamine
 
 class CRenderingSystem
 {
+public:
+    struct SMeshInstance { std::string Name; glm::mat4 TransformMatrix; glm::vec3 Color; };
+
 private:
     bool m_IsRunning {false};
     bool m_IsInDebugState{false};
@@ -54,8 +57,12 @@ private:
     //uint16_t m_TerrainSubdivisions{4}
     std::unordered_map<std::string, std::unique_ptr<PixPhetamine::CMesh>> m_MeshTerrainMapBy;
 
-    std::vector<std::pair<glm::mat4,glm::vec3>> m_PawnIntanceDataVec;
+    std::vector<std::pair<glm::mat4,glm::vec3>> m_PawnInstanceDataVec;
+    
+    
+    std::vector<SMeshInstance> m_StaticMeshInstanceDataVec;
     glm::vec3 m_CameraLookAtPosition{0.0f};
+    glm::vec3 m_CameraArmTranslation{0.0f};
 
     // PixPhetamine::PostProcess::CFrameBuffer* m_GBufferMS;
     // PixPhetamine::PostProcess::CFrameBuffer* m_GBufferAA;
@@ -83,11 +90,15 @@ public:
 
     static void AssertOpenGLErrors();
 
-    void InitialiseTerrain(size_t terrainSize, float scale, const float* pHeightsVec);
+    void InitialiseTerrain(size_t terrainSize, float scale, float heightScale, const uint16_t* pHeightsVec);
     void AddPawnInstance(glm::mat4 const& transformMatrix, glm::vec3 const& color);
+    void AddStaticMesh(std::string const& name, glm::mat4 const& transformMatrix, glm::vec3 const& color);
     void RenderScene();
     void ReloadShaders();
+
     void SetCameraLookAt(glm::vec3 const& targetPosition) {m_CameraLookAtPosition = targetPosition;}
+    void SetCameraArmTranslation(glm::vec3 const& armTranslation) {m_CameraArmTranslation = armTranslation;}
+
     inline GLFWwindow* GetGLFWWindow() const {return m_pMainWindow;}
 };
 

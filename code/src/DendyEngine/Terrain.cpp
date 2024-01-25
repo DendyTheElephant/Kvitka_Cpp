@@ -11,57 +11,7 @@
 
 DendyEngine::CTerrain::CTerrain()
 {
-    LoadFromFiles("ressources/images/ruggedTerrainHeightmap.png");
-
-    //m_HeightsArray.fill(0.0f);
-
-    // read image in any Format
-    // cimg_library::CImg<unsigned char> Image("ressources/images/ruggedTerrainHeightmap.png"); //T=unsigned char, meaning R/G/B must be whole number
-    // auto ImageData = Image.data();
-
-    // // read and write a pixel
-    // int w=Image.width();
-    // int h=Image.height();
-    // int c=Image.spectrum();
-    // std::cout << "Dimensions: " << w << "x" << h << " " << c << " channels" << std::endl;
-
-
-    //cimg_library::CImgDisplay main_disp(Image,"Click a point");
-    // while (!main_disp.is_closed()) {
-    //     main_disp.wait();
-    // }
-    // Dump all pixels
-    
-
-
-
-
-
-
-
-    // std::random_device RandomDevice;
-
-    // //
-    // // Engines 
-    // //
-    // std::mt19937 RandomMersenneEngine(RandomDevice());
-    // //std::knuth_b RandomMersenneEngine(RandomDevice());
-    // //std::default_random_engine RandomMersenneEngine(RandomDevice()) ;
-
-    // //
-    // // Distribtuions
-    // //
-    // std::uniform_real_distribution<> dist(0, c_TerrainMaxHeight);
-    // //std::normal_distribution<> dist(2, 2);
-    // //std::student_t_distribution<> dist(5);
-    // //std::poisson_distribution<> dist(2);
-    // //std::extreme_value_distribution<> dist(0,2);
-    
-    // auto RandomGenerator = [&dist, &RandomMersenneEngine](){return dist(RandomMersenneEngine);};
-
-    // std::generate(begin(m_HeightsArray), end(m_HeightsArray), RandomGenerator);
-
-    //m_HeightsArray.at(c_TerrainSize*c_TerrainSize/2.0f+c_TerrainSize/2.0f) = 500.0f;
+    LoadFromFiles("ressources/images/ruggedTerrainHeightmap512.png");
 }
 
 DendyEngine::CTerrain::~CTerrain()
@@ -87,13 +37,10 @@ void DendyEngine::CTerrain::LoadFromFiles(std::string fileNameHeightmap)
         for (int x=0; x<Width; x++)
         {
             size_t Coordinate = y*c_TerrainSize * 4+x * 4;
-            // float MinValue255 = 18.0f;
-            // float MaxValue255 = 45.0f;
             float MinValue255 = 0.0f;
             float MaxValue255 = 255.0f;
-            float Height = (float)(Data.at(Coordinate)-MinValue255) / MaxValue255;
-            //float Height = (float)Image(x,y,0,0) / 255.0f;
-            _SetHeight(x,y,Height*c_TerrainMaxHeight);
+            float Height = (float)(Data.at(Coordinate)-MinValue255) / MaxValue255; // between 0..1
+            _SetHeight(x,y,Height);
         }
     }
 
@@ -143,7 +90,7 @@ float DendyEngine::CTerrain::GetHeightAtPosition(glm::vec2 const& position) cons
     }
 
     LOG_CALLSTACK_POP();
-    return Height;
+    return Height*c_TerrainMaxHeight;
 }
 
 glm::vec3 DendyEngine::CTerrain::GetNormalAtPosition(glm::vec2 const& position) const
@@ -159,4 +106,10 @@ glm::vec3 DendyEngine::CTerrain::GetNormalAtPosition(glm::vec3 const& position) 
 float DendyEngine::CTerrain::GetHeightAtPosition(glm::vec3 const& position) const
 {
     return GetHeightAtPosition(glm::vec2(position.x, position.z));
+}
+
+
+std::vector<glm::vec3> DendyEngine::CTerrain::GetWorldPositionsOfChunk(glm::vec2 const& min, glm::vec2 const& max)
+{
+    return std::vector<glm::vec3>();
 }

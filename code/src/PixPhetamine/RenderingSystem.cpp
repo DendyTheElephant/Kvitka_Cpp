@@ -2,6 +2,8 @@
 #include <DendyCommon/Logger.h>
 #include <PixPhetamine/Definitions.h>
 
+#include <lodepng.h>
+
 #include <iostream>
 
 PixPhetamine::CRenderingSystem::CRenderingSystem(bool isInDebugState):
@@ -24,7 +26,8 @@ m_IsRunning(true)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 
-    m_pMainWindow = glfwCreateWindow(PixPhetamine::Definitions::c_WindowWidth, PixPhetamine::Definitions::c_WindowHeight, "Kvitka - V0.00.01", NULL, NULL);
+    //m_pMainWindow = glfwCreateWindow(PixPhetamine::Definitions::c_WindowWidth, PixPhetamine::Definitions::c_WindowHeight, "Kvitka - V0.00.01", glfwGetPrimaryMonitor(), NULL); // Fullscreen
+    m_pMainWindow = glfwCreateWindow(PixPhetamine::Definitions::c_WindowWidth, PixPhetamine::Definitions::c_WindowHeight, "Kvitka - V0.00.01", NULL, NULL); // Windowed
     if (m_pMainWindow == nullptr)
     {
         LOG_CRITICAL_ERROR("Failed to open GLFW window");
@@ -38,7 +41,25 @@ m_IsRunning(true)
 
 
     glViewport(0, 0, PixPhetamine::Definitions::c_WindowWidth, PixPhetamine::Definitions::c_WindowHeight);
+    
+
+    // Icon, not WS
+    GLFWimage IconImages[1];
+    std::vector<unsigned char> Data;
+    unsigned Width, Height;
+    unsigned Error = lodepng::decode(Data, Width, Height, "ressources/images/icon24.png");
+    if (Error != 0)
+    {
+        LOG_CRITICAL_ERROR(lodepng_error_text(Error));
+    }
+    IconImages[0].height = Height;
+    IconImages[0].width = Width;
+    IconImages[0].pixels = Data.data();
+    glfwSetWindowIcon(m_pMainWindow, 1, IconImages);
     //glfwSetFramebufferSizeCallback(pMainWindow, _FramebufferSizeCallback);
+
+    //const GLFWvidmode* MonitorMode; // height, width, refreshRate
+    //glfwWindowHint(GLFW_REFRESH_RATE, MonitorMode->refreshRate);
 
     // Retrieve the GPU - OpenGL Current specs for the platform --> Log file
     std::cerr << "=============[ PixPhetamine log-file ]=========================" << std::endl;
@@ -52,6 +73,7 @@ m_IsRunning(true)
     glGetIntegerv(GL_MINOR_VERSION, &OpenGLVersionMinor);
     std::cerr << "     OpenGL: " << OpenGLVersionMajor << "." << OpenGLVersionMinor << std::endl;
     std::cerr << "    Shading: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    //std::cerr << "Monitor ref: " << MonitorMode->refreshRate << std::endl;
     std::cerr << "----------------------------------------------------------------" << std::endl;
     std::cerr << ">GPU Specifications for modern GLSL:" << std::endl;
     int uboBindings, uboSize, uboVertex, uboFragment, uboGeometry;
@@ -101,6 +123,9 @@ m_IsRunning(true)
     m_MeshNamesVec.push_back("Quad");
     m_MeshNamesVec.push_back("Triangle");
     m_MeshNamesVec.push_back("Pawn");
+    m_MeshNamesVec.push_back("human");
+    m_MeshNamesVec.push_back("hata");
+    m_MeshNamesVec.push_back("sich");
     //m_MeshNamesVec.push_back("sphere");
     /* =========================================== */
 
@@ -205,8 +230,6 @@ m_IsRunning(true)
 
 PixPhetamine::CRenderingSystem::~CRenderingSystem()
 {
-    //PixPhetamine::Display::shutdownSDL_GL(m_SDLWindow, m_GLContext);
-
     for (auto const &it_shaderName : m_ShaderNamesVec) {
         //delete m_ShaderMapByName[it_shaderName];
     }
@@ -225,7 +248,7 @@ void PixPhetamine::CRenderingSystem::_LoadShaders()
 
     for (auto const &ShaderName : m_ShaderNamesVec)
     {
-        std::string VertexShaderFullPath = "shaders\\" + ShaderName + ".vs";//"G:\\DyCode\\Kvitka_Cpp\\shaders\\" + ShaderName + ".vs";
+        std::string VertexShaderFullPath = "shaders\\" + ShaderName + ".vs";
         std::string FragmentShaderFullPath = "shaders\\" + ShaderName + ".fs";
         m_ShaderMapByName[ShaderName] = std::make_unique<CShader>(VertexShaderFullPath.c_str(), FragmentShaderFullPath.c_str());
     }
@@ -261,6 +284,8 @@ void PixPhetamine::CRenderingSystem::_LoadMeshes()
         }
         else
         {
+            m_MeshMapByName[MeshName] = std::make_unique<CMesh>(MeshName, "ressources/meshes/"+MeshName+".obj", false, false);
+            m_MeshMapByName[MeshName]->LoadToGPU();
             // std::string vertexShader = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + MeshName + ".vs";
             // std::string fragmentShader = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + MeshName + ".fs";
             // m_ShaderMapByName[it_shaderName] = new PixPhetamine::CShader(vertexShader.c_str(), fragmentShader.c_str());
@@ -272,11 +297,16 @@ void PixPhetamine::CRenderingSystem::_LoadMeshes()
 
 void PixPhetamine::CRenderingSystem::AddPawnInstance(glm::mat4 const& transformMatrix,glm::vec3 const& color)
 {
-    m_PawnIntanceDataVec.push_back({transformMatrix,color});
+    m_PawnInstanceDataVec.push_back({transformMatrix,color});
+}
+
+void PixPhetamine::CRenderingSystem::AddStaticMesh(std::string const& name, glm::mat4 const& transformMatrix, glm::vec3 const& color)
+{
+    m_StaticMeshInstanceDataVec.push_back({name,transformMatrix,color});
 }
 
 #include <DendyCommon/Math.h>
-void PixPhetamine::CRenderingSystem::InitialiseTerrain(size_t terrainSize, float scale, const float* pHeightsVec)
+void PixPhetamine::CRenderingSystem::InitialiseTerrain(size_t terrainSize, float scale, float heightScale, const uint16_t* pHeightsVec)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
@@ -290,21 +320,23 @@ void PixPhetamine::CRenderingSystem::InitialiseTerrain(size_t terrainSize, float
         float PosX = iHeight % terrainSize;
         float PosZ = iHeight / terrainSize;
 
-        //glm::vec3 Position = 
-        pMesh->AddPosition({(PosX-terrainSize/2.0f) * scale, pHeightsVec[iHeight], (PosZ-terrainSize/2.0f) * scale});
+        pMesh->AddPosition({(PosX-terrainSize/2.0f) * scale, static_cast<float>(pHeightsVec[iHeight])/65535.0f*heightScale, (PosZ-terrainSize/2.0f) * scale});
 
         pMesh->AddNormal({0.0f, 1.0f, 0.0f});
 
         pMesh->AddTextureCoordinate({(PosX-terrainSize/2.0f) * scale, (PosZ-terrainSize/2.0f) * scale});
     }
     
-    for (size_t iFaces=0; iFaces<terrainSize*terrainSize; iFaces++)
+    for (uint16_t y=0; y<terrainSize-1; y++)
     {
-        // Top left, bottom left, top right
-        pMesh->AddTriangleIndices(iFaces, iFaces+terrainSize, iFaces+1);
-        
-        // Bottom right, top right, bottom left
-        pMesh->AddTriangleIndices(iFaces+terrainSize+1, iFaces+1, iFaces+terrainSize);
+        for (uint16_t x=0; x<terrainSize-1; x++)
+        {
+            // Top left, bottom left, top right
+            pMesh->AddTriangleIndices(y*terrainSize + x, (y+1)*terrainSize + x, y*terrainSize + (x+1));
+            
+            // Bottom right, top right, bottom left
+            pMesh->AddTriangleIndices((y+1)*terrainSize + (x+1),  y*terrainSize + (x+1), (y+1)*terrainSize + x);
+        }
     }
 
     m_MeshMapByName["Terrain"]->LoadToGPU();
@@ -319,7 +351,7 @@ void PixPhetamine::CRenderingSystem::RenderScene()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     
-    m_pMainCamera->SetPosition(m_CameraLookAtPosition + glm::vec3(0.0f, 20.0f, 10.1f));
+    m_pMainCamera->SetPosition(m_CameraLookAtPosition + m_CameraArmTranslation);
     m_pMainCamera->SetTarget(m_CameraLookAtPosition);
 
     glm::mat4 ViewProjectionMatrix = m_pMainCamera->GetViewProjectionMatrix();
@@ -341,11 +373,12 @@ void PixPhetamine::CRenderingSystem::RenderScene()
 
     pCurrentShader = m_ShaderMapByName["basic"].get();
     glUseProgram(pCurrentShader->GetId());
-    { // Render Pawns
-        CMesh* pMeshToRender = m_MeshMapByName["Pawn"].get();
+    {
+        // Render Pawns
+        CMesh* pMeshToRender = m_MeshMapByName["human"].get();
         glBindVertexArray(pMeshToRender->GetVAO());
 
-        for (auto [PawnTransformMatrix,PawnColor] : m_PawnIntanceDataVec)
+        for (auto [PawnTransformMatrix,PawnColor] : m_PawnInstanceDataVec)
         {
             glm::mat4 ModelViewProjectionMatrix = ViewProjectionMatrix * PawnTransformMatrix;
 
@@ -354,11 +387,26 @@ void PixPhetamine::CRenderingSystem::RenderScene()
 
             glDrawElements(GL_TRIANGLES, pMeshToRender->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
         }
+
+        // Render Static Meshes
+        for (auto [MeshName,TransformMatrix,Color] : m_StaticMeshInstanceDataVec)
+        {
+            CMesh* pMeshToRender = m_MeshMapByName[MeshName].get();
+            glBindVertexArray(pMeshToRender->GetVAO());
+
+            glm::mat4 ModelViewProjectionMatrix = ViewProjectionMatrix * TransformMatrix;
+
+            pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", ModelViewProjectionMatrix);
+            pCurrentShader->SendUniformVariable("u_Color", Color);
+
+            glDrawElements(GL_TRIANGLES, pMeshToRender->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+        }
     }
 
 
     AssertOpenGLErrors();
-    m_PawnIntanceDataVec.clear();
+    m_PawnInstanceDataVec.clear();
+    m_StaticMeshInstanceDataVec.clear();
 
     // OpenGL
     glfwSwapBuffers(m_pMainWindow);

@@ -22,7 +22,9 @@ private:
     glm::vec2 m_LeftStickValue{0.0f,0.0f};
     //bool m_IsZoomValueChanged{false};
     bool m_KeyR{false};
+    bool m_KeyEscape{false};
     bool m_KeyRReleased{false};
+    bool m_KeyEscapeReleased{false};
     float m_ZoomValue{0.0f};
 
 private:
@@ -38,6 +40,7 @@ public:
     inline glm::vec2 GetLeftStickValue() const { return m_LeftStickValue; }
     inline float GetZoomValue() const { return m_ZoomValue; }
     inline bool GetKeyRReleased() const {return m_KeyRReleased;}
+    inline bool GetKeyEscapeReleased() const {return m_KeyEscapeReleased;}
 };
 
 }

@@ -30,6 +30,7 @@ int main()
     bool IsInDebug = true;
 
     DendyCommon::CTimer GlobalUpdaterPerfTimer;
+    DendyCommon::CTimer DeltaTimeTimer;
     //DendyCommon::CTimer RealTimer;
     int Counter = 0;
 
@@ -37,18 +38,22 @@ int main()
     float DeltaTimeMs = 0.0f;
 
     GlobalUpdaterPerfTimer.Reset();
+    DeltaTimeTimer.Reset();
 
     DendyEngine::CEngineCore* pEngine = new DendyEngine::CEngineCore(IsInDebug);
     while(pEngine->GetRunningState())
     {
         
+        DeltaTimeTimer.Pause();
+        //std::this_thread::sleep_for(std::chrono::milliseconds(Timer.GetElapsedMiliseconds()));
+        DeltaTimeMs = DeltaTimeTimer.GetElapsedNanoseconds() / 1000000.0f;
+        DeltaTimeTimer.Reset();
+
         //RealTimer.Reset();
         pEngine->Update(DeltaTimeMs);
         Counter++;
         
-        //std::this_thread::sleep_for(std::chrono::milliseconds(Timer.GetElapsedMiliseconds()));
-        DeltaTimeMs = GlobalUpdaterPerfTimer.GetElapsedNanoseconds()/1000000.0f / 16.0f;
-
+        
 
         if (Counter == 10)
         {
