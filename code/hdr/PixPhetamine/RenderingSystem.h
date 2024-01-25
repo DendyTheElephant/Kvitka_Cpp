@@ -1,7 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <iostream>
+
+#include <PixPhetamine/Shader.h>
+#include <PixPhetamine/Mesh.h>
+#include <PixPhetamine/Camera.h>
+#include <PixPhetamine/InputHandler.h>
 
 // OpenGL context GLAD
 // https://glad.dav1d.de/
@@ -18,23 +21,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-/* Internal headers includes */
-// #include <CStaticMesh.h>
-// #include <CShader.h>
-// #include <CCamera.h>
-// #include <UErrorHandler.h>
-// #include <Display.h>
-// #include <CFrameBuffer.h>
-// #include <CPostProcessPass.h>
-// #include <CSkybox.h>
-
-#include <PixPhetamine/Shader.h>
-#include <PixPhetamine/Mesh.h>
-#include <PixPhetamine/Camera.h>
-#include <PixPhetamine/InputHandler.h>
-
 #include <memory>
 #include <unordered_map>
+#include <vector>
+#include <iostream>
+
 
 namespace PixPhetamine
 {
