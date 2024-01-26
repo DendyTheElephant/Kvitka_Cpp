@@ -151,79 +151,6 @@ m_IsRunning(true)
     m_pMainCamera = new PixPhetamine::CCamera(PixPhetamine::Definitions::c_WindowWidth, PixPhetamine::Definitions::c_WindowHeight);
     
 
-    // STACK_MESSAGE("Creation of FrameBuffers");
-    // m_GBufferMS = new CFrameBuffer(PIX::WINDOW_WIDTH, PIX::WINDOW_HEIGHT, CFrameBuffer::EType::WITH_DEPTH_MULTISAMPLED);
-    // m_GBufferAA = new CFrameBuffer(PIX::WINDOW_WIDTH, PIX::WINDOW_HEIGHT, CFrameBuffer::EType::WITH_DEPTH);
-    // m_DownSampled = new CFrameBuffer(PIX::WINDOW_WIDTH / static_cast<pxUInt>(PIX::DOWNSCALING), PIX::WINDOW_HEIGHT / static_cast<pxUInt>(PIX::DOWNSCALING), CFrameBuffer::EType::NORMAL);
-    // m_RGBSplitted = new CFrameBuffer(PIX::WINDOW_WIDTH, PIX::WINDOW_HEIGHT, CFrameBuffer::EType::NORMAL);
-    // m_BufferBlurPartial = new CFrameBuffer(PIX::WINDOW_WIDTH / static_cast<pxUInt>(PIX::DOWNSCALING), PIX::WINDOW_HEIGHT / static_cast<pxUInt>(PIX::DOWNSCALING), CFrameBuffer::EType::NORMAL);
-    // m_BufferBlur = new CFrameBuffer(PIX::WINDOW_WIDTH / static_cast<pxUInt>(PIX::DOWNSCALING), PIX::WINDOW_HEIGHT / static_cast<pxUInt>(PIX::DOWNSCALING), CFrameBuffer::EType::NORMAL);
-    // STACK_MESSAGE("Creation of FrameBuffers [COMPLETE]");
-
-    // STACK_MESSAGE("Checking OpenGL errors");
-    // Utility::UErrorHandler::checkOpenGLErrors();
-
-    // STACK_MESSAGE("Initialisation of FrameBuffers");
-    // // Texture attachment
-    // m_GBufferMS->addTexture("colorTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 0);
-    // m_GBufferMS->addTexture("normalTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 1);
-    // m_GBufferMS->addTexture("typeTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 2);
-
-    // m_GBufferAA->addTexture("colorTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 0);
-    // m_GBufferAA->addTexture("normalTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 1);
-    // m_GBufferAA->addTexture("typeTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 2);
-    // m_GBufferAA->addTexture("blurredColorTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 3);
-
-    // m_DownSampled->addTexture("processedTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 0);
-    // m_RGBSplitted->addTexture("processedTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 0);
-    // m_BufferBlurPartial->addTexture("processedTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 0);
-    // m_BufferBlur->addTexture("processedTexture", PixPhetamine::LowLevelWrapper::CTexture::ETextureType::NORMAL, 0);
-    // STACK_MESSAGE("Initialisation of FrameBuffers [COMPLETE]");
-
-    // STACK_MESSAGE("Checking OpenGL errors");
-    // Utility::UErrorHandler::checkOpenGLErrors();
-
-    // STACK_MESSAGE("Setup of Post Process passes");
-    // // Creation
-    // m_DownSamplingPass = new CPostProcessPass(m_ShaderList["downsampling"], m_DownSampled);
-    // m_BlurPassPartI = new CPostProcessPass(m_ShaderList["blurH"], m_BufferBlurPartial);
-    // m_BlurPassPartII = new CPostProcessPass(m_ShaderList["blurV"], m_BufferBlur);
-    // m_RGBSplitPass = new CPostProcessPass(m_ShaderList["rgbsplit"], m_RGBSplitted);
-    // m_DeferredShadingPass = new CPostProcessPass(m_ShaderList["postprocess"]);
-    // // Downsampling pass set-up
-    // m_DownSamplingPass->bindTexture(m_GBufferAA->getTexture("colorTexture"), "image", 0);
-    // m_DownSamplingPass->bindVariableName("scale");
-    // // Blur pass I pass set-up
-    // m_BlurPassPartI->bindTexture(m_DownSampled->getTexture("processedTexture"), "image", 0);
-    // // Blur pass II pass set-up
-    // m_BlurPassPartII->bindTexture(m_BufferBlurPartial->getTexture("processedTexture"), "image", 0);
-    // // RGB Split pass set-up
-    // m_RGBSplitPass->bindTexture(m_GBufferAA->getTexture("colorTexture"), "image", 0);
-    // m_RGBSplitPass->bindVariableName("split");
-    // // Deferred shading pass set-up
-    // m_DeferredShadingPass->bindTexture(m_GBufferAA->getTexture("colorTexture"), "color_map", 0);
-    // m_DeferredShadingPass->bindTexture(m_GBufferAA->getTexture("normalTexture"), "normal_map", 1);
-    // m_DeferredShadingPass->bindTexture(m_GBufferAA->getTexture("typeTexture"), "type_map", 2);
-    // m_DeferredShadingPass->bindTexture(m_GBufferAA->getTexture("blurredColorTexture"), "blurred_color_map", 3);
-    // m_DeferredShadingPass->bindTexture(m_GBufferAA->getTexture("depth_texture"), "depth_map", 4);
-    // m_DeferredShadingPass->bindVariableName("sun_direction");
-    // STACK_MESSAGE("Setup of Post Process passes [COMPLETE]");
-
-    // STACK_MESSAGE("Checking OpenGL errors");
-    // Utility::UErrorHandler::checkOpenGLErrors();
-
-    // std::vector<std::string> skyboxTextures;
-    // skyboxTextures.push_back("textures/skyboxRight.png");
-    // skyboxTextures.push_back("textures/skyboxLeft.png");
-    // skyboxTextures.push_back("textures/skyboxTop.png");
-    // skyboxTextures.push_back("textures/skyboxBottom.png");
-    // skyboxTextures.push_back("textures/skyboxFront.png");
-    // skyboxTextures.push_back("textures/skyboxBack.png");
-    // m_skyBox = new PixPhetamine::SceneRendering::CSkybox("textures/skybox");	
-
-    // STACK_MESSAGE("Checking OpenGL errors");
-    // Utility::UErrorHandler::checkOpenGLErrors();
-
 
     LOG_CALLSTACK_POP();
 }
@@ -286,9 +213,6 @@ void PixPhetamine::CRenderingSystem::_LoadMeshes()
         {
             m_MeshMapByName[MeshName] = std::make_unique<CMesh>(MeshName, "ressources/meshes/"+MeshName+".obj", false, false);
             m_MeshMapByName[MeshName]->LoadToGPU();
-            // std::string vertexShader = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + MeshName + ".vs";
-            // std::string fragmentShader = "G:\\DyCode\\Kvitka_Cpp\\shaders\\" + MeshName + ".fs";
-            // m_ShaderMapByName[it_shaderName] = new PixPhetamine::CShader(vertexShader.c_str(), fragmentShader.c_str());
         }
     }
 
@@ -335,7 +259,7 @@ void PixPhetamine::CRenderingSystem::InitialiseTerrain(size_t terrainSize, float
             pMesh->AddTriangleIndices(y*terrainSize + x, (y+1)*terrainSize + x, y*terrainSize + (x+1));
             
             // Bottom right, top right, bottom left
-            pMesh->AddTriangleIndices((y+1)*terrainSize + (x+1),  y*terrainSize + (x+1), (y+1)*terrainSize + x);
+            //pMesh->AddTriangleIndices((y+1)*terrainSize + (x+1),  y*terrainSize + (x+1), (y+1)*terrainSize + x);
         }
     }
 

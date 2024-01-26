@@ -71,11 +71,11 @@ struct SStaticMesh : CGameComponent<SStaticMesh,EGameComponentType::StaticMesh>
 struct SCamera : CGameComponent<SCamera,EGameComponentType::Camera>
 {
     glm::vec3 TargetPosition{0.0f, 0.0f, 0.0f};
-    glm::vec3 ArmTranslationDirection{0.0f, 2.0f, 1.0f};
-    float ArmTranslationMagnitude{65.0f};
-    float ArmTranslationMagnitudeMinValue{40.0f};
+    glm::vec3 ArmTranslationDirection{0.0f, 1.0f, 1.0f};
+    float ArmTranslationMagnitude{20.0f};
+    float ArmTranslationMagnitudeMinValue{5.0f};
     float ArmTranslationMagnitudeMaxValue{1000.0f};
-    float Speed{0.08f};
+    float Speed{0.00362f};
 };
 
 }

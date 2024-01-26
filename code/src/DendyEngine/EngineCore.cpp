@@ -162,6 +162,8 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
         glm::vec2 LeftStickValue = m_pOwnedInputHandler->GetLeftStickValue();
         float ZoomValue = m_pOwnedInputHandler->GetZoomValue();
+
+        glm::mat4 RotateMatrix{1};
         if (LeftStickValue.x != 0.0f || LeftStickValue.y != 0.0f || ZoomValue != 0.0f)
         {
             glm::vec3 Move{LeftStickValue.x, 0.0f, LeftStickValue.y};
@@ -170,6 +172,12 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
             pCamera->ArmTranslationMagnitude = glm::clamp(pCamera->ArmTranslationMagnitude, pCamera->ArmTranslationMagnitudeMinValue, pCamera->ArmTranslationMagnitudeMaxValue);
             //std::cout << "ArmMag: " << std::to_string(pCamera->ArmTranslationMagnitude) << std::endl;
             pCamera->TargetPosition += Move * pCamera->Speed * deltaTime;
+
+
+            Move = glm::normalize(Move);
+            float AngleBetweenTargetAndCurrentOrientation = atan2f( -Move.x, -Move.z );
+            glm::quat OrientationQuaternion{ cosf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0, sinf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0 };
+            RotateMatrix = glm::mat4_cast(OrientationQuaternion);
         }
 
 
@@ -181,8 +189,10 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
         // Debug
         float TerrainHeight = m_pOwnedTerrain->GetHeightAtPosition(CameraTargetPosition);
-        glm::mat4 TransformMatrix{1.0f};
-        TransformMatrix = glm::translate(TransformMatrix, {CameraTargetPosition.x, TerrainHeight, CameraTargetPosition.z});
+        glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, {CameraTargetPosition.x, TerrainHeight, CameraTargetPosition.z});
+
+
+        glm::mat4 TransformMatrix = TranslateMatrix * RotateMatrix;// * ScaleMatrix;
         m_pOwnedRenderingSystem->AddPawnInstance(TransformMatrix, {0.0f, 0.5f, 1.0f});
     }
 
@@ -194,31 +204,37 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         ECS::SRenderablePawn* pRenderablePawn = m_pOwnedECSEngine->GetComponent<ECS::SRenderablePawn>(pGameObject);
 
         //Target 
-        pWalkingCharacter->TargetPosition = CameraTargetPosition;
+        //pWalkingCharacter->TargetPosition = 
+        glm::vec2 GridTarget{CameraTargetPosition.x, CameraTargetPosition.z};
+        glm::vec2 GridPosition{pWalkingCharacter->Position.x, pWalkingCharacter->Position.z};
 
-        glm::vec3 PosToTarget = pWalkingCharacter->TargetPosition - pWalkingCharacter->Position;
-        if (PosToTarget.x > 0.0f || PosToTarget.z > 0.0f)
-            pWalkingCharacter->TargetDirection = glm::normalize(PosToTarget);
-
-        // Direction
-        pWalkingCharacter->Direction = pWalkingCharacter->TargetDirection;
-
-        // Velocity
-        //float DesiredVelocity = PosToTarget
-        //pWalkingCharacter->Velocity
-
-        pWalkingCharacter->Position.x += pWalkingCharacter->Direction.x * pWalkingCharacter->MaxVelocity * deltaTime;
-        pWalkingCharacter->Position.z += pWalkingCharacter->Direction.z * pWalkingCharacter->MaxVelocity * deltaTime;
-
-        
-        float TerrainHeight = m_pOwnedTerrain->GetHeightAtPosition(pWalkingCharacter->Position);
-        pWalkingCharacter->Position.y = TerrainHeight;
+        glm::vec2 RelativeToTarget = GridTarget - GridPosition;
 
 
-        glm::mat4 TransformMatrix{1.0f};
-        TransformMatrix = glm::translate(TransformMatrix, pWalkingCharacter->Position);
+        if (glm::length(RelativeToTarget) > 0.001)
+        {
+            pWalkingCharacter->TargetDirection = glm::normalize(glm::vec3{RelativeToTarget.x,0,RelativeToTarget.y});
+            pWalkingCharacter->Direction = pWalkingCharacter->TargetDirection;
+        }
+        if (glm::length(RelativeToTarget) > 1.0)
+        {
+            pWalkingCharacter->Position.x += pWalkingCharacter->Direction.x * pWalkingCharacter->MaxVelocity * deltaTime;
+            pWalkingCharacter->Position.z += pWalkingCharacter->Direction.z * pWalkingCharacter->MaxVelocity * deltaTime;
+            float TerrainHeight = m_pOwnedTerrain->GetHeightAtPosition(pWalkingCharacter->Position);
+            pWalkingCharacter->Position.y = TerrainHeight;
+        }
+
+        glm::mat4 TranslateMatrix{1};
+        glm::mat4 RotateMatrix{1};
+
+
+        float AngleBetweenTargetAndCurrentOrientation = atan2f( -pWalkingCharacter->Direction.x, -pWalkingCharacter->Direction.z );
+        glm::quat OrientationQuaternion{ cosf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0, sinf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0 };
+        RotateMatrix = glm::mat4_cast(OrientationQuaternion);
+        TranslateMatrix = glm::translate(glm::mat4(1.0), pWalkingCharacter->Position);
+
+        glm::mat4 TransformMatrix = TranslateMatrix * RotateMatrix;// * ScaleMatrix;
         m_pOwnedRenderingSystem->AddPawnInstance(TransformMatrix, pRenderablePawn->Color);
-
     }
 
     // Static Meshes
@@ -235,12 +251,9 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         glm::mat4 TransformMatrix{1.0f};
         TransformMatrix = glm::translate(TransformMatrix, pPose->Position);
         m_pOwnedRenderingSystem->AddStaticMesh(pMesh->MeshName, TransformMatrix, pMesh->Color);
-
     }
 
     m_pOwnedRenderingSystem->RenderScene();
-
-
 
     LOG_CALLSTACK_POP();
 }

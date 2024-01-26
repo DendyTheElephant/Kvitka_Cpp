@@ -12,7 +12,7 @@ namespace DendyEngine
 class CTerrain
 {
 protected:
-    static constexpr float c_Scale{0.5f};
+    static constexpr float c_Scale{1.0f};
     static constexpr size_t c_TerrainSize{512};
     static constexpr float c_TerrainMaxHeight{100.0f};
     std::array<uint16_t,c_TerrainSize*c_TerrainSize> m_HeightsArray;
