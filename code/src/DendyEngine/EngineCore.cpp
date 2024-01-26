@@ -58,6 +58,19 @@ void DendyEngine::CEngineCore::_InitialiseTerrain()
     LOG_CALLSTACK_POP();
 }
 
+void DendyEngine::CEngineCore::_InitialiseGameSystems()
+{
+    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+    m_pOwnedECSEngine = std::make_unique<DendyEngine::ECS::CECSEngine>();
+
+    LOG_CALLSTACK_POP();
+}
+
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// -=-=-=- CREATE OBJECTS
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 void DendyEngine::CEngineCore::_InitialiseGameObjects()
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
@@ -74,24 +87,29 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     // Create Cossack
     {
         ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Kossack001");
-        ECS::SWalkingCharacter* pWalkingCharacter = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SWalkingCharacter>(pGameObject);
-
-        pWalkingCharacter->Position = glm::vec3(0.0f, 0.0f, 0.0f);
-
+        ECS::SScenePose* pPose = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SScenePose>(pGameObject);
         ECS::SRenderablePawn* pRenderablePawn = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SRenderablePawn>(pGameObject);
-        pRenderablePawn->Color = glm::vec3(1.0f, 0.0f, 0.0f);
+
+        ECS::STransform* pTransform = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
+        ECS::SWalkingCharacter* pWalkingCharacter = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SWalkingCharacter>(pGameObject);
+        
+
+        pPose->Position = {-2,-2};
+        pPose->Orientation = {0.0f, 1.0f};
+        pRenderablePawn->Color = glm::vec3(1.0f, 1.0f, 0.0f);
     }
-
-
-
     {
         ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Kossack002");
-        ECS::SWalkingCharacter* pWalkingCharacter = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SWalkingCharacter>(pGameObject);
-
-        pWalkingCharacter->Position = glm::vec3(2.0f, 0.0f, 0.0f);
-
+        ECS::SScenePose* pPose = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SScenePose>(pGameObject);
         ECS::SRenderablePawn* pRenderablePawn = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SRenderablePawn>(pGameObject);
-        pRenderablePawn->Color = glm::vec3(1.0f, 1.0f, 0.0f);
+
+        ECS::STransform* pTransform = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
+        ECS::SWalkingCharacter* pWalkingCharacter = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SWalkingCharacter>(pGameObject);
+        
+
+        pPose->Position = {2,2};
+        pPose->Orientation = {0.0f, 1.0f};
+        pRenderablePawn->Color = glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
 
@@ -99,39 +117,36 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     // Create static meshes
     {
         ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Hata001");
-        ECS::SPose* pPose = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SPose>(pGameObject);
+        ECS::SScenePose* pPose = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SScenePose>(pGameObject);
         ECS::SStaticMesh* pStaticMesh = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SStaticMesh>(pGameObject);
 
+        ECS::STransform* pTransform = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
+
+        pPose->Position = {8,-20};
+        pPose->Orientation = {0.0f, 1.0f};
         pStaticMesh->MeshName = "hata";
         pStaticMesh->Color = {1.0f, 1.0f, 1.0f};
-        pPose->Position = {8.0f, 0.0f, -20.0f};
     }
     {
         ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Sich001");
-        ECS::SPose* pPose = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SPose>(pGameObject);
+        ECS::SScenePose* pPose = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SScenePose>(pGameObject);
         ECS::SStaticMesh* pStaticMesh = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SStaticMesh>(pGameObject);
 
+        ECS::STransform* pTransform = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
+
+        pPose->Position = {-8,-20};
+        pPose->Orientation = {0.0f, 1.0f};
         pStaticMesh->MeshName = "sich";
         pStaticMesh->Color = {0.35f, 0.25f, 0.2f};
-        pPose->Position = {-8.0f, 0.0f, -20.0f};
     }
 
-    
-
-
     LOG_CALLSTACK_POP();
 }
 
-void DendyEngine::CEngineCore::_InitialiseGameSystems()
-{
-    LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    m_pOwnedECSEngine = std::make_unique<DendyEngine::ECS::CECSEngine>();
-
-
-    LOG_CALLSTACK_POP();
-}
-
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// -=-=-=- UPDATE
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 void DendyEngine::CEngineCore::Update(float deltaTime)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
@@ -197,61 +212,70 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
 
-    // Pawns
-    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SWalkingCharacter, ECS::SRenderablePawn>())
+    // Update Pose
+    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SWalkingCharacter, ECS::SScenePose>())
     {
         ECS::SWalkingCharacter* pWalkingCharacter = m_pOwnedECSEngine->GetComponent<ECS::SWalkingCharacter>(pGameObject);
+        ECS::SScenePose* pPose = m_pOwnedECSEngine->GetComponent<ECS::SScenePose>(pGameObject);
+
+        glm::vec2 Target{CameraTargetPosition.x, CameraTargetPosition.z};
+
+        glm::vec2 RelativeToTarget = Target - pPose->Position;
+        float DistanceToTarget = glm::length(RelativeToTarget);
+
+
+        pPose->Orientation = RelativeToTarget;
+
+        if (DistanceToTarget > 1.0)
+        {
+            pPose->Position += pPose->Orientation * pWalkingCharacter->MaxVelocity * deltaTime;
+        }        
+    }
+
+
+    // Compute Transform matrix
+    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SScenePose, ECS::STransform>())
+    {
+        ECS::SScenePose* pPose = m_pOwnedECSEngine->GetComponent<ECS::SScenePose>(pGameObject);
+        ECS::STransform* pTransform = m_pOwnedECSEngine->GetComponent<ECS::STransform>(pGameObject);
+        
+        glm::vec3 WorldPosition = {pPose->Position.x, 0, pPose->Position.y};
+
+        WorldPosition.y = m_pOwnedTerrain->GetHeightAtPosition(pPose->Position);
+
+        float OrientationAngle = atan2f( -pPose->Orientation.x, -pPose->Orientation.y );
+        glm::quat OrientationQuaternion{ cosf( OrientationAngle/2.0f ), 0, sinf( OrientationAngle/2.0f ), 0 };
+
+        glm::mat4 RotateMatrix = glm::mat4_cast(OrientationQuaternion);
+        glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, WorldPosition);
+        glm::mat4 ScaleMatrix{1};
+
+        pTransform->TransformMatrix = TranslateMatrix * RotateMatrix * ScaleMatrix;
+    }
+    
+
+    // Pawn rendering
+    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::STransform, ECS::SRenderablePawn>())
+    {
+        ECS::STransform* pTransform = m_pOwnedECSEngine->GetComponent<ECS::STransform>(pGameObject);
         ECS::SRenderablePawn* pRenderablePawn = m_pOwnedECSEngine->GetComponent<ECS::SRenderablePawn>(pGameObject);
 
-        //Target 
-        //pWalkingCharacter->TargetPosition = 
-        glm::vec2 GridTarget{CameraTargetPosition.x, CameraTargetPosition.z};
-        glm::vec2 GridPosition{pWalkingCharacter->Position.x, pWalkingCharacter->Position.z};
-
-        glm::vec2 RelativeToTarget = GridTarget - GridPosition;
-
-
-        if (glm::length(RelativeToTarget) > 0.001)
-        {
-            pWalkingCharacter->TargetDirection = glm::normalize(glm::vec3{RelativeToTarget.x,0,RelativeToTarget.y});
-            pWalkingCharacter->Direction = pWalkingCharacter->TargetDirection;
-        }
-        if (glm::length(RelativeToTarget) > 1.0)
-        {
-            pWalkingCharacter->Position.x += pWalkingCharacter->Direction.x * pWalkingCharacter->MaxVelocity * deltaTime;
-            pWalkingCharacter->Position.z += pWalkingCharacter->Direction.z * pWalkingCharacter->MaxVelocity * deltaTime;
-            float TerrainHeight = m_pOwnedTerrain->GetHeightAtPosition(pWalkingCharacter->Position);
-            pWalkingCharacter->Position.y = TerrainHeight;
-        }
-
-        glm::mat4 TranslateMatrix{1};
-        glm::mat4 RotateMatrix{1};
-
-
-        float AngleBetweenTargetAndCurrentOrientation = atan2f( -pWalkingCharacter->Direction.x, -pWalkingCharacter->Direction.z );
-        glm::quat OrientationQuaternion{ cosf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0, sinf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0 };
-        RotateMatrix = glm::mat4_cast(OrientationQuaternion);
-        TranslateMatrix = glm::translate(glm::mat4(1.0), pWalkingCharacter->Position);
-
-        glm::mat4 TransformMatrix = TranslateMatrix * RotateMatrix;// * ScaleMatrix;
-        m_pOwnedRenderingSystem->AddPawnInstance(TransformMatrix, pRenderablePawn->Color);
+        m_pOwnedRenderingSystem->AddPawnInstance(pTransform->TransformMatrix, pRenderablePawn->Color);
     }
 
-    // Static Meshes
-    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SPose, ECS::SStaticMesh>())
+    // Static Meshes rendering
+    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::STransform, ECS::SStaticMesh>())
     {
         ECS::SStaticMesh* pMesh = m_pOwnedECSEngine->GetComponent<ECS::SStaticMesh>(pGameObject);
-        ECS::SPose* pPose = m_pOwnedECSEngine->GetComponent<ECS::SPose>(pGameObject);
-        
-        // Fix Y
-        float TerrainHeight = m_pOwnedTerrain->GetHeightAtPosition(pPose->Position);
-        pPose->Position.y = TerrainHeight;
+        ECS::STransform* pTransform = m_pOwnedECSEngine->GetComponent<ECS::STransform>(pGameObject);
 
-        // Compute matrix and add static mesh instance to renderer
-        glm::mat4 TransformMatrix{1.0f};
-        TransformMatrix = glm::translate(TransformMatrix, pPose->Position);
-        m_pOwnedRenderingSystem->AddStaticMesh(pMesh->MeshName, TransformMatrix, pMesh->Color);
+        m_pOwnedRenderingSystem->AddStaticMesh(pMesh->MeshName, pTransform->TransformMatrix, pMesh->Color);
     }
+
+
+
+
+
 
     m_pOwnedRenderingSystem->RenderScene();
 

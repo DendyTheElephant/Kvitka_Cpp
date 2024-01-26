@@ -155,7 +155,27 @@ void PixPhetamine::CInputHandler::_UpdateGamepads()
                 std::cout << "X" << std::endl;
             if (ButtonYPressed)
                 std::cout << "Y" << std::endl;
+
+            // Dead zone
+            if (abs(LeftStickXValue) < 0.1)
+                LeftStickXValue = 0.0f;
+            if (abs(LeftStickYValue) < 0.1)
+                LeftStickYValue = 0.0f;
+
+            // Inputs translation:
+            if (LeftStickYValue != 0.0f || LeftStickXValue != 0.0f)
+            {
+                m_LeftStickValue = glm::normalize(glm::vec2(LeftStickXValue, LeftStickYValue));
+            }
             
+            if (ButtonYPressed)
+            {
+                m_ZoomValue = -1.0;
+            }
+            else if (ButtonXPressed)
+            {
+                m_ZoomValue = 1.0;
+            }
 
             std::cout<<std::endl;
         }

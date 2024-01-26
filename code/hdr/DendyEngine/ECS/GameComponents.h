@@ -16,28 +16,31 @@ namespace DendyEngine::ECS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 enum class EGameComponentType
 {
-    Pose,
+    ScenePose,
+    Transform,
     WalkingCharacter,
+    MaslowNeeds,
     RenderablePawn,
     StaticMesh,
-    Camera,
-    MovementDecision
+    Camera
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// Define Data
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-struct SPose : CGameComponent<SPose,EGameComponentType::Pose>
+struct SScenePose : CGameComponent<SScenePose,EGameComponentType::ScenePose>
 {
-    glm::vec3 Position{0.0f};
-    glm::vec3 Direction{1.0f, 0.0f, 0.0f};
+    glm::vec2 Position{0.0f};
+    glm::vec2 Orientation{0.0f, 1.0f};
+};
+
+struct STransform : CGameComponent<STransform,EGameComponentType::Transform>
+{
+    glm::mat4 TransformMatrix{1};
 };
 
 struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::WalkingCharacter>
 {
-    glm::vec3 Position{0.0f};
-    glm::vec3 Direction{1.0f, 0.0f, 0.0f};
-
     glm::vec3 TargetPosition{0.0f};
     glm::vec3 TargetDirection{1.0f, 0.0f, 0.0f};
 
@@ -51,10 +54,32 @@ struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::
     float SprintMaxVelocity{0.00362f}; // 13km/h or 3.62m/s
 };
 
-struct SMovementDecision : CGameComponent<SMovementDecision,EGameComponentType::MovementDecision>
+struct SMaslowNeeds : CGameComponent<SMaslowNeeds,EGameComponentType::MaslowNeeds>
 {
-    glm::vec2 Direction;
-    float MaxDistance;
+    // Physiological needs
+    float WaterSatisfaction{1.0};
+    float FoodSatisfaction{1.0};
+    float HeatSatisfaction{1.0};
+    float ClothesSatisfaction{1.0};
+    float ShelterSatisfaction{1.0};
+    float SleepSatisfaction{1.0};
+
+    // Safety needs
+    float HealthSatisfaction{1.0};
+    float SecuritySatisfaction{1.0};
+    float EmotionalSatisfaction{1.0};
+    float FinancialSatisfaction{1.0};
+
+    // Love and social needs
+    float FamilySatisfaction{1.0};
+    float FriendshipSatisfaction{1.0};
+    float IntimacySatisfaction{1.0};
+    float LoveSatisfaction{1.0};
+
+    // Esteem needs
+    float PrestigeSatisfaction{1.0};
+    float AccomplishementSatisfaction{1.0};
+    float CreativeSatisfaction{1.0};
 };
 
 struct SRenderablePawn : CGameComponent<SRenderablePawn,EGameComponentType::RenderablePawn>
