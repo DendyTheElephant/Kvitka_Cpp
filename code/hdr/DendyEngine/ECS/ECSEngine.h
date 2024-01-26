@@ -13,9 +13,9 @@ namespace DendyEngine::ECS
 class CECSEngine
 {
 private:
-    inline static constexpr uint32_t c_MaxGameObjectCount{2048};
+    //inline static constexpr uint32_t c_MaxGameObjectCount{2048};
     inline static constexpr uint32_t c_MaxGameComponentCount{4096};
-    std::array<std::unique_ptr<CGameObject>,c_MaxGameObjectCount> m_OwnedGameObjectArray;
+    std::vector<std::unique_ptr<CGameObject>> m_OwnedGameObjectVec;
     std::array<std::unique_ptr<IGameComponent>,c_MaxGameComponentCount> m_OwnedGameComponentsArray;
     uint32_t m_GameComponentCount = 0;
     uint32_t m_GameObjectCount = 0;
@@ -31,7 +31,7 @@ public:
         CGameObject* pRefGameObject = pGameObject.get();
         m_GameObjectCount++;
         pRefGameObject->m_Id = m_GameObjectCount;
-        m_OwnedGameObjectArray[m_GameObjectCount] = std::move(pGameObject);
+        m_OwnedGameObjectVec.push_back( std::move(pGameObject) );
         return pRefGameObject;
     }
 
@@ -60,12 +60,12 @@ public:
         std::vector<CGameObject*> Result;
         std::vector<EGameComponentType> RequiredComponentTypesVec;
         ((RequiredComponentTypesVec.push_back(TGameComponents::Type)),...);
-        for (uint32_t iGameObject=1; iGameObject<m_GameObjectCount+1; iGameObject++)
+        for (uint32_t iGameObject=0; iGameObject<m_GameObjectCount; iGameObject++)
         {
             bool IsSuitable = true;
             for (auto RequiredComponent : RequiredComponentTypesVec)
             {
-                auto ComponentsMapByType = m_OwnedGameObjectArray[iGameObject]->m_GameComponentIdMapByGameComponentType;
+                auto ComponentsMapByType = m_OwnedGameObjectVec[iGameObject]->m_GameComponentIdMapByGameComponentType;
                 if ( ComponentsMapByType.find(RequiredComponent) == ComponentsMapByType.end() )
                 {
                     IsSuitable = false;
@@ -74,10 +74,20 @@ public:
             }
             if (IsSuitable)
             {
-                Result.push_back( m_OwnedGameObjectArray[iGameObject].get() );
+                Result.push_back( m_OwnedGameObjectVec[iGameObject].get() );
             }
         }
         return Result;
+    }
+
+    std::vector<CGameObject*> GetAllGameObjectsVec() const
+    {
+        std::vector<CGameObject*> GameObjectReferencesVec;
+        for (auto& pGameObject : m_OwnedGameObjectVec)
+        {
+            GameObjectReferencesVec.push_back(pGameObject.get());
+        }
+        return GameObjectReferencesVec;
     }
 };
 

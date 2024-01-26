@@ -126,7 +126,7 @@ void PixPhetamine::CInputHandler::_UpdateGamepads()
     {
         if ( std::string( glfwGetJoystickName(iConnectedGamepad) ) ==  "Xbox Controller" )
         {
-            std::cout << "Connected Gamepad ["<<iConnectedGamepad<<"]"<<" ["<<glfwGetJoystickName( iConnectedGamepad )<<"]"<<std::endl;
+            //std::cout << "Connected Gamepad ["<<iConnectedGamepad<<"]"<<" ["<<glfwGetJoystickName( iConnectedGamepad )<<"]"<<std::endl;
 
             int AxesCount;
             const float *AxisValuesArr = glfwGetJoystickAxes( iConnectedGamepad, &AxesCount );
@@ -140,21 +140,21 @@ void PixPhetamine::CInputHandler::_UpdateGamepads()
             float LeftStickYValue = AxisValuesArr[1];
             float RightStickXValue = AxisValuesArr[2];
             float RightStickYValue = AxisValuesArr[3];
-            std::cout << "LX: " << LeftStickXValue << " LY: " << LeftStickYValue << " RX: " << RightStickXValue << " RY: " << RightStickYValue << std::endl;
+            //std::cout << "LX: " << LeftStickXValue << " LY: " << LeftStickYValue << " RX: " << RightStickXValue << " RY: " << RightStickYValue << std::endl;
 
             bool ButtonAPressed = static_cast<bool>(ButtonValuesArr[0]);
             bool ButtonBPressed = static_cast<bool>(ButtonValuesArr[1]);
             bool ButtonXPressed = static_cast<bool>(ButtonValuesArr[2]);
             bool ButtonYPressed = static_cast<bool>(ButtonValuesArr[3]);
 
-            if (ButtonAPressed)
-                std::cout << "A" << std::endl;
-            if (ButtonBPressed)
-                std::cout << "B" << std::endl;
-            if (ButtonXPressed)
-                std::cout << "X" << std::endl;
-            if (ButtonYPressed)
-                std::cout << "Y" << std::endl;
+            // if (ButtonAPressed)
+            //     std::cout << "A" << std::endl;
+            // if (ButtonBPressed)
+            //     std::cout << "B" << std::endl;
+            // if (ButtonXPressed)
+            //     std::cout << "X" << std::endl;
+            // if (ButtonYPressed)
+            //     std::cout << "Y" << std::endl;
 
             // Dead zone
             if (abs(LeftStickXValue) < 0.1)
@@ -177,7 +177,7 @@ void PixPhetamine::CInputHandler::_UpdateGamepads()
                 m_ZoomValue = 1.0;
             }
 
-            std::cout<<std::endl;
+            //std::cout<<std::endl;
         }
     }
 }

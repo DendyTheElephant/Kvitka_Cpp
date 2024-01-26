@@ -88,6 +88,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     {
         ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Kossack001");
         ECS::SScenePose* pPose = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SScenePose>(pGameObject);
+        ECS::SVision* pVision = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SVision>(pGameObject);
         ECS::SRenderablePawn* pRenderablePawn = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SRenderablePawn>(pGameObject);
 
         ECS::STransform* pTransform = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
@@ -97,6 +98,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         pPose->Position = {-2,-2};
         pPose->Orientation = {0.0f, 1.0f};
         pRenderablePawn->Color = glm::vec3(1.0f, 1.0f, 0.0f);
+        pVision->Radius = 5.0f;
     }
     {
         ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Kossack002");
@@ -118,6 +120,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     {
         ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Hata001");
         ECS::SScenePose* pPose = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SScenePose>(pGameObject);
+        ECS::SVisibility* pVisibility = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SVisibility>(pGameObject);
         ECS::SStaticMesh* pStaticMesh = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::SStaticMesh>(pGameObject);
 
         ECS::STransform* pTransform = m_pOwnedECSEngine->AddComponent<DendyEngine::ECS::STransform>(pGameObject);
@@ -126,6 +129,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         pPose->Orientation = {0.0f, 1.0f};
         pStaticMesh->MeshName = "hata";
         pStaticMesh->Color = {1.0f, 1.0f, 1.0f};
+        pVisibility->Radius = 6.0f;
     }
     {
         ECS::CGameObject* pGameObject = m_pOwnedECSEngine->AddGameObject("Sich001");
@@ -212,6 +216,33 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
 
+    // Update Vision
+    for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SVision,ECS::SScenePose>())
+    {
+        ECS::SVision* pVision = m_pOwnedECSEngine->GetComponent<ECS::SVision>(pGameObject);
+        ECS::SScenePose* pPose = m_pOwnedECSEngine->GetComponent<ECS::SScenePose>(pGameObject);
+
+        pVision->VisibleGameObjectsVec.clear();
+
+        for (auto pOtherGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SVisibility,ECS::SScenePose>())
+        {
+            ECS::SVisibility* pOthersVisibility = m_pOwnedECSEngine->GetComponent<ECS::SVisibility>(pOtherGameObject);
+            ECS::SScenePose* pOthersPose = m_pOwnedECSEngine->GetComponent<ECS::SScenePose>(pOtherGameObject);
+
+            glm::vec2 RelativeToTarget = pOthersPose->Position - pPose->Position;
+            if (glm::dot(pPose->Orientation, RelativeToTarget) > -pOthersVisibility->Radius)
+            {
+                float Distance = glm::length(RelativeToTarget);
+                if (Distance <= pVision->Radius + pOthersVisibility->Radius)
+                {
+                    pVision->VisibleGameObjectsVec.push_back(pOtherGameObject);
+                    std::cout << *pOtherGameObject << std::endl;
+                }
+            }
+        }
+    }
+
+
     // Update Pose
     for (auto pGameObject : m_pOwnedECSEngine->GetGameObjectsVecWithComponents<ECS::SWalkingCharacter, ECS::SScenePose>())
     {
@@ -229,7 +260,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         if (DistanceToTarget > 1.0)
         {
             pPose->Position += pPose->Orientation * pWalkingCharacter->MaxVelocity * deltaTime;
-        }        
+        }
     }
 
 

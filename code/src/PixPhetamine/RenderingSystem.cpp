@@ -328,6 +328,32 @@ void PixPhetamine::CRenderingSystem::RenderScene()
     }
 
 
+    // std::unordered_map<char,glm::vec2> TexCoordByChar = {
+    //     { 'A', {0.0, 0.0} },
+    //     { 'B', {0.0, 1.0} }
+    // }
+    // pCurrentShader = m_ShaderMapByName["text"].get();
+    // glUseProgram(pCurrentShader->GetId());
+    // {
+    //     CMesh* pMeshToRender = m_MeshMapByName["Quad"].get();
+    //     glBindVertexArray(pMeshToRender->GetVAO());
+    //     for (auto [String,ScreenCoordinates] : m_TextsDataVec)
+    //     {
+    //         for (char Char : String)
+    //         {
+    //             pCurrentShader->SendUniformVariable("u_Color", Color);
+    //         }
+
+    //         glm::mat4 ModelViewProjectionMatrix = ViewProjectionMatrix * TransformMatrix;
+
+    //         pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", ModelViewProjectionMatrix);
+    //         pCurrentShader->SendUniformVariable("u_Color", Color);
+
+    //         glDrawElements(GL_TRIANGLES, pMeshToRender->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+    //     }
+    // }
+
+
     AssertOpenGLErrors();
     m_PawnInstanceDataVec.clear();
     m_StaticMeshInstanceDataVec.clear();

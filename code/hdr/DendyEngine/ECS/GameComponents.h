@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DendyEngine/ECS/GameComponentBase.h>
+#include <DendyEngine/ECS/GameObject.h>
 
 #include <glm/glm.hpp>
 
@@ -19,7 +20,8 @@ enum class EGameComponentType
     ScenePose,
     Transform,
     WalkingCharacter,
-    MaslowNeeds,
+    Vision,
+    Visibility,
     RenderablePawn,
     StaticMesh,
     Camera
@@ -54,33 +56,45 @@ struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::
     float SprintMaxVelocity{0.00362f}; // 13km/h or 3.62m/s
 };
 
-struct SMaslowNeeds : CGameComponent<SMaslowNeeds,EGameComponentType::MaslowNeeds>
+struct SVision : CGameComponent<SVision,EGameComponentType::Vision>
 {
-    // Physiological needs
-    float WaterSatisfaction{1.0};
-    float FoodSatisfaction{1.0};
-    float HeatSatisfaction{1.0};
-    float ClothesSatisfaction{1.0};
-    float ShelterSatisfaction{1.0};
-    float SleepSatisfaction{1.0};
-
-    // Safety needs
-    float HealthSatisfaction{1.0};
-    float SecuritySatisfaction{1.0};
-    float EmotionalSatisfaction{1.0};
-    float FinancialSatisfaction{1.0};
-
-    // Love and social needs
-    float FamilySatisfaction{1.0};
-    float FriendshipSatisfaction{1.0};
-    float IntimacySatisfaction{1.0};
-    float LoveSatisfaction{1.0};
-
-    // Esteem needs
-    float PrestigeSatisfaction{1.0};
-    float AccomplishementSatisfaction{1.0};
-    float CreativeSatisfaction{1.0};
+    float Radius{50.0f};
+    float AngleInDegrees{180.0};
+    std::vector<CGameObject*> VisibleGameObjectsVec;
 };
+
+struct SVisibility : CGameComponent<SVisibility,EGameComponentType::Visibility>
+{
+    float Radius{1.0f}; // Can be negative!
+};
+
+// struct SMaslowNeeds : CGameComponent<SMaslowNeeds,EGameComponentType::MaslowNeeds>
+// {
+//     // Physiological needs
+//     float WaterSatisfaction{1.0};
+//     float FoodSatisfaction{1.0};
+//     float HeatSatisfaction{1.0};
+//     float ClothesSatisfaction{1.0};
+//     float ShelterSatisfaction{1.0};
+//     float SleepSatisfaction{1.0};
+
+//     // Safety needs
+//     float HealthSatisfaction{1.0};
+//     float SecuritySatisfaction{1.0};
+//     float EmotionalSatisfaction{1.0};
+//     float FinancialSatisfaction{1.0};
+
+//     // Love and social needs
+//     float FamilySatisfaction{1.0};
+//     float FriendshipSatisfaction{1.0};
+//     float IntimacySatisfaction{1.0};
+//     float LoveSatisfaction{1.0};
+
+//     // Esteem needs
+//     float PrestigeSatisfaction{1.0};
+//     float AccomplishementSatisfaction{1.0};
+//     float CreativeSatisfaction{1.0};
+// };
 
 struct SRenderablePawn : CGameComponent<SRenderablePawn,EGameComponentType::RenderablePawn>
 {

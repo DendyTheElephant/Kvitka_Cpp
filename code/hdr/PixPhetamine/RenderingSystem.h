@@ -59,7 +59,7 @@ private:
 
     std::vector<std::pair<glm::mat4,glm::vec3>> m_PawnInstanceDataVec;
     
-    
+    std::vector<std::pair<std::string,glm::vec2>> m_TextsDataVec;
     std::vector<SMeshInstance> m_StaticMeshInstanceDataVec;
     glm::vec3 m_CameraLookAtPosition{0.0f};
     glm::vec3 m_CameraArmTranslation{0.0f};
