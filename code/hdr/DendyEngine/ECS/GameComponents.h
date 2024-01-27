@@ -46,7 +46,7 @@ struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::
     glm::vec3 TargetPosition{0.0f};
     glm::vec3 TargetDirection{1.0f, 0.0f, 0.0f};
 
-    //float DirectionVelocity;
+    float ArrivalEpsilon{1.0}; // 1m
 
     bool IsSprinting{false};
     float Acceleration{0.0002f}; // 0.2m/s
@@ -58,14 +58,14 @@ struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::
 
 struct SVision : CGameComponent<SVision,EGameComponentType::Vision>
 {
-    float Radius{50.0f};
+    float Radius{5.0f};
     float AngleInDegrees{180.0};
     std::vector<CGameObject*> VisibleGameObjectsVec;
 };
 
 struct SVisibility : CGameComponent<SVisibility,EGameComponentType::Visibility>
 {
-    float Radius{1.0f}; // Can be negative!
+    float Radius{3.0f}; // Can be negative!
 };
 
 // struct SMaslowNeeds : CGameComponent<SMaslowNeeds,EGameComponentType::MaslowNeeds>

@@ -1,5 +1,6 @@
 #include <DendyEngine/EngineCore.h>
 #include <DendyCommon/Logger.h>
+#include <DendyCommon/Math.h>
 
 #include <iostream>
 
@@ -230,13 +231,14 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
             ECS::SScenePose* pOthersPose = m_pOwnedECSEngine->GetComponent<ECS::SScenePose>(pOtherGameObject);
 
             glm::vec2 RelativeToTarget = pOthersPose->Position - pPose->Position;
-            if (glm::dot(pPose->Orientation, RelativeToTarget) > -pOthersVisibility->Radius)
+            if (glm::dot(pPose->Orientation, RelativeToTarget) > 0)
             {
-                float Distance = glm::length(RelativeToTarget);
-                if (Distance <= pVision->Radius + pOthersVisibility->Radius)
+                //float Distance = glm::length(RelativeToTarget);
+                if (DendyCommon::Math::FastCompareDistance(pPose->Position, pOthersPose->Position, pVision->Radius) < 0)
                 {
                     pVision->VisibleGameObjectsVec.push_back(pOtherGameObject);
-                    std::cout << *pOtherGameObject << std::endl;
+                    //std::cout << *pOtherGameObject << std::endl;
+                    std::cout << glm::dot(pPose->Orientation, RelativeToTarget) << std::endl;
                 }
             }
         }
@@ -249,15 +251,11 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         ECS::SWalkingCharacter* pWalkingCharacter = m_pOwnedECSEngine->GetComponent<ECS::SWalkingCharacter>(pGameObject);
         ECS::SScenePose* pPose = m_pOwnedECSEngine->GetComponent<ECS::SScenePose>(pGameObject);
 
-        glm::vec2 Target{CameraTargetPosition.x, CameraTargetPosition.z};
+        glm::vec2 Target = DendyCommon::Math::GetScenePositionFromWorldPosition(CameraTargetPosition);
 
-        glm::vec2 RelativeToTarget = Target - pPose->Position;
-        float DistanceToTarget = glm::length(RelativeToTarget);
+        pPose->Orientation = Target - pPose->Position;
 
-
-        pPose->Orientation = RelativeToTarget;
-
-        if (DistanceToTarget > 1.0)
+        if (DendyCommon::Math::FastCompareDistance(pPose->Position, Target, pWalkingCharacter->ArrivalEpsilon) > 0)
         {
             pPose->Position += pPose->Orientation * pWalkingCharacter->MaxVelocity * deltaTime;
         }
@@ -270,14 +268,11 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         ECS::SScenePose* pPose = m_pOwnedECSEngine->GetComponent<ECS::SScenePose>(pGameObject);
         ECS::STransform* pTransform = m_pOwnedECSEngine->GetComponent<ECS::STransform>(pGameObject);
         
-        glm::vec3 WorldPosition = {pPose->Position.x, 0, pPose->Position.y};
+        glm::vec3 WorldPosition = DendyCommon::Math::GetWorldPositionFromScenePosition(pPose->Position);
 
         WorldPosition.y = m_pOwnedTerrain->GetHeightAtPosition(pPose->Position);
 
-        float OrientationAngle = atan2f( -pPose->Orientation.x, -pPose->Orientation.y );
-        glm::quat OrientationQuaternion{ cosf( OrientationAngle/2.0f ), 0, sinf( OrientationAngle/2.0f ), 0 };
-
-        glm::mat4 RotateMatrix = glm::mat4_cast(OrientationQuaternion);
+        glm::mat4 RotateMatrix = DendyCommon::Math::GetRotationMatrixFromOrientation(pPose->Orientation);
         glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, WorldPosition);
         glm::mat4 ScaleMatrix{1};
 
