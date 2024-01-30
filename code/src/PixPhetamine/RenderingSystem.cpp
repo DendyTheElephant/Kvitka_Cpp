@@ -61,7 +61,7 @@ m_IsRunning(true)
     //const GLFWvidmode* MonitorMode; // height, width, refreshRate
     //glfwWindowHint(GLFW_REFRESH_RATE, MonitorMode->refreshRate);
 
-    // Retrieve the GPU - OpenGL Current specs for the platform --> Log file
+    // Retrieve the GPU - OpenGL Current spComponents for the platform --> Log file
     std::cerr << "=============[ PixPhetamine log-file ]=========================" << std::endl;
     std::cerr << ">Graphics Successfully Initialized !" << std::endl;
     std::cerr << "OpenGL Info" << std::endl;
@@ -239,24 +239,25 @@ void PixPhetamine::CRenderingSystem::InitialiseTerrain(size_t terrainSize, float
     m_MeshMapByName["Terrain"] = std::make_unique<CMesh>("Terrain", true, true);
     CMesh* pMesh = m_MeshMapByName["Terrain"].get();
 
-    for (size_t iHeight=0; iHeight<terrainSize*terrainSize; iHeight++)
+    for (size_t iHeight=0; iHeight<(terrainSize+1)*(terrainSize+1); iHeight++)
     {
-        float PosX = iHeight % terrainSize;
-        float PosZ = iHeight / terrainSize;
+        float PosX = iHeight % (terrainSize+1);
+        float PosZ = iHeight / (terrainSize+1);
 
-        pMesh->AddPosition({(PosX-terrainSize/2.0f) * scale, static_cast<float>(pHeightsVec[iHeight])/65535.0f*heightScale, (PosZ-terrainSize/2.0f) * scale});
+        //pMesh->AddPosition({(PosX-terrainSize/2.0f) * scale, static_cast<float>(pHeightsVec[iHeight])/65535.0f*heightScale, (PosZ-terrainSize/2.0f) * scale});
+        pMesh->AddPosition({(PosX-terrainSize/2.0f) * scale, static_cast<float>(0)/65535.0f*heightScale, (PosZ-terrainSize/2.0f) * scale});
 
         pMesh->AddNormal({0.0f, 1.0f, 0.0f});
 
-        pMesh->AddTextureCoordinate({(PosX-terrainSize/2.0f) * scale, (PosZ-terrainSize/2.0f) * scale});
+        pMesh->AddTextureCoordinate({0,0});
     }
     
-    for (uint16_t y=0; y<terrainSize-1; y++)
+    for (uint16_t y=0; y<terrainSize+1; y++)
     {
-        for (uint16_t x=0; x<terrainSize-1; x++)
+        for (uint16_t x=0; x<terrainSize+1; x++)
         {
             // Top left, bottom left, top right
-            pMesh->AddTriangleIndices(y*terrainSize + x, (y+1)*terrainSize + x, y*terrainSize + (x+1));
+            pMesh->AddTriangleIndices(y*(terrainSize+1) + x, (y+1)*(terrainSize+1) + x, y*(terrainSize+1) + (x+1));
             
             // Bottom right, top right, bottom left
             //pMesh->AddTriangleIndices((y+1)*terrainSize + (x+1),  y*terrainSize + (x+1), (y+1)*terrainSize + x);

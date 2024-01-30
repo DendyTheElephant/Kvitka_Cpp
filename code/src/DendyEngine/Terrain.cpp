@@ -11,7 +11,7 @@
 
 DendyEngine::CTerrain::CTerrain()
 {
-    LoadFromFiles("ressources/images/ruggedTerrainHeightmap512.png");
+    LoadFromFiles("ressources/images/ruggedTerrainHeightmap4.png");
 }
 
 DendyEngine::CTerrain::~CTerrain()
@@ -36,7 +36,7 @@ void DendyEngine::CTerrain::LoadFromFiles(std::string fileNameHeightmap)
     {
         for (int x=0; x<Width; x++)
         {
-            size_t Coordinate = y*c_TerrainSize * 4+x * 4;
+            size_t Coordinate = y*(c_TerrainSize+1)*4 + x*4;
             float MinValue255 = 0.0f;
             float MaxValue255 = 255.0f;
             float Height = (float)(Data.at(Coordinate)-MinValue255) / MaxValue255; // between 0..1

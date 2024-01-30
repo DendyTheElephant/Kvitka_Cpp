@@ -1,29 +1,123 @@
 #pragma once
 
+#include <DendyEngine/GameObject.h>
+#include <DendyEngine/Components/GameComponentBase.h>
+#include <DendyCommon/Logger.h>
+#include <DendyEngine/Position2DHash.h>
+
 #include <glm/glm.hpp>
 
 #include <array>
 #include <memory>
 #include <vector>
+#include <unordered_set>
 
 namespace DendyEngine
 {
 
 class CScene
 {
-// protected:
-//     static constexpr float c_Scale{1.0f};
-//     static constexpr size_t c_TerrainSize{512};
-//     static constexpr float c_TerrainMaxHeight{100.0f};
-//     std::array<uint16_t,c_TerrainSize*c_TerrainSize> m_HeightsArray;
+public:
+    inline static constexpr uint16_t c_ChunkSize{50};
+protected:
+    inline static uint32_t m_GameComponentCount = 0;
+    std::vector<std::unique_ptr<CGameObject>> m_pOwnedGameObjectsVec;
+    std::unordered_map<SPosition2DHash<c_ChunkSize>,std::unordered_set<CGameObject*>> m_pGameObjectReferencesSetByChunk;
 
-// protected:
-//     inline float const _GetHeight(size_t const& x, size_t const& y) const {return static_cast<float>(m_HeightsArray.at(y*c_TerrainSize+x))/65535.0f;} /// Between 0..1
-//     inline void _SetHeight(size_t const& x, size_t const& y, float value) { m_HeightsArray.at(y*c_TerrainSize+x) = static_cast<uint16_t>(value*65535.0f); } /// Value must be between 0..1
 
 public:
-    CScene() {};
-    ~CScene() {};
+    CScene() {}
+    ~CScene() {}
+
+    CGameObject* AddGameObject(std::string name, glm::vec2 scenePosition, glm::vec2 sceneOrientation = glm::vec2(0,1))
+    {
+        LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+        m_pOwnedGameObjectsVec.push_back( std::make_unique<CGameObject>(m_pOwnedGameObjectsVec.size(), name, scenePosition, sceneOrientation) );
+        SPosition2DHash<c_ChunkSize> ChunkHash = SPosition2DHash<c_ChunkSize>(m_pOwnedGameObjectsVec.back()->GetScenePose()->Position);
+        if (m_pGameObjectReferencesSetByChunk.count(ChunkHash) == 0)
+        {
+            std::unordered_set<CGameObject*> GameObjectReferencesSet;
+            GameObjectReferencesSet.insert(m_pOwnedGameObjectsVec.back().get());
+            m_pGameObjectReferencesSetByChunk.insert( {ChunkHash, GameObjectReferencesSet} );
+        }
+        else
+        {
+            std::unordered_set<CGameObject*>* pGameObjectReferencesSet = &m_pGameObjectReferencesSetByChunk.at(ChunkHash);
+            pGameObjectReferencesSet->insert(m_pOwnedGameObjectsVec.back().get());
+        }
+
+
+        LOG_CALLSTACK_POP();
+        return m_pOwnedGameObjectsVec.back().get();
+    }
+
+    void RemoveGameObject(CGameObject* pGameObject)
+    {
+        LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+        auto ChunkHash = SPosition2DHash<c_ChunkSize>(pGameObject->GetScenePose()->Position);
+        std::unordered_set<CGameObject*>* pGameObjectReferencesSet = &m_pGameObjectReferencesSetByChunk.at(ChunkHash);
+        pGameObjectReferencesSet->erase(pGameObject);
+
+        auto IteratorForErase = std::find_if(std::begin(m_pOwnedGameObjectsVec), std::end(m_pOwnedGameObjectsVec), [pGameObject](std::unique_ptr<CGameObject>& p) { return p.get() == pGameObject; });
+        m_pOwnedGameObjectsVec.erase( IteratorForErase );
+
+        LOG_CALLSTACK_POP();
+    }
+
+    std::unordered_set<CGameObject*> GetGameObjectsSetNearScenePosition(glm::vec2 const& scenePosition)
+    {
+        LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+        SPosition2DHash<c_ChunkSize> ChunkHash = SPosition2DHash<c_ChunkSize>(scenePosition);
+
+        std::unordered_set<CGameObject*> Result;
+        for (int x=-1; x<2; x++)
+        {
+            for (int y=-1; y<2; y++)
+            {
+                SPosition2DHash<c_ChunkSize> ChunkHashNeighboors = SPosition2DHash<c_ChunkSize>(ChunkHash);
+                ChunkHashNeighboors.x + x;
+                ChunkHashNeighboors.y + y;
+                auto GameObjectSetInChunk = m_pGameObjectReferencesSetByChunk.at(ChunkHashNeighboors);
+                for (auto pGameObjectReferences : GameObjectSetInChunk)
+                {
+                    Result.insert(pGameObjectReferences);
+                }
+            }
+        }
+
+        LOG_CALLSTACK_POP();
+        return Result;
+    }
+
+    template<class... TGameComponents>
+    std::unordered_set<CGameObject*> GetGameObjectsSetNearScenePositionWithComponents(glm::vec2 const& scenePosition)
+    {
+        std::unordered_set<CGameObject*> Result;
+        std::vector<Components::EGameComponentType> RequiredComponentTypesVec;
+        ((RequiredComponentTypesVec.push_back(TGameComponents::Type)),...);
+        auto GameObjectsSetFromChunk = GetGameObjectsSetNearScenePosition(scenePosition);
+        for (auto pGameObject : GameObjectsSetFromChunk)
+        {
+            bool IsSuitable = true;
+            for (auto RequiredComponent : RequiredComponentTypesVec)
+            {
+                if ( pGameObject->HasComponent(RequiredComponent) == false )
+                {
+                    IsSuitable = false;
+                    break;
+                }
+            }
+            if (IsSuitable)
+            {
+                Result.insert( pGameObject );
+            }
+        }
+        return Result;
+    }
+
 
     // void LoadFromFiles(std::string fileNameHeightmap);
 

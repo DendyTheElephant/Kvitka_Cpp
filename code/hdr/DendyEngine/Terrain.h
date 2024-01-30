@@ -12,14 +12,14 @@ namespace DendyEngine
 class CTerrain
 {
 protected:
-    static constexpr float c_Scale{1.0f};
-    static constexpr size_t c_TerrainSize{512};
+    static constexpr float c_Scale{50.0f};
+    static constexpr size_t c_TerrainSize{3};
     static constexpr float c_TerrainMaxHeight{100.0f};
-    std::array<uint16_t,c_TerrainSize*c_TerrainSize> m_HeightsArray;
+    std::array<uint16_t,(c_TerrainSize+1)*(c_TerrainSize+1)> m_HeightsArray;
 
 protected:
-    inline float const _GetHeight(size_t const& x, size_t const& y) const {return static_cast<float>(m_HeightsArray.at(y*c_TerrainSize+x))/65535.0f;} /// Between 0..1
-    inline void _SetHeight(size_t const& x, size_t const& y, float value) { m_HeightsArray.at(y*c_TerrainSize+x) = static_cast<uint16_t>(value*65535.0f); } /// Value must be between 0..1
+    inline float const _GetHeight(size_t const& x, size_t const& y) const {return static_cast<float>(m_HeightsArray.at(y*(c_TerrainSize+1)+x))/65535.0f;} /// Between 0..1
+    inline void _SetHeight(size_t const& x, size_t const& y, float value) { m_HeightsArray.at(y*(c_TerrainSize+1)+x) = static_cast<uint16_t>(value*65535.0f); } /// Value must be between 0..1
 
 public:
     CTerrain();

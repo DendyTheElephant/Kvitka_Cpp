@@ -5,7 +5,6 @@
 #include <DendyCommon/Logger.h>
 #include <DendyCommon/Timer.h>
 
-#include <DendyEngine/ECS/ECSEngine.h>
 
 
 #include <thread>

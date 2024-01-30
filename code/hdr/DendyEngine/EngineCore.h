@@ -2,7 +2,8 @@
 
 #include <PixPhetamine/InputHandler.h>
 #include <DendyEngine/Terrain.h>
-#include <DendyEngine/ECS/ECSEngine.h>
+#include <DendyEngine/Components/GameComponents.h>
+#include <DendyEngine/Scene.h>
 
 #include <PixPhetamine/RenderingSystem.h>
 #include <DendyEngine/Terrain.h>
@@ -26,7 +27,8 @@ private:
 
     
     std::unique_ptr<PixPhetamine::CInputHandler> m_pOwnedInputHandler;
-    std::unique_ptr<ECS::CECSEngine> m_pOwnedECSEngine;
+    //std::unique_ptr<Components::CComponentsEngine> m_pOwnedComponentsEngine;
+    std::unique_ptr<CScene> m_pOwnedScene;
 
     //std::unordered_map<size_t,std::unique_ptr<CGameObject>> m_pOwnedGameObjectsMap;
 
