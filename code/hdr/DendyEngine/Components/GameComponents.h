@@ -2,6 +2,7 @@
 
 #include <DendyEngine/Components/GameComponentBase.h>
 #include <DendyEngine/GameObject.h>
+#include <DendyCommon/Math.h>
 
 #include <glm/glm.hpp>
 
@@ -39,14 +40,14 @@ struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::
 
 struct SVision : CGameComponent<SVision,EGameComponentType::Vision>
 {
-    float Radius{5.0f};
+    float Radius{9.0f};
     float AngleInDegrees{180.0};
     std::vector<CGameObject*> VisibleGameObjectsVec;
 };
 
 struct SVisibility : CGameComponent<SVisibility,EGameComponentType::Visibility>
 {
-    float Radius{3.0f}; // Can be negative!
+    float Radius{0.6f}; // Can be negative!
 };
 
 // struct SMaslowNeeds : CGameComponent<SMaslowNeeds,EGameComponentType::MaslowNeeds>
@@ -97,6 +98,12 @@ struct SCamera : CGameComponent<SCamera,EGameComponentType::Camera>
     float ArmTranslationMagnitudeMaxValue{31.0f};
     float Speed{0.00362f};
     float SpeedArm{0.0362f};
+};
+
+struct SStaticColliderShape : CGameComponent<SStaticColliderShape,EGameComponentType::StaticColliderShape>
+{
+    DendyCommon::Math::SShape Shape;
+    float Height;
 };
 
 }

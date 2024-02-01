@@ -96,7 +96,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
 
         pRenderablePawn->Color = glm::vec3(1.0f, 1.0f, 0.0f);
-        pVision->Radius = 5.0f;
+        pVision->Radius = 9.0f;
     }
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kossack002",{2,2});
@@ -107,20 +107,29 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
 
         pRenderablePawn->Color = glm::vec3(0.0f, 1.0f, 0.0f);
     }
+    {
+        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kossack003",{8,-14});
+        Components::SRenderablePawn* pRenderablePawn = pGameObject->AddComponent<DendyEngine::Components::SRenderablePawn>();
+        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
+
+        pGameObject->AddComponent<DendyEngine::Components::STransform>();
+
+        pRenderablePawn->Color = glm::vec3(1.0f, 0.0f, 0.0f);
+        pVisibility->Radius = 1.0f;
+    }
 
 
 
     // Create static meshes
     {
-        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Hata001",{8,-10});
-        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
-        Components::SStaticMesh* pStaticMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
-
-        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Hata001",{10,-15},{1,0});
+        auto pStaticMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
+        pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        auto pCollider = pGameObject->AddComponent<DendyEngine::Components::SStaticColliderShape>();
 
         pStaticMesh->MeshName = "hata";
         pStaticMesh->Color = {1.0f, 1.0f, 1.0f};
-        pVisibility->Radius = 6.0f;
+        pCollider->PositionsVec = {{11,-9},{11,-11},{5,-11},{5,-9}};
     }
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Sich001",{-8,-10});
@@ -212,20 +221,30 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
         pVision->VisibleGameObjectsVec.clear();
 
-        for (auto pOtherGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVisibility>({0,0}))
+        for (auto pOtherGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVisibility>(pGameObject->GetScenePose()->Position))
         {
             Components::SVisibility* pOthersVisibility = pOtherGameObject->GetComponent<Components::SVisibility>();
             Components::SScenePose* pOthersPose = pOtherGameObject->GetScenePose();
 
             glm::vec2 RelativeToTarget = pOthersPose->Position - pPose->Position;
-            if (glm::dot(pPose->Orientation, RelativeToTarget) > 0)
+
+            if (DendyCommon::Math::FastCompareDistance(pPose->Position, pOthersPose->Position, pVision->Radius+pOthersVisibility->Radius) < 0)
             {
-                //float Distance = glm::length(RelativeToTarget);
-                if (DendyCommon::Math::FastCompareDistance(pPose->Position, pOthersPose->Position, pVision->Radius) < 0)
+                //std::cout << glm::dot(pPose->Orientation, RelativeToTarget) << std::endl;
+                if (glm::dot(pPose->Orientation, RelativeToTarget) > 0)
                 {
+                    for (auto pColliderGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SStaticColliderShape>(pGameObject->GetScenePose()->Position))
+                    {
+                        for (auto& Edge : pColliderGameObject->GetComponent<Components::SStaticColliderShape>()->Shape.EdgesVec)
+                        {
+                            if ( DendyCommon::Math::IsColliding(DendyCommon::Math::SEdge(pPose->Position,pOthersPose->Position),Edge) )
+                                std::cout << glm::distance(RelativeToTarget) << std::endl;
+                        }
+                    }
+
                     pVision->VisibleGameObjectsVec.push_back(pOtherGameObject);
                     //std::cout << *pOtherGameObject << std::endl;
-                    std::cout << glm::dot(pPose->Orientation, RelativeToTarget) << std::endl;
+                    //std::cout << glm::dot(pPose->Orientation, RelativeToTarget) << std::endl;
                 }
             }
         }
