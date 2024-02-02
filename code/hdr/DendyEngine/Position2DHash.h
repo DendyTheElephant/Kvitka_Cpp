@@ -19,8 +19,16 @@ struct SPosition2DHash
 
     SPosition2DHash(glm::vec2 const& position)
     {
-        x = static_cast<int32_t>(position.x) / N;
-        y = static_cast<int32_t>(position.y) / N;
+        glm::vec2 ScaledPosition = position / static_cast<float>(N);
+        if (ScaledPosition.x >= 0)
+            x = static_cast<int32_t>(ScaledPosition.x);
+        else
+            x = static_cast<int32_t>(std::floor(ScaledPosition.x));
+        if (ScaledPosition.y >= 0)
+            y = static_cast<int32_t>(ScaledPosition.y);
+        else
+            y = static_cast<int32_t>(std::floor(ScaledPosition.y));
+        
     }
 
     SPosition2DHash(SPosition2DHash const& original) {x=original.x; y=original.y;}

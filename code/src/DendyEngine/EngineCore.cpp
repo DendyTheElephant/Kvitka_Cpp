@@ -75,9 +75,10 @@ void DendyEngine::CEngineCore::_InitialiseTerrain()
         
         std::string TerrainChunkName = "TerrainChunk_" + std::to_string(ChunkLocation.x) + "_" + std::to_string(ChunkLocation.y);
         auto pTerrainChunk = m_pOwnedScene->AddTerrainChunk(TerrainChunkName,ChunkWorldPosition);
+        pTerrainChunk->Translation = ChunkWorldPosition;
 
         m_pOwnedTerrainSystem->InitialiseTerrainChunkFromHeighmap(pTerrainChunk, HeighmapName);
-        m_pOwnedRenderingSystem->AddTerrainChunk(pTerrainChunk,ChunkWorldPosition);
+        m_pOwnedRenderingSystem->AddTerrainChunk(pTerrainChunk);
     }
 
     //m_pOwnedTerrain = std::make_unique<DendyEngine::CTerrain>();
@@ -179,6 +180,8 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
+    glm::vec2 PlayerScenePosition{0,0};
+
     m_pOwnedInputHandler->UpdateInputs();
     if (m_pOwnedInputHandler->GetWindowClosedState() || m_pOwnedInputHandler->GetKeyEscapeReleased())
     {
@@ -196,11 +199,8 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
 
-    glm::vec3 CameraTargetPosition;
-    glm::vec2 CameraTargetScenePosition;
-
     // Camera movements with inputs
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SCamera>({0,0}))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SCamera>(PlayerScenePosition))
     {
         Components::SCamera* pCamera = pGameObject->GetComponent<Components::SCamera>();
 
@@ -224,17 +224,15 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
             RotateMatrix = glm::mat4_cast(OrientationQuaternion);
         }
 
-
-        CameraTargetPosition = pCamera->TargetPosition;
-        CameraTargetScenePosition = {CameraTargetPosition.x, CameraTargetPosition.z};
+        PlayerScenePosition = {pCamera->TargetPosition.x, pCamera->TargetPosition.z};
         m_pOwnedRenderingSystem->SetCameraLookAt(pCamera->TargetPosition);
         glm::vec3 ArmTranslation = glm::normalize(pCamera->ArmTranslationDirection);
         
         m_pOwnedRenderingSystem->SetCameraArmTranslation(ArmTranslation*pCamera->ArmTranslationMagnitude);
 
         // Debug
-        auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(CameraTargetScenePosition);
-        glm::vec3 CameraWorldTargetPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, {CameraTargetPosition.x, CameraTargetPosition.z});
+        auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(PlayerScenePosition);
+        glm::vec3 CameraWorldTargetPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, PlayerScenePosition);
         glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, CameraWorldTargetPosition);
 
 
@@ -244,7 +242,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
 
     // Update Vision
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVision>({0,0}))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVision>(PlayerScenePosition))
     {
         Components::SVision* pVision = pGameObject->GetComponent<Components::SVision>();
         Components::SScenePose* pPose = pGameObject->GetScenePose();
@@ -282,12 +280,12 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
 
     // Update Pose
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SWalkingCharacter>({0,0}))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SWalkingCharacter>(PlayerScenePosition))
     {
         Components::SWalkingCharacter* pWalkingCharacter = pGameObject->GetComponent<Components::SWalkingCharacter>();
         Components::SScenePose* pPose = pGameObject->GetScenePose();
 
-        glm::vec2 Target = DendyCommon::Math::GetScenePositionFromWorldPosition(CameraTargetPosition);
+        glm::vec2 Target = PlayerScenePosition;
 
         pPose->Orientation = Target - pPose->Position;
 
@@ -299,7 +297,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
 
     // Compute Transform matrix
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform>({0,0}))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform>(PlayerScenePosition))
     {
         Components::SScenePose* pPose = pGameObject->GetScenePose();
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
@@ -317,7 +315,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     
 
     // Pawn rendering
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SRenderablePawn>({0,0}))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SRenderablePawn>(PlayerScenePosition))
     {
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
         Components::SRenderablePawn* pRenderablePawn = pGameObject->GetComponent<Components::SRenderablePawn>();
@@ -326,7 +324,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
     // Static Meshes rendering
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SStaticMesh>({0,0}))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SStaticMesh>(PlayerScenePosition))
     {
         Components::SStaticMesh* pMesh = pGameObject->GetComponent<Components::SStaticMesh>();
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
@@ -335,7 +333,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
     // Terrain Chunks rendering
-    for (auto pTerrainChunk : m_pOwnedScene->GetTerrainChunksSetNearScenePosition(CameraTargetScenePosition))
+    for (auto pTerrainChunk : m_pOwnedScene->GetTerrainChunksSetNearScenePosition(PlayerScenePosition))
     {
         m_pOwnedRenderingSystem->AddTerrainIdInstanceToRender(pTerrainChunk->TerrainId);
     }

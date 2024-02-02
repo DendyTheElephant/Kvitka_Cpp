@@ -49,8 +49,11 @@ glm::vec3 DendyEngine::CTerrainSystem::GetWorldPositionFromScenePosition(Compone
 //#endif // _DEBUG
 
     glm::vec2 PositionInTerrainSpace;
-    PositionInTerrainSpace.x = (scenePosition.x / Definitions::c_TerrainScale + static_cast<float>(Definitions::c_TerrainSize)/2.0);
-    PositionInTerrainSpace.y = (scenePosition.y / Definitions::c_TerrainScale + static_cast<float>(Definitions::c_TerrainSize)/2.0);
+    //PositionInTerrainSpace.x = (scenePosition.x / Definitions::c_TerrainScale + static_cast<float>(Definitions::c_TerrainSize)/2.0);
+    //PositionInTerrainSpace.y = (scenePosition.y / Definitions::c_TerrainScale + static_cast<float>(Definitions::c_TerrainSize)/2.0);
+
+    PositionInTerrainSpace.x = (scenePosition.x - pTerrainChunk->Translation.x) / Definitions::c_TerrainScale;
+    PositionInTerrainSpace.y = (scenePosition.y - pTerrainChunk->Translation.y) / Definitions::c_TerrainScale;
 
     int FloorX = static_cast<int>(std::floor(PositionInTerrainSpace.x));
     int FloorY = static_cast<int>(std::floor(PositionInTerrainSpace.y));

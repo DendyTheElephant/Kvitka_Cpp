@@ -76,7 +76,7 @@ public:
 
     static void AssertOpenGLErrors();
 
-    void AddTerrainChunk(DendyEngine::Components::STerrainChunk* pTerrainChunk, glm::vec2 const& worldPosition);
+    void AddTerrainChunk(DendyEngine::Components::STerrainChunk* pTerrainChunk);
 
     void AddTerrainIdInstanceToRender(uint32_t const& id);
     void AddPawnInstance(glm::mat4 const& transformMatrix, glm::vec3 const& color);

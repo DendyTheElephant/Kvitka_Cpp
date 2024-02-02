@@ -29,6 +29,7 @@ struct STerrainChunk : CGameComponent<STerrainChunk,EGameComponentType::TerrainC
 {
     std::array<uint16_t,Definitions::c_TerrainArraySize> HeightsArray;
     uint32_t TerrainId{0};
+    glm::vec2 Translation{0};
 };
 
 struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::WalkingCharacter>
@@ -103,7 +104,8 @@ struct SCamera : CGameComponent<SCamera,EGameComponentType::Camera>
     glm::vec3 ArmTranslationDirection{0.0f, 1.0f, 1.0f};
     float ArmTranslationMagnitude{20.0f};
     float ArmTranslationMagnitudeMinValue{20.0f};
-    float ArmTranslationMagnitudeMaxValue{31.0f};
+    //float ArmTranslationMagnitudeMaxValue{31.0f};
+    float ArmTranslationMagnitudeMaxValue{100.0f};
     float Speed{0.00362f};
     float SpeedArm{0.0362f};
 };
