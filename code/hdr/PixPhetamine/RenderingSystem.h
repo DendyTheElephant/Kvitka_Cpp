@@ -6,6 +6,8 @@
 #include <PixPhetamine/Camera.h>
 #include <PixPhetamine/InputHandler.h>
 
+#include <DendyEngine/Components/GameComponents.h>
+
 // OpenGL context GLAD
 // https://glad.dav1d.de/
 // OpenGL Core V4.6 no extensions
@@ -54,30 +56,14 @@ private:
     std::unordered_map<std::string, std::unique_ptr<PixPhetamine::CShader>> m_ShaderMapByName; // List of the shaders used in the game
     std::unordered_map<std::string, std::unique_ptr<PixPhetamine::CMesh>> m_MeshMapByName;
 
-    //uint16_t m_TerrainSubdivisions{4}
-    std::unordered_map<std::string, std::unique_ptr<PixPhetamine::CMesh>> m_MeshTerrainMapBy;
+    std::unordered_map<uint32_t, std::unique_ptr<PixPhetamine::CMesh>> m_MeshTerrainMapById;
+    std::vector<uint32_t> m_TerrainIdsToRender;
 
     std::vector<std::pair<glm::mat4,glm::vec3>> m_PawnInstanceDataVec;
-    
-    std::vector<std::pair<std::string,glm::vec2>> m_TextsDataVec;
+
     std::vector<SMeshInstance> m_StaticMeshInstanceDataVec;
     glm::vec3 m_CameraLookAtPosition{0.0f};
     glm::vec3 m_CameraArmTranslation{0.0f};
-
-    // PixPhetamine::PostProcess::CFrameBuffer* m_GBufferMS;
-    // PixPhetamine::PostProcess::CFrameBuffer* m_GBufferAA;
-    // PixPhetamine::PostProcess::CFrameBuffer* m_DownSampled;
-    // PixPhetamine::PostProcess::CFrameBuffer* m_RGBSplitted;
-    // PixPhetamine::PostProcess::CFrameBuffer* m_BufferBlurPartial;
-    // PixPhetamine::PostProcess::CFrameBuffer* m_BufferBlur;
-
-    // PixPhetamine::PostProcess::CPostProcessPass* m_DownSamplingPass;
-    // PixPhetamine::PostProcess::CPostProcessPass* m_BlurPassPartI;
-    // PixPhetamine::PostProcess::CPostProcessPass* m_BlurPassPartII;
-    // PixPhetamine::PostProcess::CPostProcessPass* m_RGBSplitPass;
-    // PixPhetamine::PostProcess::CPostProcessPass* m_DeferredShadingPass;
-
-    // PixPhetamine::SceneRendering::CSkybox* m_skyBox;
 
 
 private:
@@ -90,7 +76,9 @@ public:
 
     static void AssertOpenGLErrors();
 
-    void InitialiseTerrain(size_t terrainSize, float scale, float heightScale, const uint16_t* pHeightsVec);
+    void AddTerrainChunk(DendyEngine::Components::STerrainChunk* pTerrainChunk, glm::vec2 const& worldPosition);
+
+    void AddTerrainIdInstanceToRender(uint32_t const& id);
     void AddPawnInstance(glm::mat4 const& transformMatrix, glm::vec3 const& color);
     void AddStaticMesh(std::string const& name, glm::mat4 const& transformMatrix, glm::vec3 const& color);
     void RenderScene();

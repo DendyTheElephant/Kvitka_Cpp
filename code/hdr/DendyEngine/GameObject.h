@@ -5,6 +5,7 @@
 //#include <DendyEngine/Components/GameComponents.h>
 
 #include <unordered_map>
+#include <memory>
 
 namespace DendyEngine
 {
@@ -67,6 +68,14 @@ public:
     {
         os << std::string("[CGameObject]<") << gameObject.m_Name << std::string("|") << std::to_string(gameObject.m_Id) << std::string(">");
         return os;
+    }
+    friend std::string operator+(std::string const& str, CGameObject const& gameObject)
+    {
+        return str + std::string("[CGameObject]<") + gameObject.m_Name + std::string("|") + std::to_string(gameObject.m_Id) + std::string(">");
+    }
+    friend std::string operator+(CGameObject const& gameObject, std::string const& str)
+    {
+        return std::string("[CGameObject]<") + gameObject.m_Name + std::string("|") + std::to_string(gameObject.m_Id) + std::string(">") + str;
     }
 };
 

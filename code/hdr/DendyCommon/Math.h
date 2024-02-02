@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <vector>
+
 namespace DendyCommon::Math
 {
     struct SEdge
@@ -56,23 +58,64 @@ namespace DendyCommon::Math
         }
     };
 
-    inline bool IsLeft(SEdge const& edge, glm::vec2 const& point)
+    struct SAabb
     {
-        glm::vec2 Relative1 = edge.End - edge.Start;
-        glm::vec2 Relative2 = point - edge.End;
-        return glm::sign(glm::cross(Relative1, Relative2)) > 0;
+        glm::vec2 Min{-1};
+        glm::vec2 Max{1};
+        
+        SAabb(glm::vec2 const& min, glm::vec2 const& max): Min(min), Max(max) {}
+        SAabb(float const& width, float const height, glm::vec2 const& translation)
+        {
+            Min = {translation.x-width/2.0f, translation.y-height/2.0f};
+            Max = {translation.x+width/2.0f, translation.y+height/2.0f};
+        }
+    };
+
+    inline bool IsAabbVsAabbColliding(SAabb const& box1, SAabb const& box2)
+    {
+        glm::vec2 Delta1 = box2.Min - box1.Max;
+        glm::vec2 Delta2 = box1.Min - box2.Max;
+
+        if (Delta1.x > 0.0f || Delta1.y > 0.0f)
+            return false;
+
+        if (Delta2.x > 0.0f || Delta2.y > 0.0f)
+            return false;
+
+        return true;
     }
 
-    inline bool IsColliding(SEdge const& edge1, SEdge const& edge2)
-    {
-        if ( IsLeft(edge1, edge2.Start) != IsLeft(edge1, edge2.End) )
-        {
-            if ( glm::dot(edge1.End - edge1.Start, edge2.End - edge1.End) > 0.0f && glm::dot(edge1.End - edge1.Start, edge2.Start - edge1.End) > 0.0f
-            && glm::dot(edge1.Start - edge1.End, edge2.End - edge1.Start) > 0.0f && glm::dot(edge1.Start - edge1.End, edge2.Start - edge1.Start) > 0.0f )
-                return true;
-        }
-        return false;
-    }
+    // inline bool IsEdgeVsAabbColliding(SEdge const& edge, SAabb const& box)
+    // {
+    //     glm::vec2 Delta1 = box2.Min - box1.Max;
+    //     glm::vec2 Delta2 = box1.Min - box2.Max;
+
+    //     if (Delta1.x > 0.0f || Delta1.y > 0.0f)
+    //         return false;
+
+    //     if (Delta2.x > 0.0f || Delta2.y > 0.0f)
+    //         return false;
+
+    //     return true;
+    // }
+
+    // inline bool IsLeft(SEdge const& edge, glm::vec2 const& point)
+    // {
+    //     glm::vec2 Relative1 = edge.End - edge.Start;
+    //     glm::vec2 Relative2 = point - edge.End;
+    //     return glm::sign(glm::cross(Relative1, Relative2)) > 0;
+    // }
+
+    // inline bool IsColliding(SEdge const& edge1, SEdge const& edge2)
+    // {
+    //     if ( IsLeft(edge1, edge2.Start) != IsLeft(edge1, edge2.End) )
+    //     {
+    //         if ( glm::dot(edge1.End - edge1.Start, edge2.End - edge1.End) > 0.0f && glm::dot(edge1.End - edge1.Start, edge2.Start - edge1.End) > 0.0f
+    //         && glm::dot(edge1.Start - edge1.End, edge2.End - edge1.Start) > 0.0f && glm::dot(edge1.Start - edge1.End, edge2.Start - edge1.Start) > 0.0f )
+    //             return true;
+    //     }
+    //     return false;
+    // }
 
     // template<typename T>
     // inline unsigned int Access1DArrayAs2DArray(std::array<T> theArray, unsigned int x, unsigned int y) 

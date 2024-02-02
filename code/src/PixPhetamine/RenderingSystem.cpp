@@ -1,6 +1,7 @@
 #include <PixPhetamine/RenderingSystem.h>
 #include <DendyCommon/Logger.h>
 #include <PixPhetamine/Definitions.h>
+#include <DendyEngine/Definitions.h>
 
 #include <lodepng.h>
 
@@ -219,6 +220,11 @@ void PixPhetamine::CRenderingSystem::_LoadMeshes()
     LOG_CALLSTACK_POP();
 }
 
+void PixPhetamine::CRenderingSystem::AddTerrainIdInstanceToRender(uint32_t const& id)
+{
+    m_TerrainIdsToRender.push_back(id);
+}
+
 void PixPhetamine::CRenderingSystem::AddPawnInstance(glm::mat4 const& transformMatrix,glm::vec3 const& color)
 {
     m_PawnInstanceDataVec.push_back({transformMatrix,color});
@@ -229,42 +235,37 @@ void PixPhetamine::CRenderingSystem::AddStaticMesh(std::string const& name, glm:
     m_StaticMeshInstanceDataVec.push_back({name,transformMatrix,color});
 }
 
-#include <DendyCommon/Math.h>
-void PixPhetamine::CRenderingSystem::InitialiseTerrain(size_t terrainSize, float scale, float heightScale, const uint16_t* pHeightsVec)
+void PixPhetamine::CRenderingSystem::AddTerrainChunk(DendyEngine::Components::STerrainChunk* pTerrainChunk, glm::vec2 const& worldPosition)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    if (m_MeshMapByName["Terrain"] != nullptr && m_MeshMapByName["Terrain"]->GetIsLoadedInGPUState())
-        m_MeshMapByName["Terrain"]->UnloadFromGPU();
-    m_MeshMapByName["Terrain"] = std::make_unique<CMesh>("Terrain", true, true);
-    CMesh* pMesh = m_MeshMapByName["Terrain"].get();
+    m_MeshTerrainMapById[pTerrainChunk->TerrainId] = std::make_unique<CMesh>("Terrain", true, true);
+    CMesh* pMesh = m_MeshTerrainMapById.at(pTerrainChunk->TerrainId).get();
 
-    for (size_t iHeight=0; iHeight<(terrainSize+1)*(terrainSize+1); iHeight++)
+    for (auto iHeight=0; iHeight<pTerrainChunk->HeightsArray.size(); iHeight++)
     {
-        float PosX = iHeight % (terrainSize+1);
-        float PosZ = iHeight / (terrainSize+1);
+        float PosX = iHeight % (DendyEngine::Definitions::c_TerrainSize+1);
+        float PosZ = iHeight / (DendyEngine::Definitions::c_TerrainSize+1);
 
         //pMesh->AddPosition({(PosX-terrainSize/2.0f) * scale, static_cast<float>(pHeightsVec[iHeight])/65535.0f*heightScale, (PosZ-terrainSize/2.0f) * scale});
-        pMesh->AddPosition({(PosX-terrainSize/2.0f) * scale, static_cast<float>(0)/65535.0f*heightScale, (PosZ-terrainSize/2.0f) * scale});
-
+        pMesh->AddPosition({(PosX-DendyEngine::Definitions::c_TerrainSize/2.0f) * DendyEngine::Definitions::c_TerrainScale + worldPosition.x, static_cast<float>(0)/65535.0f*DendyEngine::Definitions::c_TerrainMaxHeight, (PosZ-DendyEngine::Definitions::c_TerrainSize/2.0f) * DendyEngine::Definitions::c_TerrainScale + worldPosition.y});
         pMesh->AddNormal({0.0f, 1.0f, 0.0f});
-
         pMesh->AddTextureCoordinate({0,0});
     }
     
-    for (uint16_t y=0; y<terrainSize+1; y++)
+    for (uint16_t y=0; y<DendyEngine::Definitions::c_TerrainSize+1; y++)
     {
-        for (uint16_t x=0; x<terrainSize+1; x++)
+        for (uint16_t x=0; x<DendyEngine::Definitions::c_TerrainSize+1; x++)
         {
             // Top left, bottom left, top right
-            pMesh->AddTriangleIndices(y*(terrainSize+1) + x, (y+1)*(terrainSize+1) + x, y*(terrainSize+1) + (x+1));
+            pMesh->AddTriangleIndices(y*(DendyEngine::Definitions::c_TerrainSize+1) + x, (y+1)*(DendyEngine::Definitions::c_TerrainSize+1) + x, y*(DendyEngine::Definitions::c_TerrainSize+1) + (x+1));
             
             // Bottom right, top right, bottom left
             //pMesh->AddTriangleIndices((y+1)*terrainSize + (x+1),  y*terrainSize + (x+1), (y+1)*terrainSize + x);
         }
     }
 
-    m_MeshMapByName["Terrain"]->LoadToGPU();
+    pMesh->LoadToGPU();
 
     LOG_CALLSTACK_POP();
 }
@@ -284,16 +285,18 @@ void PixPhetamine::CRenderingSystem::RenderScene()
 
     CShader* pCurrentShader = m_ShaderMapByName["terrain"].get();
     glUseProgram(pCurrentShader->GetId());
-    
-    { // Render Terrain
-        glBindVertexArray(m_MeshMapByName["Terrain"].get()->GetVAO());
+
+    // Render Terrain
+    for (auto TerrainId : m_TerrainIdsToRender)
+    { 
+        glBindVertexArray(m_MeshTerrainMapById[TerrainId].get()->GetVAO());
 
         glm::mat4 ModelMatrix = glm::mat4(1.0f);
         glm::mat4 ModelViewProjectionMatrix = ViewProjectionMatrix * ModelMatrix;
 
         pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", ModelViewProjectionMatrix);
 
-        glDrawElements(GL_TRIANGLES, m_MeshMapByName["Terrain"].get()->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+        glDrawElements(GL_TRIANGLES, m_MeshTerrainMapById[TerrainId].get()->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
     }
 
     pCurrentShader = m_ShaderMapByName["basic"].get();
@@ -356,6 +359,7 @@ void PixPhetamine::CRenderingSystem::RenderScene()
 
 
     AssertOpenGLErrors();
+    m_TerrainIdsToRender.clear();
     m_PawnInstanceDataVec.clear();
     m_StaticMeshInstanceDataVec.clear();
 

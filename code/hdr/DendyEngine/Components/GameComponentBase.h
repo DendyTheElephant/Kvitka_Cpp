@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 namespace DendyEngine::Components
 {
 
@@ -29,6 +31,7 @@ enum class EGameComponentType
 {
     ScenePose,
     Transform,
+    TerrainChunk,
     WalkingCharacter,
     Vision,
     Visibility,

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <PixPhetamine/InputHandler.h>
-#include <DendyEngine/Terrain.h>
+#include <PixPhetamine/RenderingSystem.h>
+
+#include <DendyEngine/TerrainSystem.h>
 #include <DendyEngine/Components/GameComponents.h>
 #include <DendyEngine/Scene.h>
 
-#include <PixPhetamine/RenderingSystem.h>
-#include <DendyEngine/Terrain.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -32,8 +32,8 @@ private:
 
     //std::unordered_map<size_t,std::unique_ptr<CGameObject>> m_pOwnedGameObjectsMap;
 
-    // std::unique_ptr<CTerrain> m_pTerrain;
-    std::unique_ptr<CTerrain> m_pOwnedTerrain;
+    std::unique_ptr<CTerrainSystem> m_pOwnedTerrainSystem;
+    //std::unique_ptr<CTerrain> m_pOwnedTerrainChunks;
 
 
 

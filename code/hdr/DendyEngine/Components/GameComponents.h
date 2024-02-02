@@ -3,13 +3,15 @@
 #include <DendyEngine/Components/GameComponentBase.h>
 #include <DendyEngine/GameObject.h>
 #include <DendyCommon/Math.h>
+#include <DendyEngine/Definitions.h>
 
 #include <glm/glm.hpp>
 
 #include <vector>
 #include <memory>
 #include <unordered_map>
-
+#include <cstdint>
+#include <array>
 
 namespace DendyEngine::Components
 {
@@ -21,6 +23,12 @@ namespace DendyEngine::Components
 struct STransform : CGameComponent<STransform,EGameComponentType::Transform>
 {
     glm::mat4 TransformMatrix{1};
+};
+
+struct STerrainChunk : CGameComponent<STerrainChunk,EGameComponentType::TerrainChunk>
+{
+    std::array<uint16_t,Definitions::c_TerrainArraySize> HeightsArray;
+    uint32_t TerrainId{0};
 };
 
 struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::WalkingCharacter>

@@ -54,8 +54,34 @@ void DendyEngine::CEngineCore::_InitialiseTerrain()
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
     m_pOwnedScene = std::make_unique<DendyEngine::CScene>();
-    m_pOwnedTerrain = std::make_unique<DendyEngine::CTerrain>();
-    m_pOwnedRenderingSystem->InitialiseTerrain(m_pOwnedTerrain->GetTerrainSize(), m_pOwnedTerrain->GetScale(), m_pOwnedTerrain->GetMaxHeight(), m_pOwnedTerrain->GetData());
+
+    // Create Terrain Chunks
+    std::array<std::pair<std::string,glm::vec2>,9> TerrainConfigArray =
+    {
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(   -1,   -1)),
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    0,   -1)),
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    1,   -1)),
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(   -1,    0)),
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    0,    0)),
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    1,    0)),
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(   -1,    1)),
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    0,    1)),
+        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    1,    1))
+    };
+    for (auto [HeighmapName,ChunkLocation] : TerrainConfigArray)
+    {
+        glm::vec2 ChunkWorldPosition = ChunkLocation;
+        ChunkWorldPosition *= Definitions::c_TerrainScale*Definitions::c_TerrainSize;
+        
+        std::string TerrainChunkName = "TerrainChunk_" + std::to_string(ChunkLocation.x) + "_" + std::to_string(ChunkLocation.y);
+        auto pTerrainChunk = m_pOwnedScene->AddTerrainChunk(TerrainChunkName,ChunkWorldPosition);
+
+        m_pOwnedTerrainSystem->InitialiseTerrainChunkFromHeighmap(pTerrainChunk, HeighmapName);
+        m_pOwnedRenderingSystem->AddTerrainChunk(pTerrainChunk,ChunkWorldPosition);
+    }
+
+    //m_pOwnedTerrain = std::make_unique<DendyEngine::CTerrain>();
+    //m_pOwnedRenderingSystem->InitialiseTerrain(m_pOwnedTerrain->GetTerrainSize(), m_pOwnedTerrain->GetScale(), m_pOwnedTerrain->GetMaxHeight(), m_pOwnedTerrain->GetData());
 
     LOG_CALLSTACK_POP();
 }
@@ -65,6 +91,7 @@ void DendyEngine::CEngineCore::_InitialiseGameSystems()
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
     //m_pOwnedComponentsEngine = std::make_unique<DendyEngine::Components::CComponentsEngine>();
+    m_pOwnedTerrainSystem = std::make_unique<DendyEngine::CTerrainSystem>();
 
     LOG_CALLSTACK_POP();
 }
@@ -125,11 +152,11 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Hata001",{10,-15},{1,0});
         auto pStaticMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
-        auto pCollider = pGameObject->AddComponent<DendyEngine::Components::SStaticColliderShape>();
+        //auto pCollider = pGameObject->AddComponent<DendyEngine::Components::SStaticColliderShape>();
 
         pStaticMesh->MeshName = "hata";
         pStaticMesh->Color = {1.0f, 1.0f, 1.0f};
-        pCollider->PositionsVec = {{11,-9},{11,-11},{5,-11},{5,-9}};
+        //pCollider->PositionsVec = {{11,-9},{11,-11},{5,-11},{5,-9}};
     }
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Sich001",{-8,-10});
@@ -163,13 +190,14 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     // Shaders / Terrain reloading
     if (m_pOwnedInputHandler->GetKeyRReleased())
     {
-        m_pOwnedTerrain->LoadFromFiles("ressources/images/ruggedTerrainHeightmap.png");
-        m_pOwnedRenderingSystem->InitialiseTerrain(m_pOwnedTerrain->GetTerrainSize(), m_pOwnedTerrain->GetScale(), m_pOwnedTerrain->GetMaxHeight(), m_pOwnedTerrain->GetData());
+        //m_pOwnedTerrain->LoadFromFiles("ressources/images/ruggedTerrainHeightmap.png");
+        //m_pOwnedRenderingSystem->InitialiseTerrain(m_pOwnedTerrain->GetTerrainSize(), m_pOwnedTerrain->GetScale(), m_pOwnedTerrain->GetMaxHeight(), m_pOwnedTerrain->GetData());
         m_pOwnedRenderingSystem->ReloadShaders();
     }
 
 
     glm::vec3 CameraTargetPosition;
+    glm::vec2 CameraTargetScenePosition;
 
     // Camera movements with inputs
     for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SCamera>({0,0}))
@@ -198,14 +226,16 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
 
         CameraTargetPosition = pCamera->TargetPosition;
+        CameraTargetScenePosition = {CameraTargetPosition.x, CameraTargetPosition.z};
         m_pOwnedRenderingSystem->SetCameraLookAt(pCamera->TargetPosition);
         glm::vec3 ArmTranslation = glm::normalize(pCamera->ArmTranslationDirection);
         
         m_pOwnedRenderingSystem->SetCameraArmTranslation(ArmTranslation*pCamera->ArmTranslationMagnitude);
 
         // Debug
-        float TerrainHeight = m_pOwnedTerrain->GetHeightAtPosition(CameraTargetPosition);
-        glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, {CameraTargetPosition.x, TerrainHeight, CameraTargetPosition.z});
+        auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(CameraTargetScenePosition);
+        glm::vec3 CameraWorldTargetPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, {CameraTargetPosition.x, CameraTargetPosition.z});
+        glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, CameraWorldTargetPosition);
 
 
         glm::mat4 TransformMatrix = TranslateMatrix * RotateMatrix;// * ScaleMatrix;
@@ -233,14 +263,14 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
                 //std::cout << glm::dot(pPose->Orientation, RelativeToTarget) << std::endl;
                 if (glm::dot(pPose->Orientation, RelativeToTarget) > 0)
                 {
-                    for (auto pColliderGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SStaticColliderShape>(pGameObject->GetScenePose()->Position))
-                    {
-                        for (auto& Edge : pColliderGameObject->GetComponent<Components::SStaticColliderShape>()->Shape.EdgesVec)
-                        {
-                            if ( DendyCommon::Math::IsColliding(DendyCommon::Math::SEdge(pPose->Position,pOthersPose->Position),Edge) )
-                                std::cout << glm::distance(RelativeToTarget) << std::endl;
-                        }
-                    }
+                    // for (auto pColliderGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SStaticColliderShape>(pGameObject->GetScenePose()->Position))
+                    // {
+                    //     for (auto& Edge : pColliderGameObject->GetComponent<Components::SStaticColliderShape>()->Shape.EdgesVec)
+                    //     {
+                    //         if ( DendyCommon::Math::IsColliding(DendyCommon::Math::SEdge(pPose->Position,pOthersPose->Position),Edge) )
+                    //             std::cout << glm::distance(RelativeToTarget) << std::endl;
+                    //     }
+                    // }
 
                     pVision->VisibleGameObjectsVec.push_back(pOtherGameObject);
                     //std::cout << *pOtherGameObject << std::endl;
@@ -274,9 +304,9 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         Components::SScenePose* pPose = pGameObject->GetScenePose();
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
         
-        glm::vec3 WorldPosition = DendyCommon::Math::GetWorldPositionFromScenePosition(pPose->Position);
 
-        WorldPosition.y = m_pOwnedTerrain->GetHeightAtPosition(pPose->Position);
+        auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(pPose->Position);
+        glm::vec3 WorldPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, pPose->Position);
 
         glm::mat4 RotateMatrix = DendyCommon::Math::GetRotationMatrixFromOrientation(pPose->Orientation);
         glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, WorldPosition);
@@ -304,6 +334,11 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         m_pOwnedRenderingSystem->AddStaticMesh(pMesh->MeshName, pTransform->TransformMatrix, pMesh->Color);
     }
 
+    // Terrain Chunks rendering
+    for (auto pTerrainChunk : m_pOwnedScene->GetTerrainChunksSetNearScenePosition(CameraTargetScenePosition))
+    {
+        m_pOwnedRenderingSystem->AddTerrainIdInstanceToRender(pTerrainChunk->TerrainId);
+    }
 
 
 

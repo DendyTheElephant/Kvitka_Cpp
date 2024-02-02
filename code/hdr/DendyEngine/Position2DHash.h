@@ -1,5 +1,7 @@
 #pragma once
 
+#include <DendyEngine/Definitions.h>
+
 #include <glm/glm.hpp>
 
 #include <functional>
@@ -37,8 +39,8 @@ struct SPosition2DHash
 namespace std
 {
     template <>
-    struct hash<DendyEngine::SPosition2DHash<50>>
+    struct hash<DendyEngine::SPosition2DHash<DendyEngine::Definitions::c_ChunkSize>>
     {
-        auto operator()(DendyEngine::SPosition2DHash<50> const& key) const -> size_t {return hash<size_t>()(key.x*10000000 + key.y);}
+        auto operator()(DendyEngine::SPosition2DHash<DendyEngine::Definitions::c_ChunkSize> const& key) const -> size_t {return hash<size_t>()(key.x*10000000 + key.y);}
     };
 } 
