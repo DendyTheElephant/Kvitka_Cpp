@@ -230,6 +230,11 @@ void PixPhetamine::CRenderingSystem::AddPawnInstance(glm::mat4 const& transformM
     m_PawnInstanceDataVec.push_back({transformMatrix,color});
 }
 
+void PixPhetamine::CRenderingSystem::AddKossackInstance(glm::mat4 const& transformMatrix,glm::vec3 const& color)
+{
+    m_KossackInstancesDataVec.push_back({transformMatrix,color});
+}
+
 void PixPhetamine::CRenderingSystem::AddStaticMesh(std::string const& name, glm::mat4 const& transformMatrix, glm::vec3 const& color)
 {
     m_StaticMeshInstanceDataVec.push_back({name,transformMatrix,color});
@@ -246,7 +251,8 @@ void PixPhetamine::CRenderingSystem::AddTerrainChunk(DendyEngine::Components::ST
     {
         for (uint16_t x=0; x<DendyEngine::Definitions::c_TerrainSize+1; x++)
         {
-            pMesh->AddPosition({x * DendyEngine::Definitions::c_TerrainScale + pTerrainChunk->Translation.x, static_cast<float>(0)/65535.0f*DendyEngine::Definitions::c_TerrainMaxHeight, y * DendyEngine::Definitions::c_TerrainScale + pTerrainChunk->Translation.y});
+            size_t Coordinate = y*(DendyEngine::Definitions::c_TerrainSize+1) + x;
+            pMesh->AddPosition({x * DendyEngine::Definitions::c_TerrainScale + pTerrainChunk->Translation.x, static_cast<float>(pTerrainChunk->HeightsArray.at(Coordinate))/65535.0f*DendyEngine::Definitions::c_TerrainMaxHeight, y * DendyEngine::Definitions::c_TerrainScale + pTerrainChunk->Translation.y});
             pMesh->AddNormal({0.0f, 1.0f, 0.0f});
             pMesh->AddTextureCoordinate({0,0});
 
@@ -256,7 +262,7 @@ void PixPhetamine::CRenderingSystem::AddTerrainChunk(DendyEngine::Components::ST
                 pMesh->AddTriangleIndices(y*(DendyEngine::Definitions::c_TerrainSize+1) + x, (y+1)*(DendyEngine::Definitions::c_TerrainSize+1) + x, y*(DendyEngine::Definitions::c_TerrainSize+1) + (x+1));
                 
                 // Bottom right, top right, bottom left
-                //pMesh->AddTriangleIndices((y+1)*(DendyEngine::Definitions::c_TerrainSize+1) + (x+1), y*(DendyEngine::Definitions::c_TerrainSize+1) + (x+1), (y+1)*(DendyEngine::Definitions::c_TerrainSize+1) + x);
+                pMesh->AddTriangleIndices((y+1)*(DendyEngine::Definitions::c_TerrainSize+1) + (x+1), y*(DendyEngine::Definitions::c_TerrainSize+1) + (x+1), (y+1)*(DendyEngine::Definitions::c_TerrainSize+1) + x);
             }
         }
     }
@@ -299,15 +305,29 @@ void PixPhetamine::CRenderingSystem::RenderScene()
     glUseProgram(pCurrentShader->GetId());
     {
         // Render Pawns
-        CMesh* pMeshToRender = m_MeshMapByName["human"].get();
+        CMesh* pMeshToRender = m_MeshMapByName["Pawn"].get();
         glBindVertexArray(pMeshToRender->GetVAO());
 
-        for (auto [PawnTransformMatrix,PawnColor] : m_PawnInstanceDataVec)
+        for (auto [TransformMatrix,Color] : m_PawnInstanceDataVec)
         {
-            glm::mat4 ModelViewProjectionMatrix = ViewProjectionMatrix * PawnTransformMatrix;
+            glm::mat4 ModelViewProjectionMatrix = ViewProjectionMatrix * TransformMatrix;
 
             pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", ModelViewProjectionMatrix);
-            pCurrentShader->SendUniformVariable("u_Color", PawnColor);
+            pCurrentShader->SendUniformVariable("u_Color", Color);
+
+            glDrawElements(GL_TRIANGLES, pMeshToRender->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
+        }
+
+        // Render Kossacks
+        pMeshToRender = m_MeshMapByName["human"].get();
+        glBindVertexArray(pMeshToRender->GetVAO());
+
+        for (auto [TransformMatrix,Color] : m_KossackInstancesDataVec)
+        {
+            glm::mat4 ModelViewProjectionMatrix = ViewProjectionMatrix * TransformMatrix;
+
+            pCurrentShader->SendUniformVariable("u_ModelViewProjectionMatrix", ModelViewProjectionMatrix);
+            pCurrentShader->SendUniformVariable("u_Color", Color);
 
             glDrawElements(GL_TRIANGLES, pMeshToRender->GetTriangleCount(), GL_UNSIGNED_INT, (void *)0);
         }
@@ -357,6 +377,7 @@ void PixPhetamine::CRenderingSystem::RenderScene()
     AssertOpenGLErrors();
     m_TerrainIdsToRender.clear();
     m_PawnInstanceDataVec.clear();
+    m_KossackInstancesDataVec.clear();
     m_StaticMeshInstanceDataVec.clear();
 
     // OpenGL

@@ -28,6 +28,7 @@ public:
 
     inline uint32_t const GetId() const { return m_Id; }
     inline Components::SScenePose* GetScenePose() { return &m_ScenePose; }
+    inline glm::vec2 GetScenePosition() { return m_ScenePose.Position; }
     inline bool HasComponent(Components::EGameComponentType componentType) const { return m_pOwnedGameComponentsMapByGameComponentType.count(componentType) != 0; }
 
     template<class TGameComponent>

@@ -20,6 +20,13 @@ struct SPosition2DHash
     SPosition2DHash(glm::vec2 const& position)
     {
         glm::vec2 ScaledPosition = position / static_cast<float>(N);
+
+        // When On bounds :
+        // if (ceilf(ScaledPosition.x) == ScaledPosition.x)
+        //     ScaledPosition.x *= 1.000001f;
+        // if (ceilf(ScaledPosition.y) == ScaledPosition.y)
+        //     ScaledPosition.y *= 1.000001f;
+        
         if (ScaledPosition.x >= 0)
             x = static_cast<int32_t>(ScaledPosition.x);
         else
@@ -28,7 +35,6 @@ struct SPosition2DHash
             y = static_cast<int32_t>(ScaledPosition.y);
         else
             y = static_cast<int32_t>(std::floor(ScaledPosition.y));
-        
     }
 
     SPosition2DHash(SPosition2DHash const& original) {x=original.x; y=original.y;}

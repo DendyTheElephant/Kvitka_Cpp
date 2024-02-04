@@ -92,6 +92,11 @@ struct SRenderablePawn : CGameComponent<SRenderablePawn,EGameComponentType::Rend
     glm::vec3 Color{1.0f};
 };
 
+struct SKossack : CGameComponent<SKossack,EGameComponentType::Kossack>
+{
+    glm::vec3 Color{1.0f};
+};
+
 struct SStaticMesh : CGameComponent<SStaticMesh,EGameComponentType::StaticMesh>
 {
     std::string MeshName{"Cube"};
@@ -107,12 +112,13 @@ struct SCamera : CGameComponent<SCamera,EGameComponentType::Camera>
     //float ArmTranslationMagnitudeMaxValue{31.0f};
     float ArmTranslationMagnitudeMaxValue{100.0f};
     float Speed{0.00362f};
+    //float Speed{0.0362f};
     float SpeedArm{0.0362f};
 };
 
-struct SStaticColliderShape : CGameComponent<SStaticColliderShape,EGameComponentType::StaticColliderShape>
+struct SCollider : CGameComponent<SCollider,EGameComponentType::Collider>
 {
-    DendyCommon::Math::SShape Shape;
+    std::vector<glm::vec2> PositionsVec;
     float Height;
 };
 

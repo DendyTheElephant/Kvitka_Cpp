@@ -58,15 +58,15 @@ void DendyEngine::CEngineCore::_InitialiseTerrain()
     // Create Terrain Chunks
     std::array<std::pair<std::string,glm::vec2>,9> TerrainConfigArray =
     {
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(   -1,   -1)),
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    0,   -1)),
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    1,   -1)),
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(   -1,    0)),
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    0,    0)),
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    1,    0)),
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(   -1,    1)),
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    0,    1)),
-        std::make_pair(std::string("ressources/images/ruggedTerrainHeightmap51.png"),glm::vec2(    1,    1))
+        std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(   -1,   -1)),
+        std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(    0,   -1)),
+        std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(    1,   -1)),
+        std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(   -1,    0)),
+        std::make_pair(std::string("ressources/images/terrain0_0.png"),glm::vec2(    0,    0)),
+        std::make_pair(std::string("ressources/images/terrain1_0.png"),glm::vec2(    1,    0)),
+        std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(   -1,    1)),
+        std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(    0,    1)),
+        std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(    1,    1))
     };
     for (auto [HeighmapName,ChunkLocation] : TerrainConfigArray)
     {
@@ -92,7 +92,8 @@ void DendyEngine::CEngineCore::_InitialiseGameSystems()
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
     //m_pOwnedComponentsEngine = std::make_unique<DendyEngine::Components::CComponentsEngine>();
-    m_pOwnedTerrainSystem = std::make_unique<DendyEngine::CTerrainSystem>();
+    m_pOwnedTerrainSystem = std::make_unique<CTerrainSystem>();
+    m_pOwnedVisionSystem = std::make_unique<CVisionSystem>(m_pOwnedScene.get());
 
     LOG_CALLSTACK_POP();
 }
@@ -110,40 +111,45 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Camera",{0,0});
         Components::SCamera* pCamera = pGameObject->AddComponent<Components::SCamera>();
+        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
+        pVisibility->Radius = 0.0f;
+
+        m_pCamera = pGameObject;
     }
 
 
 
     // Create Cossack
     {
-        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kossack001",{-2,-2});
-        Components::SVision* pVision = pGameObject->AddComponent<DendyEngine::Components::SVision>();
-        Components::SRenderablePawn* pRenderablePawn = pGameObject->AddComponent<DendyEngine::Components::SRenderablePawn>();
-
-        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
-        Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
-
-        pRenderablePawn->Color = glm::vec3(1.0f, 1.0f, 0.0f);
-        pVision->Radius = 9.0f;
-    }
-    {
-        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kossack002",{2,2});
-        Components::SRenderablePawn* pRenderablePawn = pGameObject->AddComponent<DendyEngine::Components::SRenderablePawn>();
-
-        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
-        Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
-
-        pRenderablePawn->Color = glm::vec3(0.0f, 1.0f, 0.0f);
-    }
-    {
-        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kossack003",{8,-14});
-        Components::SRenderablePawn* pRenderablePawn = pGameObject->AddComponent<DendyEngine::Components::SRenderablePawn>();
+        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("KossackYellow",{-2,-2});
+        //Components::SVision* pVision = pGameObject->AddComponent<DendyEngine::Components::SVision>();
+        Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
         Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
+        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
 
+        pKossack->Color = glm::vec3(1.0f, 1.0f, 0.0f);
+        pVisibility->Radius = 0.0f;
+    }
+    {
+        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("KossackGreen",{2,2});
+        Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
+        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
+        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
+
+        pKossack->Color = glm::vec3(0.0f, 1.0f, 0.0f);
+        pVisibility->Radius = 0.0f;
+    }
+    {
+        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("KossackRed",{8,-14});
+        Components::SVision* pVision = pGameObject->AddComponent<DendyEngine::Components::SVision>();
+        Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
+        
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
 
-        pRenderablePawn->Color = glm::vec3(1.0f, 0.0f, 0.0f);
-        pVisibility->Radius = 1.0f;
+        pKossack->Color = glm::vec3(1.0f, 0.0f, 0.0f);
+        pVision->Radius = 9.0f;
     }
 
 
@@ -153,11 +159,12 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Hata001",{10,-15},{1,0});
         auto pStaticMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
-        //auto pCollider = pGameObject->AddComponent<DendyEngine::Components::SStaticColliderShape>();
+        auto pCollider = pGameObject->AddComponent<DendyEngine::Components::SCollider>();
+        
 
         pStaticMesh->MeshName = "hata";
         pStaticMesh->Color = {1.0f, 1.0f, 1.0f};
-        //pCollider->PositionsVec = {{11,-9},{11,-11},{5,-11},{5,-9}};
+        pCollider->PositionsVec = {{9,-18},{9,-12},{11,-12},{11,-18}};
     }
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Sich001",{-8,-10});
@@ -180,7 +187,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    glm::vec2 PlayerScenePosition{0,0};
+    //glm::vec2 PlayerScenePosition{0,0};
 
     m_pOwnedInputHandler->UpdateInputs();
     if (m_pOwnedInputHandler->GetWindowClosedState() || m_pOwnedInputHandler->GetKeyEscapeReleased())
@@ -200,9 +207,8 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
 
     // Camera movements with inputs
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SCamera>(PlayerScenePosition))
     {
-        Components::SCamera* pCamera = pGameObject->GetComponent<Components::SCamera>();
+        Components::SCamera* pCamera = m_pCamera->GetComponent<Components::SCamera>();
 
         glm::vec2 LeftStickValue = m_pOwnedInputHandler->GetLeftStickValue();
         float ZoomValue = m_pOwnedInputHandler->GetZoomValue();
@@ -218,86 +224,69 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
             pCamera->TargetPosition += Move * pCamera->Speed * deltaTime;
 
 
-            Move = glm::normalize(Move);
-            float AngleBetweenTargetAndCurrentOrientation = atan2f( -Move.x, -Move.z );
-            glm::quat OrientationQuaternion{ cosf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0, sinf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0 };
-            RotateMatrix = glm::mat4_cast(OrientationQuaternion);
+            // Move = glm::normalize(Move);
+            // float AngleBetweenTargetAndCurrentOrientation = atan2f( -Move.x, -Move.z );
+            // glm::quat OrientationQuaternion{ cosf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0, sinf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0 };
+            // RotateMatrix = glm::mat4_cast(OrientationQuaternion);
         }
 
-        PlayerScenePosition = {pCamera->TargetPosition.x, pCamera->TargetPosition.z};
+        m_pCamera->GetScenePose()->Position = {pCamera->TargetPosition.x, pCamera->TargetPosition.z};
         m_pOwnedRenderingSystem->SetCameraLookAt(pCamera->TargetPosition);
         glm::vec3 ArmTranslation = glm::normalize(pCamera->ArmTranslationDirection);
         
         m_pOwnedRenderingSystem->SetCameraArmTranslation(ArmTranslation*pCamera->ArmTranslationMagnitude);
 
         // Debug
-        auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(PlayerScenePosition);
-        glm::vec3 CameraWorldTargetPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, PlayerScenePosition);
+        auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(m_pCamera->GetScenePosition());
+        glm::vec3 CameraWorldTargetPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, m_pCamera->GetScenePosition());
         glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, CameraWorldTargetPosition);
 
 
-        glm::mat4 TransformMatrix = TranslateMatrix * RotateMatrix;// * ScaleMatrix;
+        //glm::mat4 TransformMatrix = TranslateMatrix * RotateMatrix;// * ScaleMatrix;
+        glm::mat4 TransformMatrix = TranslateMatrix;// * ScaleMatrix;
         m_pOwnedRenderingSystem->AddPawnInstance(TransformMatrix, {0.0f, 0.5f, 1.0f});
     }
 
 
     // Update Vision
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVision>(PlayerScenePosition))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVision>(m_pCamera->GetScenePosition()))
     {
-        Components::SVision* pVision = pGameObject->GetComponent<Components::SVision>();
-        Components::SScenePose* pPose = pGameObject->GetScenePose();
+        m_pOwnedVisionSystem->UpdateVisibleGameObjectsVec(pGameObject);
 
-        pVision->VisibleGameObjectsVec.clear();
-
-        for (auto pOtherGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVisibility>(pGameObject->GetScenePose()->Position))
+        // Debug
+        for (auto pVisibleGameObject : pGameObject->GetComponent<Components::SVision>()->VisibleGameObjectsVec)
         {
-            Components::SVisibility* pOthersVisibility = pOtherGameObject->GetComponent<Components::SVisibility>();
-            Components::SScenePose* pOthersPose = pOtherGameObject->GetScenePose();
-
-            glm::vec2 RelativeToTarget = pOthersPose->Position - pPose->Position;
-
-            if (DendyCommon::Math::FastCompareDistance(pPose->Position, pOthersPose->Position, pVision->Radius+pOthersVisibility->Radius) < 0)
-            {
-                //std::cout << glm::dot(pPose->Orientation, RelativeToTarget) << std::endl;
-                if (glm::dot(pPose->Orientation, RelativeToTarget) > 0)
-                {
-                    // for (auto pColliderGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SStaticColliderShape>(pGameObject->GetScenePose()->Position))
-                    // {
-                    //     for (auto& Edge : pColliderGameObject->GetComponent<Components::SStaticColliderShape>()->Shape.EdgesVec)
-                    //     {
-                    //         if ( DendyCommon::Math::IsColliding(DendyCommon::Math::SEdge(pPose->Position,pOthersPose->Position),Edge) )
-                    //             std::cout << glm::distance(RelativeToTarget) << std::endl;
-                    //     }
-                    // }
-
-                    pVision->VisibleGameObjectsVec.push_back(pOtherGameObject);
-                    //std::cout << *pOtherGameObject << std::endl;
-                    //std::cout << glm::dot(pPose->Orientation, RelativeToTarget) << std::endl;
-                }
-            }
+            auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(pVisibleGameObject->GetScenePosition());
+            glm::vec3 WorldPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, pVisibleGameObject->GetScenePosition());
+            WorldPosition.y += 1.75f;
+            glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, WorldPosition);
+            glm::mat4 ScaleMatrix = glm::scale(glm::mat4{1}, {0.3f, 0.3f, 0.3f});
+            glm::mat4 TransformMatrix = TranslateMatrix * ScaleMatrix;
+            m_pOwnedRenderingSystem->AddPawnInstance(TransformMatrix, {1.0f, 0.5f, 0.0f});
         }
     }
 
 
     // Update Pose
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SWalkingCharacter>(PlayerScenePosition))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetWithComponents<Components::SWalkingCharacter>())
     {
         Components::SWalkingCharacter* pWalkingCharacter = pGameObject->GetComponent<Components::SWalkingCharacter>();
         Components::SScenePose* pPose = pGameObject->GetScenePose();
 
-        glm::vec2 Target = PlayerScenePosition;
+        glm::vec2 Target = m_pCamera->GetScenePosition();
 
-        pPose->Orientation = Target - pPose->Position;
+        pPose->Orientation = glm::normalize(Target - pPose->Position);
 
         if (DendyCommon::Math::FastCompareDistance(pPose->Position, Target, pWalkingCharacter->ArrivalEpsilon) > 0)
         {
-            pPose->Position += pPose->Orientation * pWalkingCharacter->MaxVelocity * deltaTime;
+            glm::vec2 NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->MaxVelocity * deltaTime;
+            m_pOwnedScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
         }
     }
 
 
     // Compute Transform matrix
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform>(PlayerScenePosition))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform>(m_pCamera->GetScenePosition()))
     {
         Components::SScenePose* pPose = pGameObject->GetScenePose();
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
@@ -315,7 +304,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     
 
     // Pawn rendering
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SRenderablePawn>(PlayerScenePosition))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SRenderablePawn>(m_pCamera->GetScenePosition()))
     {
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
         Components::SRenderablePawn* pRenderablePawn = pGameObject->GetComponent<Components::SRenderablePawn>();
@@ -323,8 +312,17 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         m_pOwnedRenderingSystem->AddPawnInstance(pTransform->TransformMatrix, pRenderablePawn->Color);
     }
 
+    // Kossack rendering
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SKossack>(m_pCamera->GetScenePosition()))
+    {
+        Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
+        Components::SKossack* pRenderableKossack = pGameObject->GetComponent<Components::SKossack>();
+
+        m_pOwnedRenderingSystem->AddKossackInstance(pTransform->TransformMatrix, pRenderableKossack->Color);
+    }
+
     // Static Meshes rendering
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SStaticMesh>(PlayerScenePosition))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SStaticMesh>(m_pCamera->GetScenePosition()))
     {
         Components::SStaticMesh* pMesh = pGameObject->GetComponent<Components::SStaticMesh>();
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
@@ -333,7 +331,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
     // Terrain Chunks rendering
-    for (auto pTerrainChunk : m_pOwnedScene->GetTerrainChunksSetNearScenePosition(PlayerScenePosition))
+    for (auto pTerrainChunk : m_pOwnedScene->GetTerrainChunksSetNearScenePosition(m_pCamera->GetScenePosition()))
     {
         m_pOwnedRenderingSystem->AddTerrainIdInstanceToRender(pTerrainChunk->TerrainId);
     }

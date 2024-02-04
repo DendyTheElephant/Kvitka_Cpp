@@ -3,7 +3,6 @@
 //#include <DendyCommon/Math.h>
 #include <DendyEngine/Definitions.h>
 
-//#include <CImg.h>
 #include <lodepng.h>
 
 
@@ -49,9 +48,6 @@ glm::vec3 DendyEngine::CTerrainSystem::GetWorldPositionFromScenePosition(Compone
 //#endif // _DEBUG
 
     glm::vec2 PositionInTerrainSpace;
-    //PositionInTerrainSpace.x = (scenePosition.x / Definitions::c_TerrainScale + static_cast<float>(Definitions::c_TerrainSize)/2.0);
-    //PositionInTerrainSpace.y = (scenePosition.y / Definitions::c_TerrainScale + static_cast<float>(Definitions::c_TerrainSize)/2.0);
-
     PositionInTerrainSpace.x = (scenePosition.x - pTerrainChunk->Translation.x) / Definitions::c_TerrainScale;
     PositionInTerrainSpace.y = (scenePosition.y - pTerrainChunk->Translation.y) / Definitions::c_TerrainScale;
 

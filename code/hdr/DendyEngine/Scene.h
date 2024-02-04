@@ -116,6 +116,33 @@ public:
         return m_pOwnedGameObjectsVec.back().get();
     }
 
+    void UpdateGameObjectScenePosition(CGameObject* pGameObject, glm::vec2 const& scenePosition)
+    {
+        LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
+
+        auto OldChunkHash = SPosition2DHash<Definitions::c_ChunkSize>(pGameObject->GetScenePose()->Position);
+        auto ChunkHash = SPosition2DHash<Definitions::c_ChunkSize>(scenePosition);
+
+        if (OldChunkHash != ChunkHash)
+        {
+            m_pGameObjectReferencesSetByChunk.at(OldChunkHash).erase(pGameObject);
+            if (m_pGameObjectReferencesSetByChunk.count(ChunkHash) == 0)
+            {
+                std::unordered_set<CGameObject*> GameObjectReferencesSet;
+                GameObjectReferencesSet.insert(pGameObject);
+                m_pGameObjectReferencesSetByChunk.insert( {ChunkHash, GameObjectReferencesSet} );
+            }
+            else
+            {
+                std::unordered_set<CGameObject*>* pGameObjectReferencesSet = &m_pGameObjectReferencesSetByChunk.at(ChunkHash);
+                pGameObjectReferencesSet->insert(pGameObject);
+            }
+        }
+
+        pGameObject->GetScenePose()->Position = scenePosition;
+        LOG_CALLSTACK_POP();
+    }
+
     void RemoveGameObject(CGameObject* pGameObject)
     {
         LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
@@ -185,22 +212,30 @@ public:
         return Result;
     }
 
-
-    // void LoadFromFiles(std::string fileNameHeightmap);
-
-    // inline constexpr float GetMaxHeight() const {return c_TerrainMaxHeight;}
-    // float GetHeightAtPosition(glm::vec2 const& position) const;
-    // float GetHeightAtPosition(glm::vec3 const& position) const;
-    // glm::vec3 GetNormalAtPosition(glm::vec2 const& position) const;
-    // glm::vec3 GetNormalAtPosition(glm::vec3 const& position) const;
-    // float ComputeDistance(glm::vec3 positionStart, glm::vec3 positionEnd) const {return 0.0f;}
-
-    // constexpr const uint16_t* GetData() const {return m_HeightsArray.data();}
-    // std::vector<glm::vec3> GetWorldPositionsOfChunk(glm::vec2 const& min, glm::vec2 const& max);
-    // constexpr const float GetScale() const {return c_Scale;}
-    // constexpr const size_t GetTerrainSize() const {return c_TerrainSize;}
-    // constexpr const float GetTerrainMaxHeight() const {return c_TerrainMaxHeight;}
-
+    template<class... TGameComponents>
+    std::unordered_set<CGameObject*> GetGameObjectsSetWithComponents()
+    {
+        std::unordered_set<CGameObject*> Result;
+        std::vector<Components::EGameComponentType> RequiredComponentTypesVec;
+        ((RequiredComponentTypesVec.push_back(TGameComponents::Type)),...);
+        for (size_t iGameObject=0; iGameObject<m_pOwnedGameObjectsVec.size(); iGameObject++)
+        {
+            bool IsSuitable = true;
+            for (auto RequiredComponent : RequiredComponentTypesVec)
+            {
+                if ( m_pOwnedGameObjectsVec.at(iGameObject)->HasComponent(RequiredComponent) == false )
+                {
+                    IsSuitable = false;
+                    break;
+                }
+            }
+            if (IsSuitable)
+            {
+                Result.insert( m_pOwnedGameObjectsVec.at(iGameObject).get() );
+            }
+        }
+        return Result;
+    }
 };
 
 }

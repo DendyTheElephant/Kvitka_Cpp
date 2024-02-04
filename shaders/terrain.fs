@@ -35,5 +35,5 @@ void main()
     else
         out_Color = vec4(mix(SnowColor, SnowColor,(v2f_Height-0.80)/(1.00-0.80)), 1);
 
-    out_Color = vec4(HightGrassColor,1);
+    //out_Color = vec4(HightGrassColor,1);
 }

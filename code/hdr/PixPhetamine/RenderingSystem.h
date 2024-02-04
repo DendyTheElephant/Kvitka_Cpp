@@ -60,6 +60,7 @@ private:
     std::vector<uint32_t> m_TerrainIdsToRender;
 
     std::vector<std::pair<glm::mat4,glm::vec3>> m_PawnInstanceDataVec;
+    std::vector<std::pair<glm::mat4,glm::vec3>> m_KossackInstancesDataVec;
 
     std::vector<SMeshInstance> m_StaticMeshInstanceDataVec;
     glm::vec3 m_CameraLookAtPosition{0.0f};
@@ -80,6 +81,7 @@ public:
 
     void AddTerrainIdInstanceToRender(uint32_t const& id);
     void AddPawnInstance(glm::mat4 const& transformMatrix, glm::vec3 const& color);
+    void AddKossackInstance(glm::mat4 const& transformMatrix, glm::vec3 const& color);
     void AddStaticMesh(std::string const& name, glm::mat4 const& transformMatrix, glm::vec3 const& color);
     void RenderScene();
     void ReloadShaders();
