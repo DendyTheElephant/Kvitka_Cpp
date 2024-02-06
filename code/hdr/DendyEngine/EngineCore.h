@@ -36,6 +36,7 @@ private:
     std::unique_ptr<PixPhetamine::CRenderingSystem> m_pOwnedRenderingSystem;
 
     CGameObject* m_pCamera{nullptr};
+    CGameObject* m_pKvitka{nullptr};
 
 private:
     void _InitialiseRendering();

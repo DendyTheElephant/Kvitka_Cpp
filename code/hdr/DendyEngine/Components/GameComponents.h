@@ -34,8 +34,7 @@ struct STerrainChunk : CGameComponent<STerrainChunk,EGameComponentType::TerrainC
 
 struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::WalkingCharacter>
 {
-    glm::vec3 TargetPosition{0.0f};
-    glm::vec3 TargetDirection{1.0f, 0.0f, 0.0f};
+    glm::vec2 Movement{0.0f};
 
     float ArrivalEpsilon{1.0}; // 1m
 

@@ -118,6 +118,19 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     }
 
 
+    {
+        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kvitka",{0,0});
+        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
+        Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
+        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
+        
+        pVisibility->Radius = 0.0f;
+        pWalkingCharacter->IsSprinting = true;
+
+        m_pKvitka = pGameObject;
+    }
+
 
     // Create Cossack
     {
@@ -205,6 +218,18 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         m_pOwnedRenderingSystem->ReloadShaders();
     }
 
+
+    // Player movements with inputs
+    {
+        glm::vec2 LeftStickValue = m_pOwnedInputHandler->GetLeftStickValue();
+
+        if (LeftStickValue.x != 0.0f || LeftStickValue.y != 0.0f)
+        {
+            glm::vec2 Movement = LeftStickValue * m_pKvitka->GetComponent<Components::SWalkingCharacter>()->SprintMaxVelocity * deltaTime;
+
+            m_pKvitka->GetComponent<Components::SWalkingCharacter>()->Movement = Movement;
+        }
+    }
 
     // Camera movements with inputs
     {
