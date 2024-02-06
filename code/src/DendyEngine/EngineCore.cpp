@@ -61,7 +61,7 @@ void DendyEngine::CEngineCore::_InitialiseTerrain()
         std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(   -1,   -1)),
         std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(    0,   -1)),
         std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(    1,   -1)),
-        std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(   -1,    0)),
+        std::make_pair(std::string("ressources/images/terrain-1_0.png"),glm::vec2(   -1,    0)),
         std::make_pair(std::string("ressources/images/terrain0_0.png"),glm::vec2(    0,    0)),
         std::make_pair(std::string("ressources/images/terrain1_0.png"),glm::vec2(    1,    0)),
         std::make_pair(std::string("ressources/images/terrain.png"),glm::vec2(   -1,    1)),
@@ -111,22 +111,21 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Camera",{0,0});
         Components::SCamera* pCamera = pGameObject->AddComponent<Components::SCamera>();
-        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
-        pVisibility->Radius = 0.0f;
 
         m_pCamera = pGameObject;
     }
 
 
+    // Create Player Kvitka
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kvitka",{0,0});
         Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
         Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
-        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        pGameObject->AddComponent<DendyEngine::Components::STransform>();
         Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
-        
-        pVisibility->Radius = 0.0f;
+
         pWalkingCharacter->IsSprinting = true;
+        pKossack->Color = {0.6f,0.0f,0.0f};
 
         m_pKvitka = pGameObject;
     }
@@ -135,33 +134,29 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     // Create Cossack
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("KossackYellow",{-2,-2});
-        //Components::SVision* pVision = pGameObject->AddComponent<DendyEngine::Components::SVision>();
         Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
-        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
-        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
-        Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
+        pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
+        pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
 
-        pKossack->Color = glm::vec3(1.0f, 1.0f, 0.0f);
-        pVisibility->Radius = 0.0f;
+        pKossack->Color = {1,1,0};
     }
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("KossackGreen",{2,2});
         Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
-        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
-        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
-        Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
+        pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
+        pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
 
-        pKossack->Color = glm::vec3(0.0f, 1.0f, 0.0f);
-        pVisibility->Radius = 0.0f;
+        pKossack->Color = {0,1,0};
     }
     {
-        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("KossackRed",{8,-14});
+        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("KossackBlue",{8,-14});
         Components::SVision* pVision = pGameObject->AddComponent<DendyEngine::Components::SVision>();
         Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
-        
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
 
-        pKossack->Color = glm::vec3(1.0f, 0.0f, 0.0f);
+        pKossack->Color = {0,0,1};
         pVision->Radius = 9.0f;
     }
 
@@ -171,9 +166,8 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Hata001",{10,-15},{1,0});
         auto pStaticMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
-        pGameObject->AddComponent<DendyEngine::Components::STransform>();
         auto pCollider = pGameObject->AddComponent<DendyEngine::Components::SCollider>();
-        
+        pGameObject->AddComponent<DendyEngine::Components::STransform>();
 
         pStaticMesh->MeshName = "hata";
         pStaticMesh->Color = {1.0f, 1.0f, 1.0f};
@@ -182,8 +176,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Sich001",{-8,-10});
         Components::SStaticMesh* pStaticMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
-
-        Components::STransform* pTransform = pGameObject->AddComponent<DendyEngine::Components::STransform>();
+        pGameObject->AddComponent<DendyEngine::Components::STransform>();
 
         pStaticMesh->MeshName = "sich";
         pStaticMesh->Color = {0.35f, 0.25f, 0.2f};
@@ -229,48 +222,13 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
             m_pKvitka->GetComponent<Components::SWalkingCharacter>()->Movement = Movement;
         }
-    }
-
-    // Camera movements with inputs
-    {
-        Components::SCamera* pCamera = m_pCamera->GetComponent<Components::SCamera>();
-
-        glm::vec2 LeftStickValue = m_pOwnedInputHandler->GetLeftStickValue();
-        float ZoomValue = m_pOwnedInputHandler->GetZoomValue();
-
-        glm::mat4 RotateMatrix{1};
-        if (LeftStickValue.x != 0.0f || LeftStickValue.y != 0.0f || ZoomValue != 0.0f)
+        else
         {
-            glm::vec3 Move{LeftStickValue.x, 0.0f, LeftStickValue.y};
-
-            pCamera->ArmTranslationMagnitude += ZoomValue * pCamera->SpeedArm * deltaTime;
-            pCamera->ArmTranslationMagnitude = glm::clamp(pCamera->ArmTranslationMagnitude, pCamera->ArmTranslationMagnitudeMinValue, pCamera->ArmTranslationMagnitudeMaxValue);
-            if (ZoomValue != 0.0) std::cout << "ArmMag: " << std::to_string(pCamera->ArmTranslationMagnitude) << std::endl;
-            pCamera->TargetPosition += Move * pCamera->Speed * deltaTime;
-
-
-            // Move = glm::normalize(Move);
-            // float AngleBetweenTargetAndCurrentOrientation = atan2f( -Move.x, -Move.z );
-            // glm::quat OrientationQuaternion{ cosf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0, sinf( AngleBetweenTargetAndCurrentOrientation/2.0f ), 0 };
-            // RotateMatrix = glm::mat4_cast(OrientationQuaternion);
+            m_pKvitka->GetComponent<Components::SWalkingCharacter>()->Movement = {0,0};
         }
-
-        m_pCamera->GetScenePose()->Position = {pCamera->TargetPosition.x, pCamera->TargetPosition.z};
-        m_pOwnedRenderingSystem->SetCameraLookAt(pCamera->TargetPosition);
-        glm::vec3 ArmTranslation = glm::normalize(pCamera->ArmTranslationDirection);
-        
-        m_pOwnedRenderingSystem->SetCameraArmTranslation(ArmTranslation*pCamera->ArmTranslationMagnitude);
-
-        // Debug
-        auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(m_pCamera->GetScenePosition());
-        glm::vec3 CameraWorldTargetPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, m_pCamera->GetScenePosition());
-        glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, CameraWorldTargetPosition);
-
-
-        //glm::mat4 TransformMatrix = TranslateMatrix * RotateMatrix;// * ScaleMatrix;
-        glm::mat4 TransformMatrix = TranslateMatrix;// * ScaleMatrix;
-        m_pOwnedRenderingSystem->AddPawnInstance(TransformMatrix, {0.0f, 0.5f, 1.0f});
     }
+
+    
 
 
     // Update Vision
@@ -298,14 +256,45 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         Components::SWalkingCharacter* pWalkingCharacter = pGameObject->GetComponent<Components::SWalkingCharacter>();
         Components::SScenePose* pPose = pGameObject->GetScenePose();
 
-        glm::vec2 Target = m_pCamera->GetScenePosition();
-
-        pPose->Orientation = glm::normalize(Target - pPose->Position);
-
-        if (DendyCommon::Math::FastCompareDistance(pPose->Position, Target, pWalkingCharacter->ArrivalEpsilon) > 0)
+        if ( pWalkingCharacter->Movement.x != 0.0f || pWalkingCharacter->Movement.y != 0.0f )
         {
+            pPose->Orientation = glm::normalize(pWalkingCharacter->Movement);
             glm::vec2 NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->MaxVelocity * deltaTime;
             m_pOwnedScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
+        }
+    }
+
+
+    // Camera movements: follow player
+    {
+        float ZoomValue = m_pOwnedInputHandler->GetZoomValue();
+        glm::vec2 CameraToPlayer = m_pKvitka->GetScenePosition() - m_pCamera->GetScenePosition();
+        auto pCameraComponent = m_pCamera->GetComponent<Components::SCamera>();
+
+        if (CameraToPlayer.x != 0.0f || CameraToPlayer.y != 0.0f || ZoomValue != 0.0f)
+        {
+            glm::vec2 MovementDirection = glm::normalize(CameraToPlayer);
+            glm::vec2 Movement{0};
+
+            pCameraComponent->ArmTranslationMagnitude += ZoomValue * pCameraComponent->SpeedArm * deltaTime;
+            pCameraComponent->ArmTranslationMagnitude = glm::clamp(pCameraComponent->ArmTranslationMagnitude, pCameraComponent->ArmTranslationMagnitudeMinValue, pCameraComponent->ArmTranslationMagnitudeMaxValue);
+            if (ZoomValue != 0.0) std::cout << "ArmMag: " << std::to_string(pCameraComponent->ArmTranslationMagnitude) << std::endl;
+            
+            if (DendyCommon::Math::FastCompareMagnitude(CameraToPlayer, 1.0f) > 0)
+            {
+                Movement = MovementDirection * pCameraComponent->Speed * deltaTime;
+            }
+            
+
+            m_pCamera->GetScenePose()->Position = m_pCamera->GetScenePosition() + Movement;
+            auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(m_pCamera->GetScenePosition());
+            pCameraComponent->TargetPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, m_pCamera->GetScenePosition());
+
+
+            m_pOwnedRenderingSystem->SetCameraLookAt(pCameraComponent->TargetPosition);
+            glm::vec3 ArmTranslation = glm::normalize(pCameraComponent->ArmTranslationDirection);
+        
+            m_pOwnedRenderingSystem->SetCameraArmTranslation(ArmTranslation*pCameraComponent->ArmTranslationMagnitude);
         }
     }
 

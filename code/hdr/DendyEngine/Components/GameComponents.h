@@ -55,7 +55,7 @@ struct SVision : CGameComponent<SVision,EGameComponentType::Vision>
 
 struct SVisibility : CGameComponent<SVisibility,EGameComponentType::Visibility>
 {
-    float Radius{0.6f}; // Can be negative!
+    float Radius{0.0f}; // Can be negative!
 };
 
 // struct SMaslowNeeds : CGameComponent<SMaslowNeeds,EGameComponentType::MaslowNeeds>
