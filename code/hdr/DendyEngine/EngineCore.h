@@ -5,6 +5,7 @@
 
 #include <DendyEngine/TerrainSystem.h>
 #include <DendyEngine/VisionSystem.h>
+#include <DendyEngine/MovementSystem.h>
 #include <DendyEngine/Components/GameComponents.h>
 #include <DendyEngine/Scene.h>
 
@@ -33,6 +34,7 @@ private:
 
     std::unique_ptr<CTerrainSystem> m_pOwnedTerrainSystem;
     std::unique_ptr<CVisionSystem> m_pOwnedVisionSystem;
+    std::unique_ptr<CMovementSystem> m_pOwnedMovementSystem;
     std::unique_ptr<PixPhetamine::CRenderingSystem> m_pOwnedRenderingSystem;
 
     CGameObject* m_pCamera{nullptr};

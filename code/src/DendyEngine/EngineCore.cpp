@@ -94,6 +94,7 @@ void DendyEngine::CEngineCore::_InitialiseGameSystems()
     //m_pOwnedComponentsEngine = std::make_unique<DendyEngine::Components::CComponentsEngine>();
     m_pOwnedTerrainSystem = std::make_unique<CTerrainSystem>();
     m_pOwnedVisionSystem = std::make_unique<CVisionSystem>(m_pOwnedScene.get());
+    m_pOwnedMovementSystem = std::make_unique<CMovementSystem>(m_pOwnedScene.get());
 
     LOG_CALLSTACK_POP();
 }
@@ -119,10 +120,12 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     // Create Player Kvitka
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kvitka",{0,0});
-        Components::SVisibility* pVisibility = pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
+        pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
         Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
         Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
+        pGameObject->AddComponent<DendyEngine::Components::SMovementTarget>();
+        
 
         pWalkingCharacter->IsSprinting = true;
         pKossack->Color = {0.6f,0.0f,0.0f};
@@ -138,6 +141,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
         pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
+        pGameObject->AddComponent<DendyEngine::Components::SMovementTarget>();
 
         pKossack->Color = {1,1,0};
     }
@@ -147,6 +151,7 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
         pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
         pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
+        pGameObject->AddComponent<DendyEngine::Components::SMovementTarget>();
 
         pKossack->Color = {0,1,0};
     }
@@ -218,17 +223,14 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
         if (LeftStickValue.x != 0.0f || LeftStickValue.y != 0.0f)
         {
-            glm::vec2 Movement = LeftStickValue * m_pKvitka->GetComponent<Components::SWalkingCharacter>()->SprintMaxVelocity * deltaTime;
-
-            m_pKvitka->GetComponent<Components::SWalkingCharacter>()->Movement = Movement;
+            m_pKvitka->GetComponent<Components::SMovementTarget>()->MovementType = Components::SMovementTarget::EMovementTargetType::MoveToDirection;
+            m_pKvitka->GetComponent<Components::SMovementTarget>()->TargetDirection = glm::vec2(LeftStickValue.x,LeftStickValue.y);
         }
         else
         {
-            m_pKvitka->GetComponent<Components::SWalkingCharacter>()->Movement = {0,0};
+            m_pKvitka->GetComponent<Components::SMovementTarget>()->MovementType = Components::SMovementTarget::EMovementTargetType::None;
         }
     }
-
-    
 
 
     // Update Vision
@@ -250,18 +252,10 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
 
-    // Update Pose
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetWithComponents<Components::SWalkingCharacter>())
+    // Update Pose : basically movement
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetWithComponents<Components::SWalkingCharacter,Components::SMovementTarget>())
     {
-        Components::SWalkingCharacter* pWalkingCharacter = pGameObject->GetComponent<Components::SWalkingCharacter>();
-        Components::SScenePose* pPose = pGameObject->GetScenePose();
-
-        if ( pWalkingCharacter->Movement.x != 0.0f || pWalkingCharacter->Movement.y != 0.0f )
-        {
-            pPose->Orientation = glm::normalize(pWalkingCharacter->Movement);
-            glm::vec2 NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->MaxVelocity * deltaTime;
-            m_pOwnedScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
-        }
+        m_pOwnedMovementSystem->UpdatePositionOfMovingGameObject(pGameObject, deltaTime);
     }
 
 
@@ -299,12 +293,11 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
 
-    // Compute Transform matrix
+    // Compute Transform matrix : based on pose in scene, and terrain
     for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform>(m_pCamera->GetScenePosition()))
     {
         Components::SScenePose* pPose = pGameObject->GetScenePose();
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
-        
 
         auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(pPose->Position);
         glm::vec3 WorldPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, pPose->Position);

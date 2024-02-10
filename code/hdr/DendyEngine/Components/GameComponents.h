@@ -32,14 +32,36 @@ struct STerrainChunk : CGameComponent<STerrainChunk,EGameComponentType::TerrainC
     glm::vec2 Translation{0};
 };
 
+struct SMovementTarget : CGameComponent<SMovementTarget,EGameComponentType::MovementTarget>
+{
+    float ArrivalAtPositionEpsilon{0.1}; // 10cm
+
+    enum class EMovementTargetType
+    {
+        None,
+        MoveToDirection,
+        ReachPosition,
+        LookAtOrientation
+    };
+
+    glm::vec2 TargetDirection{0};
+    glm::vec2 TargetPosition{0};
+    glm::vec2 TargetOrientation{0,1};
+
+    EMovementTargetType MovementType;
+};
+
 struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::WalkingCharacter>
 {
-    glm::vec2 Movement{0.0f};
-
-    float ArrivalEpsilon{1.0}; // 1m
+    // bool IsSprinting{false};
+    // float Acceleration{0.0002f}; // 0.2m/s
+    // float SprintAcceleration{0.0005f}; // 0.5m/s
+    // float Velocity{0.0f};
+    // float MaxVelocity{0.00142f}; // 5.1km/h or 1.42m/s
+    // float SprintMaxVelocity{0.00362f}; // 13km/h or 3.62m/s
 
     bool IsSprinting{false};
-    float Acceleration{0.0002f}; // 0.2m/s
+    float Acceleration{0.000008f}; // 0.2m/s
     float SprintAcceleration{0.0005f}; // 0.5m/s
     float Velocity{0.0f};
     float MaxVelocity{0.00142f}; // 5.1km/h or 1.42m/s

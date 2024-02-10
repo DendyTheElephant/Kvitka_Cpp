@@ -15,5 +15,5 @@ void main()
 	// Multiply the vertex by the matrix to get the final point in normalized screen coordinates.		
    	gl_Position = u_ModelViewProjectionMatrix * vec4(in_vertex_position.x, in_vertex_position.y, in_vertex_position.z, 1.0);
 
-	v2f_Height = in_vertex_position.y / 2.0;
+	v2f_Height = in_vertex_position.y / 4.0;
 }
