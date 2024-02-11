@@ -11,6 +11,7 @@ namespace DendyEngine::Definitions
     constexpr uint32_t c_TerrainArraySize{(c_TerrainSize+1)*(c_TerrainSize+1)};
 
     // Chunk
-    constexpr uint8_t c_ChunkSize{50};
+    constexpr uint8_t c_TerrainChunkSize{50};
+    constexpr uint8_t c_ChunkSize{40};
 }
 

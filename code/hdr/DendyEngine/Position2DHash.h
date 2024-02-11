@@ -57,4 +57,10 @@ namespace std
     {
         auto operator()(DendyEngine::SPosition2DHash<DendyEngine::Definitions::c_ChunkSize> const& key) const -> size_t {return hash<size_t>()(key.x*10000000 + key.y);}
     };
-} 
+
+    template <>
+    struct hash<DendyEngine::SPosition2DHash<DendyEngine::Definitions::c_TerrainChunkSize>>
+    {
+        auto operator()(DendyEngine::SPosition2DHash<DendyEngine::Definitions::c_TerrainChunkSize> const& key) const -> size_t {return hash<size_t>()(key.x*10000000 + key.y);}
+    };
+}

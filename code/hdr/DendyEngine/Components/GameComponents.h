@@ -130,9 +130,10 @@ struct SCamera : CGameComponent<SCamera,EGameComponentType::Camera>
     glm::vec3 ArmTranslationDirection{0.0f, 1.0f, 1.0f};
     float ArmTranslationMagnitude{20.0f};
     float ArmTranslationMagnitudeMinValue{20.0f};
-    //float ArmTranslationMagnitudeMaxValue{31.0f};
-    float ArmTranslationMagnitudeMaxValue{100.0f};
-    float Speed{0.00362f};
+    float ArmTranslationMagnitudeMaxValue{31.0f};
+    //float ArmTranslationMagnitudeMaxValue{100.0f};
+    //float Speed{0.00362f};
+    float Speed{0.006f};
     //float Speed{0.0362f};
     float SpeedArm{0.0362f};
 };

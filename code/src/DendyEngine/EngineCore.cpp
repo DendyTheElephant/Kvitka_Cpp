@@ -256,7 +256,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
 
     // Update Vision
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVision>(m_pCamera->GetScenePosition()))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::SVision>(m_pKvitka->GetScenePosition()))
     {
         m_pOwnedVisionSystem->UpdateVisibleGameObjectsVec(pGameObject);
 
@@ -286,7 +286,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     // Camera movements: follow player
     {
         float ZoomValue = m_pOwnedInputHandler->GetZoomValue();
-        glm::vec2 CameraToPlayer = m_pKvitka->GetScenePosition() - m_pCamera->GetScenePosition();
+        glm::vec2 CameraToPlayer = m_pKvitka->GetScenePosition() - glm::vec2(0,-3) - m_pCamera->GetScenePosition();
         auto pCameraComponent = m_pCamera->GetComponent<Components::SCamera>();
 
         if (CameraToPlayer.x != 0.0f || CameraToPlayer.y != 0.0f || ZoomValue != 0.0f)
@@ -318,7 +318,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
 
 
     // Compute Transform matrix : based on pose in scene, and terrain
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform>(m_pCamera->GetScenePosition()))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform>(m_pKvitka->GetScenePosition()))
     {
         Components::SScenePose* pPose = pGameObject->GetScenePose();
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
@@ -335,7 +335,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     
 
     // Pawn rendering
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SRenderablePawn>(m_pCamera->GetScenePosition()))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SRenderablePawn>(m_pKvitka->GetScenePosition()))
     {
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
         Components::SRenderablePawn* pRenderablePawn = pGameObject->GetComponent<Components::SRenderablePawn>();
@@ -344,7 +344,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
     // Kossack rendering
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SKossack>(m_pCamera->GetScenePosition()))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SKossack>(m_pKvitka->GetScenePosition()))
     {
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
         Components::SKossack* pRenderableKossack = pGameObject->GetComponent<Components::SKossack>();
@@ -353,7 +353,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
     // Static Meshes rendering
-    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SStaticMesh>(m_pCamera->GetScenePosition()))
+    for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetNearScenePositionWithComponents<Components::STransform,Components::SStaticMesh>(m_pKvitka->GetScenePosition()))
     {
         Components::SStaticMesh* pMesh = pGameObject->GetComponent<Components::SStaticMesh>();
         Components::STransform* pTransform = pGameObject->GetComponent<Components::STransform>();
@@ -362,7 +362,7 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
     }
 
     // Terrain Chunks rendering
-    for (auto pTerrainChunk : m_pOwnedScene->GetTerrainChunksSetNearScenePosition(m_pCamera->GetScenePosition()))
+    for (auto pTerrainChunk : m_pOwnedScene->GetTerrainChunksSetNearScenePosition(m_pKvitka->GetScenePosition()))
     {
         m_pOwnedRenderingSystem->AddTerrainIdInstanceToRender(pTerrainChunk->TerrainId);
     }

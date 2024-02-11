@@ -1,8 +1,27 @@
 #include <DendyEngine/MovementSystem.h>
 #include <DendyCommon/Logger.h>
-//#include <DendyCommon/Math.h>
-#include <DendyEngine/Definitions.h>
 
+
+ void DendyEngine::CMovementSystem::MoveToOrientationWithVelocity(CGameObject* pGameObject, float const& deltaTime, bool isDeccelerating) const
+ {
+    Components::SWalkingCharacter* pWalkingCharacter = pGameObject->GetComponent<Components::SWalkingCharacter>();
+
+    if (isDeccelerating)
+        pWalkingCharacter->Velocity -= pWalkingCharacter->Acceleration * deltaTime * 0.5f;
+    else
+        pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
+    pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
+
+    glm::vec2 NewPosition = pGameObject->GetScenePose()->Position + pGameObject->GetScenePose()->Orientation * pWalkingCharacter->Velocity * deltaTime;
+
+    if (isDeccelerating)
+        pWalkingCharacter->Velocity -= pWalkingCharacter->Acceleration * deltaTime * 0.5f;
+    else
+        pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
+    pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
+
+    m_pScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
+ }
 
 void DendyEngine::CMovementSystem::UpdatePositionOfMovingGameObject(CGameObject* pGameObject, float const& deltaTime) const
 {
@@ -17,69 +36,47 @@ void DendyEngine::CMovementSystem::UpdatePositionOfMovingGameObject(CGameObject*
     switch (pMovementTarget->MovementType)
     {
     case Components::SMovementTarget::EMovementTargetType::MoveToDirection:
+    {
         pPose->Orientation = pMovementTarget->TargetDirection;
 
-        pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
-        pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
-
-        NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->Velocity * deltaTime;
-
-        pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
-        pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
-
-        m_pScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
+        bool IsDeccelerating{false};
+        MoveToOrientationWithVelocity(pGameObject, deltaTime, IsDeccelerating);
         break;
+    }
     case Components::SMovementTarget::EMovementTargetType::ReachPosition:
-        if (DendyCommon::Math::FastCompareDistance(pPose->Position, pMovementTarget->TargetPosition, pMovementTarget->ArrivalAtPositionEpsilon) > 0)
+    {
+        glm::vec2 RelativeVector = pMovementTarget->TargetPosition - pPose->Position;
+        bool IsDeccelerating{false};
+        if (DendyCommon::Math::FastCompareMagnitude(RelativeVector, pMovementTarget->ArrivalAtPositionEpsilon) > 0)
         {
+            pPose->Orientation = glm::normalize(RelativeVector);
             // Deccel ?
             float DistanceToStop = pWalkingCharacter->Velocity*pWalkingCharacter->Velocity / (2.0f*pWalkingCharacter->Acceleration) - pWalkingCharacter->Velocity/2.0f;
-            if (DendyCommon::Math::FastCompareDistance(pPose->Position, pMovementTarget->TargetPosition, DistanceToStop) <= 0)
+            if (DendyCommon::Math::FastCompareMagnitude(RelativeVector, DistanceToStop) <= 0)
             {
-                pWalkingCharacter->Velocity -= pWalkingCharacter->Acceleration * deltaTime * 0.5f;
-                pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
-
-                NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->Velocity * deltaTime;
-
-                pWalkingCharacter->Velocity -= pWalkingCharacter->Acceleration * deltaTime * 0.5f;
-                pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
-
-                m_pScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
+                IsDeccelerating = true;
+                MoveToOrientationWithVelocity(pGameObject, deltaTime, IsDeccelerating);
             }
             else
             {
-                pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
-                pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
-
-                NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->Velocity * deltaTime;
-
-                pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
-                pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
-
-                m_pScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
+                MoveToOrientationWithVelocity(pGameObject, deltaTime, IsDeccelerating);
             }
         }
-
-        //if (DendyCommon::Math::FastCompareMagnitude())
         break;
+    }
     case Components::SMovementTarget::EMovementTargetType::LookAtOrientation:
-        
+    {
         break;
-    
+    }
     case Components::SMovementTarget::EMovementTargetType::None:
+    {
         if ( pWalkingCharacter->Velocity > 0.0f )
         {
-            pWalkingCharacter->Velocity -= pWalkingCharacter->Acceleration * deltaTime * 0.5f;
-            pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
-
-            NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->Velocity * deltaTime;
-
-            pWalkingCharacter->Velocity -= pWalkingCharacter->Acceleration * deltaTime * 0.5f;
-            pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
-
-            m_pScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
+            bool IsDeccelerating{true};
+            MoveToOrientationWithVelocity(pGameObject, deltaTime, IsDeccelerating);
         }
         break;
+    }
     }
 
     LOG_CALLSTACK_POP();

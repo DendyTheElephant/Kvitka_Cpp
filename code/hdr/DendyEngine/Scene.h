@@ -24,7 +24,7 @@ protected:
     inline static uint32_t m_GameComponentCount = 0;
     std::vector<std::unique_ptr<CGameObject>> m_pOwnedGameObjectsVec;
     std::unordered_map<SPosition2DHash<Definitions::c_ChunkSize>,std::unordered_set<CGameObject*>> m_pGameObjectReferencesSetByChunk;
-    std::unordered_map<SPosition2DHash<Definitions::c_ChunkSize>,Components::STerrainChunk*> m_pTerrainChunkReferencesByChunk;
+    std::unordered_map<SPosition2DHash<Definitions::c_TerrainChunkSize>,Components::STerrainChunk*> m_pTerrainChunkReferencesByTerrainChunk;
 
 public:
     CScene() {}

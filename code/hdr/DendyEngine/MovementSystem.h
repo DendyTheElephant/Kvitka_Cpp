@@ -17,6 +17,7 @@ protected:
 public:
     CMovementSystem(CScene* pScene): m_pScene(pScene) {}
     ~CMovementSystem() {}
+    void MoveToOrientationWithVelocity(CGameObject* pGameObject, float const& deltaTime, bool isDeccelerating) const;
 
     void UpdatePositionOfMovingGameObject(CGameObject* pGameObject, float const& deltaTime) const;
 

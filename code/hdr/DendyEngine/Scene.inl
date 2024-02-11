@@ -7,10 +7,10 @@ inline DendyEngine::Components::STerrainChunk* CScene::AddTerrainChunk(std::stri
     m_pOwnedGameObjectsVec.push_back( std::make_unique<CGameObject>(m_pOwnedGameObjectsVec.size(), name, scenePosition, glm::vec2(0,1)) );
     Components::STerrainChunk* pTerrainChunk = m_pOwnedGameObjectsVec.back()->AddComponent<Components::STerrainChunk>();
     pTerrainChunk->TerrainId = m_pOwnedGameObjectsVec.back().get()->GetId();
-    auto ChunkHash = SPosition2DHash<Definitions::c_ChunkSize>(m_pOwnedGameObjectsVec.back()->GetScenePose()->Position);
-    if (m_pTerrainChunkReferencesByChunk.count(ChunkHash) == 0)
+    auto ChunkHash = SPosition2DHash<Definitions::c_TerrainChunkSize>(m_pOwnedGameObjectsVec.back()->GetScenePose()->Position);
+    if (m_pTerrainChunkReferencesByTerrainChunk.count(ChunkHash) == 0)
     {
-        m_pTerrainChunkReferencesByChunk.insert( {ChunkHash, pTerrainChunk} );
+        m_pTerrainChunkReferencesByTerrainChunk.insert( {ChunkHash, pTerrainChunk} );
     }
     else
     {
@@ -25,34 +25,34 @@ inline DendyEngine::Components::STerrainChunk* CScene::GetTerrainChunkAtScenePos
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    SPosition2DHash<Definitions::c_ChunkSize> ChunkHash = SPosition2DHash<Definitions::c_ChunkSize>(scenePosition);
+    SPosition2DHash<Definitions::c_TerrainChunkSize> ChunkHash = SPosition2DHash<Definitions::c_TerrainChunkSize>(scenePosition);
 
-    if (m_pTerrainChunkReferencesByChunk.count(ChunkHash) == 0)
+    if (m_pTerrainChunkReferencesByTerrainChunk.count(ChunkHash) == 0)
     {
         LOG_CRITICAL_ERROR("No Terrain Chunk at position ["+std::to_string(scenePosition.x)+","+std::to_string(scenePosition.y)+"]");
     }
 
     LOG_CALLSTACK_POP();
-    return m_pTerrainChunkReferencesByChunk.at(ChunkHash);
+    return m_pTerrainChunkReferencesByTerrainChunk.at(ChunkHash);
 }
 
 inline std::unordered_set<DendyEngine::Components::STerrainChunk*> CScene::GetTerrainChunksSetNearScenePosition(glm::vec2 const& scenePosition)
 {
     LOG_CALLSTACK_PUSH(__FILE__,__LINE__,__PRETTY_FUNCTION__);
 
-    SPosition2DHash<Definitions::c_ChunkSize> ChunkHash = SPosition2DHash<Definitions::c_ChunkSize>(scenePosition);
+    SPosition2DHash<Definitions::c_TerrainChunkSize> ChunkHash = SPosition2DHash<Definitions::c_TerrainChunkSize>(scenePosition);
 
     std::unordered_set<Components::STerrainChunk*> Result;
     for (int x=-1; x<2; x++)
     {
         for (int y=-1; y<2; y++)
         {
-            SPosition2DHash<Definitions::c_ChunkSize> ChunkHashNeighboors = SPosition2DHash<Definitions::c_ChunkSize>(ChunkHash);
+            SPosition2DHash<Definitions::c_TerrainChunkSize> ChunkHashNeighboors = SPosition2DHash<Definitions::c_TerrainChunkSize>(ChunkHash);
             ChunkHashNeighboors.x += x;
             ChunkHashNeighboors.y += y;
-            if (m_pTerrainChunkReferencesByChunk.count(ChunkHashNeighboors) > 0)
+            if (m_pTerrainChunkReferencesByTerrainChunk.count(ChunkHashNeighboors) > 0)
             {
-                auto pTerrainChunk = m_pTerrainChunkReferencesByChunk.at(ChunkHashNeighboors);
+                auto pTerrainChunk = m_pTerrainChunkReferencesByTerrainChunk.at(ChunkHashNeighboors);
                 Result.insert(pTerrainChunk);
             }
         }
