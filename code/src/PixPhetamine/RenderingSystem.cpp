@@ -127,6 +127,7 @@ m_IsRunning(true)
     m_MeshNamesVec.push_back("human");
     m_MeshNamesVec.push_back("hata");
     m_MeshNamesVec.push_back("sich");
+    m_MeshNamesVec.push_back("kvitka");
     //m_MeshNamesVec.push_back("sphere");
     /* =========================================== */
 

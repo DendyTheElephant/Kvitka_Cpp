@@ -121,14 +121,15 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Kvitka",{0,0});
         pGameObject->AddComponent<DendyEngine::Components::SVisibility>();
-        Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
+        Components::SStaticMesh* pMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
         Components::SWalkingCharacter* pWalkingCharacter = pGameObject->AddComponent<DendyEngine::Components::SWalkingCharacter>();
         pGameObject->AddComponent<DendyEngine::Components::SMovementTarget>();
-        
 
-        pWalkingCharacter->IsSprinting = true;
-        pKossack->Color = {0.6f,0.0f,0.0f};
+        pWalkingCharacter->Acceleration *= 2.0f;
+        pWalkingCharacter->MaxVelocity *= 4.0f;
+        pMesh->Color = {0.6f,0.0f,0.0f};
+        pMesh->MeshName = "kvitka";
 
         m_pKvitka = pGameObject;
     }
@@ -157,27 +158,30 @@ void DendyEngine::CEngineCore::_InitialiseGameObjects()
     }
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("KossackBlue",{8,-14});
-        Components::SVision* pVision = pGameObject->AddComponent<DendyEngine::Components::SVision>();
+        pGameObject->AddComponent<DendyEngine::Components::SVision>();
         Components::SKossack* pKossack = pGameObject->AddComponent<DendyEngine::Components::SKossack>();
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
 
         pKossack->Color = {0,0,1};
-        pVision->Radius = 9.0f;
     }
 
 
 
     // Create static meshes
+
+    // Hata
     {
-        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Hata001",{10,-15},{1,0});
+        CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Hata001",{15,-15},{1,0});
         auto pStaticMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
         auto pCollider = pGameObject->AddComponent<DendyEngine::Components::SCollider>();
         pGameObject->AddComponent<DendyEngine::Components::STransform>();
 
         pStaticMesh->MeshName = "hata";
         pStaticMesh->Color = {1.0f, 1.0f, 1.0f};
-        pCollider->PositionsVec = {{9,-18},{9,-12},{11,-12},{11,-18}};
+        pCollider->PositionsVec = {{12,-21},{12,-9},{18,-9},{18,-21}};
     }
+
+    // Sich
     {
         CGameObject* pGameObject = m_pOwnedScene->AddGameObject("Sich001",{-8,-10});
         Components::SStaticMesh* pStaticMesh = pGameObject->AddComponent<DendyEngine::Components::SStaticMesh>();
@@ -216,7 +220,8 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         m_pOwnedRenderingSystem->ReloadShaders();
     }
 
-
+    glm::vec2 TargetForYellowKossack{0,0};
+    bool OrderMoveForYellowKossack{false};
     // Player movements with inputs
     {
         glm::vec2 LeftStickValue = m_pOwnedInputHandler->GetLeftStickValue();
@@ -229,6 +234,23 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
         else
         {
             m_pKvitka->GetComponent<Components::SMovementTarget>()->MovementType = Components::SMovementTarget::EMovementTargetType::None;
+        }
+
+        if (m_pOwnedInputHandler->GetKeySpaceReleased())
+        {
+            TargetForYellowKossack = m_pKvitka->GetScenePosition();
+            OrderMoveForYellowKossack = true;
+        }
+    }
+    if (OrderMoveForYellowKossack)
+    {
+        for (auto pGameObject : m_pOwnedScene->GetGameObjectsSetWithComponents<Components::SKossack>())
+        {
+            if (pGameObject->GetName() == "KossackYellow")
+            {
+                pGameObject->GetComponent<Components::SMovementTarget>()->MovementType = Components::SMovementTarget::EMovementTargetType::ReachPosition;
+                pGameObject->GetComponent<Components::SMovementTarget>()->TargetPosition = TargetForYellowKossack;
+            }
         }
     }
 
@@ -244,6 +266,8 @@ void DendyEngine::CEngineCore::Update(float deltaTime)
             auto pTerrainChunk = m_pOwnedScene->GetTerrainChunkAtScenePosition(pVisibleGameObject->GetScenePosition());
             glm::vec3 WorldPosition = m_pOwnedTerrainSystem->GetWorldPositionFromScenePosition(pTerrainChunk, pVisibleGameObject->GetScenePosition());
             WorldPosition.y += 1.75f;
+            if (pVisibleGameObject->GetId() == m_pKvitka->GetId())
+                WorldPosition.y += 1.75f;
             glm::mat4 TranslateMatrix = glm::translate(glm::mat4{1}, WorldPosition);
             glm::mat4 ScaleMatrix = glm::scale(glm::mat4{1}, {0.3f, 0.3f, 0.3f});
             glm::mat4 TransformMatrix = TranslateMatrix * ScaleMatrix;

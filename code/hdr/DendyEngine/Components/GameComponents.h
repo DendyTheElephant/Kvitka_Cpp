@@ -70,7 +70,7 @@ struct SWalkingCharacter : CGameComponent<SWalkingCharacter,EGameComponentType::
 
 struct SVision : CGameComponent<SVision,EGameComponentType::Vision>
 {
-    float Radius{9.0f};
+    float Radius{20.0f};
     float AngleInDegrees{180.0};
     std::vector<CGameObject*> VisibleGameObjectsVec;
 };

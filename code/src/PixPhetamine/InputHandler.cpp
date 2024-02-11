@@ -247,6 +247,17 @@ void PixPhetamine::CInputHandler::UpdateInputs()
         m_KeyEscape = false;
     }
 
+    m_KeySpaceReleased = false;
+    if (glfwGetKey(m_pMainWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        m_KeySpace = true;
+    }
+    else if (glfwGetKey(m_pMainWindow, GLFW_KEY_SPACE) == GLFW_RELEASE)
+    {
+        if (m_KeySpace)
+            m_KeySpaceReleased = true;
+        m_KeySpace = false;
+    }
 
 
     _UpdateGamepads();

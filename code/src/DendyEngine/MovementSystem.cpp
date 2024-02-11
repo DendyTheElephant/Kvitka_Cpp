@@ -23,7 +23,6 @@ void DendyEngine::CMovementSystem::UpdatePositionOfMovingGameObject(CGameObject*
         pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
 
         NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->Velocity * deltaTime;
-        std::cout << pWalkingCharacter->Velocity << std::endl;
 
         pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
         pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
@@ -31,6 +30,36 @@ void DendyEngine::CMovementSystem::UpdatePositionOfMovingGameObject(CGameObject*
         m_pScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
         break;
     case Components::SMovementTarget::EMovementTargetType::ReachPosition:
+        if (DendyCommon::Math::FastCompareDistance(pPose->Position, pMovementTarget->TargetPosition, pMovementTarget->ArrivalAtPositionEpsilon) > 0)
+        {
+            // Deccel ?
+            float DistanceToStop = pWalkingCharacter->Velocity*pWalkingCharacter->Velocity / (2.0f*pWalkingCharacter->Acceleration) - pWalkingCharacter->Velocity/2.0f;
+            if (DendyCommon::Math::FastCompareDistance(pPose->Position, pMovementTarget->TargetPosition, DistanceToStop) <= 0)
+            {
+                pWalkingCharacter->Velocity -= pWalkingCharacter->Acceleration * deltaTime * 0.5f;
+                pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
+
+                NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->Velocity * deltaTime;
+
+                pWalkingCharacter->Velocity -= pWalkingCharacter->Acceleration * deltaTime * 0.5f;
+                pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
+
+                m_pScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
+            }
+            else
+            {
+                pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
+                pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
+
+                NewPosition = pPose->Position + pPose->Orientation * pWalkingCharacter->Velocity * deltaTime;
+
+                pWalkingCharacter->Velocity += pWalkingCharacter->Acceleration * deltaTime * 0.5f;
+                pWalkingCharacter->Velocity = glm::clamp(pWalkingCharacter->Velocity, 0.0f, pWalkingCharacter->MaxVelocity);
+
+                m_pScene->UpdateGameObjectScenePosition(pGameObject, NewPosition);
+            }
+        }
+
         //if (DendyCommon::Math::FastCompareMagnitude())
         break;
     case Components::SMovementTarget::EMovementTargetType::LookAtOrientation:

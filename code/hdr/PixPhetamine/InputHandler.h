@@ -23,8 +23,10 @@ private:
     //bool m_IsZoomValueChanged{false};
     bool m_KeyR{false};
     bool m_KeyEscape{false};
+    bool m_KeySpace{false};
     bool m_KeyRReleased{false};
     bool m_KeyEscapeReleased{false};
+    bool m_KeySpaceReleased{false};
     float m_ZoomValue{0.0f};
 
 private:
@@ -41,6 +43,7 @@ public:
     inline float GetZoomValue() const { return m_ZoomValue; }
     inline bool GetKeyRReleased() const {return m_KeyRReleased;}
     inline bool GetKeyEscapeReleased() const {return m_KeyEscapeReleased;}
+    inline bool GetKeySpaceReleased() const {return m_KeySpaceReleased;}
 };
 
 }
